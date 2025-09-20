@@ -6,6 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-141734189-6"></script>
+<script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
 

@@ -1,6 +1,6 @@
 @extends('layouts.my_app')
 @section('title')
-    Student portal
+    Admin portal
 @endsection
 @section('content')
     <h2>lumbasi</h2>
