@@ -26,7 +26,7 @@ Route::post('/attachment-form', [StudentController::class, 'storeAttachmentForm'
 Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
 
 // View all logbook entries
-Route::get('/logbook/entries', [LogbookController::class, 'index'])->name('logbook.index');
+Route::get('/logbook/entries', [LogbookController::class, 'index'])->name('student.logbook.index');
 
 Route::get('/calendar', [CalenderController::class, 'index'])->name('cal.index');
 Route::post('/calendar/store', [CalenderController::class, 'store'])->name('cal.store');
