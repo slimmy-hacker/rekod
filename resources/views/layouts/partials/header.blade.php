@@ -8,7 +8,7 @@
                 </button>
                 <a href="/" class="text-xl font-bold flex items-center lg:ml-2.5">
                     <img src="https://themewagon.github.io/windster/images/logo.svg" class="h-6 mr-2" alt="Dekut Logo">
-                    <span class="self-center whitespace-nowrap">Attarchment Management System</span>
+                    <span class="self-center whitespace-nowrap">Dekut External Attachment Management System</span>
                 </a>
                 <form action="#" method="GET" class="hidden lg:block lg:pl-32">
                     <label for="topbar-search" class="sr-only">Search</label>
@@ -29,7 +29,7 @@
                 </button>
                 <span>{{\Illuminate\Support\Facades\Auth::user()->role}} Portal</span>
                 <div class="hidden lg:flex items-center">
-                    <span class="text-base font-normal text-gray-500 mr-5">Open source ❤️</span>
+                    <span class="text-base font-normal text-gray-500 mr-5">Open source </span>
                     <div class="-mb-1">
                         <a class="github-button" href="#" data-color-scheme="no-preference: dark; light: light; dark: light;" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star themesberg/windster-tailwind-css-dashboard on GitHub">Star</a>
                     </div>

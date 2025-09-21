@@ -3,6 +3,8 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\Admin\AttarchmentScheduleController;
 use App\Http\Controllers\AttachmentSchoolSupervisorController;
 use App\Http\Controllers\AttachmentStudentController;
+use App\Http\Controllers\AdminController;
+
 use Illuminate\Support\Facades\Route;
 
 
@@ -22,3 +24,8 @@ Route::post('attachment-schedules-supervisors/upload', [AttachmentSchoolSupervis
 Route::get('attarchment-schedules-students/index', [AttachmentStudentController::class, 'index'])->name('admin.attachment_student.index');
 
 Route::post('attachment-schedules-students/upload', [AttachmentStudentController::class, 'upload'])->name('admin.attachment_student.upload');
+Route::get('budgets', [AdminController::class, 'budgets'])->name('admin.budgets');
+Route::post('budgets', [AdminController::class, 'storeBudget'])->name('admin.budgets.store');
+
+Route::get('budgets/{id}', [AdminController::class, 'showBudget'])
+    ->name('admin.budgets.show');

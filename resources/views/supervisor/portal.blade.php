@@ -3,5 +3,5 @@
     Supervisor portal
 @endsection
 @section('content')
-    <h3>supervidor</h3>
+    <h3>supervisor</h3>
 @endsection

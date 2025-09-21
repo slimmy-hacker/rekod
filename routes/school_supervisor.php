@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\SupervisorController;
 
 Route::get('portal', function () {
     return view('supervisor.portal');

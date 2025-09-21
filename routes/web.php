@@ -7,7 +7,6 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LogbookController;
-use App\Http\Controllers\SupervisorController;
 use App\Http\Controllers\CalenderController;
 use App\Http\Controllers\IndurstrialSupervisorApprovalController;
 use Illuminate\Support\Facades\Auth;
