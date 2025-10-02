@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AttachmentSchoolSupervisor;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Yajra\DataTables\Facades\DataTables;
+
 
 class StudentController extends Controller
 {
@@ -103,10 +107,41 @@ class StudentController extends Controller
         ];
     }
 
-    public function companies()
+    private function getSubCounties(): array
     {
+        return [
+            ['code' => '0011', 'name' => 'Changamwe',   'county_code' => '001'],
+            ['code' => '0012', 'name' => 'Jomvu',       'county_code' => '001'],
+            ['code' => '0013', 'name' => 'Kisauni',     'county_code' => '001'],
+            ['code' => '0021', 'name' => 'Msambweni',   'county_code' => '002'],
+            ['code' => '0022', 'name' => 'Matuga',      'county_code' => '002'],
+            ['code' => '0031', 'name' => 'Kilifi North','county_code' => '003'],
+            // ...
+            ['code' => '999', 'name' => 'Diaspora', 'county_code' => '999'], // Special
+        ];
+    }
+
+    public function companies(Request $request)
+    {
+        if ($request->ajax()) {
+            $data = AttachmentSchoolSupervisor::with(['schedule', 'department'])->latest()->get();
+
+            return DataTables::of($data)
+                ->addIndexColumn() // adds DT_RowIndex
+                ->addColumn('name', fn ($row) => $row->schedule->slug ?? '-')
+                ->addColumn('attachment', fn ($row) => $row->schedule->slug ?? '-')
+                ->addColumn('department', fn ($row) => $row->department->slug ?? '-')
+                ->addColumn('students', fn ($row) => $row->department->slug ?? 0)
+                ->addColumn('action', function ($row) {
+                    return '<button class="btn btn-sm btn-danger delete" data-id="'.$row->id.'">Delete</button>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
         $counties = $this->getCounties();
-        return view('student.companies', compact('counties'));
+        $sub_counties = $this->getSubCounties();
+        return view('student.companies', compact('counties',  'sub_counties'));
     }
 
     public function storeCompany(Request $request)
@@ -122,13 +157,15 @@ class StudentController extends Controller
             'county'    => ['required', Rule::in($validCountyCodes)],
         ]);
 
-        // Company::create($validated); // if you have a model
+         Company::create($validated); // if you have a model
 
-        return redirect()->route('student.companies')
-            ->with('success', 'Company submitted successfully!');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Company Created successfully',
+
+        ]);
     }
 
     // ...
 }
 
- 

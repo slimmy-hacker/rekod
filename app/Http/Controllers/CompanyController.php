@@ -3,21 +3,21 @@
 namespace App\Http\Controllers;
 use App\Models\Student;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Opportunity; 
+use App\Models\Opportunity;
 
 
 use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {
-  
+
     public function portal()
     {
         return view('company.portal');
     }
 
 
-      
+
     public function students()
     {
         // Get logged-in company
@@ -31,7 +31,7 @@ class CompanyController extends Controller
         return view('company.students', compact('students'));
     }
 
-    
+
 
 public function opportunities()
 {
@@ -103,5 +103,7 @@ public function applications(Opportunity $opportunity)
     $applications = $opportunity->applications;
     return view('company.opportunities.applications', compact('opportunity', 'applications'));
 }
+
+
 
 }
