@@ -53,4 +53,15 @@ public function isAdmin()
     {
         return $this->hasMany(WeeklyReport::class);
     }
+    public function placements()
+{
+    return $this->hasMany(Placement::class, 'company_id');
+}
+public function assignedStudents()
+{
+    return $this->hasMany(User::class, 'supervisor_id')
+                ->where('role', 'student');
+}
+
+
 }

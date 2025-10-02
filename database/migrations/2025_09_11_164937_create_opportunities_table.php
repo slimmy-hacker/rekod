@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('opportunities', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('industry_id'); 
+            $table->unsignedBigInteger('industry_id')->nullable();
             $table->string('title');
             $table->text('description');
             $table->string('location')->nullable();

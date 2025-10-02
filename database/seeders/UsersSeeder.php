@@ -49,9 +49,10 @@ class UsersSeeder extends Seeder
 
         foreach ($users as $user) {
             User::updateOrCreate(
-                ['email' => $user['email']], // prevent duplicates
+                ['email' => $user['email']],
                 $user
             );
         }
     }
 }
+

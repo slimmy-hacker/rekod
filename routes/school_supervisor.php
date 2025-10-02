@@ -8,8 +8,9 @@ Route::get('portal', function () {
 })->name('school_supervisor.portal');
 
 Route::name('supervisor.')->group(function () {
-    Route::get('/students-assigned', [SupervisorController::class, 'studentsAssigned'])
+   Route::get('/students-assigned', [SupervisorController::class, 'studentsAssigned'])
         ->name('students-assigned');
+
 
     Route::get('/reports', [SupervisorController::class, 'reports'])
         ->name('reports');

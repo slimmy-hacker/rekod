@@ -1,6 +1,6 @@
 @extends('layouts.my_app')
 
-@section('title', 'Company Details - Student Portal')
+@section('title', 'Company Details ')
 
 @section('content')
 <div class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
@@ -23,10 +23,10 @@
         </div>
 
         <div>
-            <label for="shortform" class="block font-semibold">Company Shortform</label>
-            <input type="text" name="shortform" id="shortform" value="{{ old('shortform') }}"
+            <label for="alias" class="block font-semibold">Company Alias</label>
+            <input type="text" name="alias" id="alias" value="{{ old('alias') }}"
                    class="w-full border rounded p-2" required>
-            @error('shortform') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
+            @error('alias') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
         </div>
 
         <div>

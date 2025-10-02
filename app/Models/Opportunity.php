@@ -23,4 +23,8 @@ class Opportunity extends Model
     {
         return $this->hasMany(Application::class);
     }
+     public function industry()
+    {
+        return $this->belongsTo(User::class, 'industry_id');
+    }
 }
