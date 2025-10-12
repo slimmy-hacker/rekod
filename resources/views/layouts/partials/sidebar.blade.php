@@ -14,8 +14,11 @@
                             </div>
                         </form>
                     </li>
-                    @include('layouts.partials.sidebar_links.' . Auth::user()->role)
+                    
 
+                 @if(Auth::check() && Auth::user()->role)
+    @include('layouts.partials.sidebar_links.' . Auth::user()->role)
+@endif
 
                 </ul>
                 <div class="absolute space-y-2 pt-2 bottom-0 m-6 p-2">

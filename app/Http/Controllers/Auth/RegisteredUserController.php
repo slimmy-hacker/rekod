@@ -15,7 +15,7 @@ use Illuminate\View\View;
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the registration view.
+     * Display the default registration view.
      */
     public function create(): View
     {
@@ -23,15 +23,13 @@ class RegisteredUserController extends Controller
     }
 
     /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Handle an incoming registration request (default Breeze form).
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -42,9 +40,46 @@ class RegisteredUserController extends Controller
         ]);
 
         event(new Registered($user));
-
         Auth::login($user);
 
         return redirect(route('dashboard', absolute: false));
+    }
+
+    /**
+     * ✅ Show the registration form for a specific portal.
+     */
+    public function showPortalForm($portal): View
+    {
+        $validPortals = ['student', 'supervisor', 'industry', 'company'];
+
+        if (!in_array($portal, $validPortals)) {
+            abort(404);
+        }
+
+        return view('auth.register', compact('portal'));
+    }
+
+    /**
+     * ✅ Handle registration for specific portals.
+     */
+    public function storePortal(Request $request, $portal): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        // Create the user (you can extend this to store portal-specific data)
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        event(new Registered($user));
+
+        // Redirect to login instead of auto-login
+        return redirect()->route('login')->with('success', ucfirst($portal) . ' registered successfully!');
     }
 }

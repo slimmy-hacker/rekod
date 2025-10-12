@@ -1,93 +1,132 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ ucfirst($portal) }} Registration</title>
-</head>
-<body>
-    <h2>Register as {{ ucfirst($portal) }}</h2>
+{{-- resources/views/auth/register-portal.blade.php --}}
+@extends('layouts.my_app')
 
-    <form method="POST" action="{{ route('register.portal.store', ['portal' => $portal]) }}">
-    
-        @csrf
+@section('title', ucfirst($portal) . ' Registration')
 
-        {{-- Common Fields --}}
-        <div>
-            <label>Name</label>
-            <input type="text" name="name" value="{{ old('name') }}" required>
-        </div>
+@section('content')
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
+        <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">
+            Register as {{ ucfirst($portal) }}
+        </h2>
 
-        <div>
-            <label>Email</label>
-            <input type="email" name="email" value="{{ old('email') }}" required>
-        </div>
-
-        {{-- Student Fields --}}
-        @if($portal === 'student')
-            <div>
-                <label>Registration Number</label>
-                <input type="text" name="registration_number" value="{{ old('registration_number') }}" required>
-            </div>
-            <div>
-                <label>Course</label>
-                <input type="text" name="course" value="{{ old('course') }}" required>
-            </div>
-            <div>
-                <label>Telephone</label>
-                <input type="text" name="telephone" value="{{ old('telephone') }}" required>
+        {{-- Validation Errors --}}
+        @if ($errors->any())
+            <div class="mb-4 bg-red-100 text-red-700 p-3 rounded-lg text-sm">
+                <ul class="list-disc pl-5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
 
-        {{-- Supervisor Fields --}}
-        @if($portal === 'supervisor')
-            <div>
-                <label>Staff Number</label>
-                <input type="text" name="staff_number" value="{{ old('staff_number') }}" required>
-            </div>
-            <div>
-                <label>Grade</label>
-                <input type="text" name="grade" value="{{ old('grade') }}" required>
-            </div>
-            <div>
-                <label>Telephone</label>
-                <input type="text" name="telephone" value="{{ old('telephone') }}" required>
-            </div>
-        @endif
+        <form method="POST" action="{{ route('register.portal.store', ['portal' => $portal]) }}" class="space-y-4">
+            @csrf
 
-        {{-- Industry Fields --}}
-        @if($portal === 'industry')
+            {{-- Common Fields --}}
             <div>
-                <label>Student Name</label>
-                <input type="text" name="student_name" value="{{ old('student_name') }}" required>
+                <label class="block text-sm font-medium text-gray-700">Name</label>
+                <input type="text" name="name" value="{{ old('name') }}" required
+                       class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2">
             </div>
-            <div>
-                <label>Role in Company</label>
-                <input type="text" name="role" value="{{ old('role') }}" required>
-            </div>
-            <div>
-                <label>Telephone</label>
-                <input type="text" name="telephone" value="{{ old('telephone') }}" required>
-            </div>
-        @endif
 
-        {{-- Admin Fields --}}
-        @if($portal === 'admin')
             <div>
-                <label>Telephone</label>
-                <input type="text" name="telephone" value="{{ old('telephone') }}" required>
+                <label class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" name="email" value="{{ old('email') }}" required
+                       class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2">
             </div>
-        @endif
 
-        {{-- Password --}}
-        <div>
-            <label>Password</label>
-            <input type="password" name="password" required>
-        </div>
-        <div>
-            <label>Confirm Password</label>
-            <input type="password" name="password_confirmation" required>
-        </div>
+            {{-- Student Fields --}}
+            @if($portal === 'student')
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Registration Number</label>
+                    <input type="text" name="registration_number" value="{{ old('registration_number') }}" required
+                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Course</label>
+                    <input type="text" name="course" value="{{ old('course') }}" required
+                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Telephone</label>
+                    <input type="text" name="telephone" value="{{ old('telephone') }}" required
+                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
+                </div>
+            @endif
 
-        <button type="submit">Register</button>
-    </form>
-</body>
-</html>
+            {{-- Supervisor Fields --}}
+            @if($portal === 'supervisor')
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Staff Number</label>
+                    <input type="text" name="staff_number" value="{{ old('staff_number') }}" required
+                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Grade</label>
+                    <input type="text" name="grade" value="{{ old('grade') }}" required
+                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Telephone</label>
+                    <input type="text" name="telephone" value="{{ old('telephone') }}" required
+                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
+                </div>
+            @endif
+
+            {{-- Industry Fields --}}
+            @if($portal === 'industry')
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Student Name</label>
+                    <input type="text" name="student_name" value="{{ old('student_name') }}" required
+                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Role in Company</label>
+                    <input type="text" name="role" value="{{ old('role') }}" required
+                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Telephone</label>
+                    <input type="text" name="telephone" value="{{ old('telephone') }}" required
+                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
+                </div>
+            @endif
+
+            {{-- Admin Fields --}}
+            @if($portal === 'admin')
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Telephone</label>
+                    <input type="text" name="telephone" value="{{ old('telephone') }}" required
+                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
+                </div>
+            @endif
+
+            {{-- Password --}}
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" name="password" required
+                       class="mt-1 w-full border-gray-300 rounded-lg p-2">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                <input type="password" name="password_confirmation" required
+                       class="mt-1 w-full border-gray-300 rounded-lg p-2">
+            </div>
+
+            {{-- Submit --}}
+            <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition">
+                Register
+            </button>
+
+            <p class="text-sm text-center text-gray-600 mt-4">
+                Already registered? 
+                <a href="{{ route('login') }}" class="text-blue-600 hover:underline">Login</a>
+            </p>
+        </form>
+    </div>
+</div>
+@endsection

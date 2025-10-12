@@ -44,9 +44,11 @@
             </button>
 
             <p class="text-center text-sm text-gray-600 mt-4">
-                Don’t have an account?
-                <a href="#" class="text-blue-600 hover:underline">Register here</a>
-            </p>
+    Don’t have an account?
+    <a href="{{ route('register.select.portal') }}" class="text-blue-600 hover:underline">
+        Register here
+    </a>
+</p>
         </form>
     </div>
 </body>
