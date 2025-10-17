@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', function () {
-    if(Auth::user()->role){
-        return redirect()->route(Auth::user()->role.'.portal');
+    if (Auth::check() && Auth::user()->role) {
+        return redirect()->route(Auth::user()->role . '.portal');
     }
     return view('welcome');
 })->name('welcome');
