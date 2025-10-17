@@ -14,7 +14,7 @@
   Make sure "npm run dev" (for development)
   or "npm run build" (for production) is running
 ----------------------------------}}
-@vite(['resources/css/app.css', 'resources/js/app.js'])
+
 
 {{-- -------------------------------
   External Libraries (optional)

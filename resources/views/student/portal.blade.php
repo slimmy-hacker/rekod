@@ -3,5 +3,5 @@
     Student portal
 @endsection
 @section('content')
-        lumbasi
+       Home
 @endsection

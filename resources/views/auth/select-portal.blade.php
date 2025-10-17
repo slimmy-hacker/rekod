@@ -1,4 +1,4 @@
-@extends('layouts.my_app')
+@extends('layouts.guest')
 
 @section('title', 'Select Portal')
 
@@ -16,7 +16,7 @@
         </div>
 
         <p class="text-gray-600 text-sm mt-6">
-            Already have an account? 
+            Already have an account?
             <a href="{{ route('login') }}" class="text-blue-600 hover:underline">Login</a>
         </p>
     </div>

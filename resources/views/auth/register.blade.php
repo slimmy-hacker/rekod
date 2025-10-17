@@ -1,5 +1,5 @@
 {{-- resources/views/auth/register-portal.blade.php --}}
-@extends('layouts.my_app')
+@extends('layouts.guest')
 
 @section('title', ucfirst($portal) . ' Registration')
 
@@ -123,7 +123,7 @@
             </button>
 
             <p class="text-sm text-center text-gray-600 mt-4">
-                Already registered? 
+                Already registered?
                 <a href="{{ route('login') }}" class="text-blue-600 hover:underline">Login</a>
             </p>
         </form>
