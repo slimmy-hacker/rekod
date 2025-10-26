@@ -14,9 +14,10 @@
         </h2>
 
         <!-- Registration Form -->
-        <form method="POST" action="{{ route('register.portal.store', ['portal' => $portal]) }}">
+        <form method="POST" action="{{ route('register.portal.store', ['portal' => 'industrial_supervisor']) }}">
+
             @csrf
-            <input type="hidden" name="portal" value="industry">
+            <input type="hidden" name="portal" value="industrial_supervisor">
 
             <!-- Full Name -->
             <div class="mb-4">

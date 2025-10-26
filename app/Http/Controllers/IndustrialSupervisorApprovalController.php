@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Calender;
-use App\Models\IndurstrialSupervisorApproval;
+use App\Models\IndustrialSupervisorApproval;
 use App\Models\Logbook;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\GenerateWeekNumber;
 
-class IndurstrialSupervisorApprovalController extends Controller
+class IndustrialSupervisorApprovalController extends Controller
 {
     public function index()
     {
@@ -25,7 +25,7 @@ class IndurstrialSupervisorApprovalController extends Controller
                 'week_id'     => 1,
             ];
         });
-        return view('indurstrial_supervisor.index', compact('events' ));
+        return view('industrial_supervisor.index', compact('events' ));
 
     }
     public function store(Request $request)
@@ -43,7 +43,7 @@ class IndurstrialSupervisorApprovalController extends Controller
             $validated['end'] = 1;
 
 
-            $calender = IndurstrialSupervisorApproval::create($validated);
+            $calender = IndustrialSupervisorApproval::create($validated);
 
             return response()->json([
                 'status'  => 'success',

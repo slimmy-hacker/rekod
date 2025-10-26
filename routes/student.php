@@ -4,6 +4,7 @@ use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CalenderController;
 use App\Http\Controllers\LogbookController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 
 Route::get('/portal', function () {
     return view('student.portal');
@@ -15,6 +16,8 @@ Route::get('/attachment-form', [StudentController::class, 'showAttachmentForm'])
 
 Route::post('/attachment-form', [StudentController::class, 'storeAttachmentForm'])
 ->name('attachment-form.store');
+Route::post('/register/student', [RegisteredUserController::class, 'student'])
+    ->name('register.student');
     Route::get('/student/attachment-form', [StudentController::class, 'showAttachmentForm'])->name('attachment.form');
     Route::post('/student/attachment-form', [StudentController::class, 'submitAttachmentForm'])->name('attachment.form.submit');
     Route::get('/student/reports', [StudentController::class, 'reports'])->name('reports');

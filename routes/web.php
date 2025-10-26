@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 
 Route::get('/', function () {
@@ -51,4 +52,6 @@ Route::middleware(['portal:admin'])
         Route::get('/test-tailwind', function () {
             return view('test-tailwind');
         });
+        Route::get('/login/{portal}', [AuthenticatedSessionController::class, 'create'])
+    ->name('portal.login');
     });

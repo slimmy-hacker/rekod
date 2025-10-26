@@ -5,7 +5,7 @@ use App\Http\Controllers\SupervisorController;
 
 Route::get('portal', function () {
     return view('supervisor.portal');
-})->name('school_supervisor.portal');
+})->name('supervisor.portal');
 
 Route::name('supervisor.')->group(function () {
    Route::get('/students-assigned', [SupervisorController::class, 'studentsAssigned'])

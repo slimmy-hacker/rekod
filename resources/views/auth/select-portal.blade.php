@@ -12,7 +12,7 @@
             <a href="{{ route('register.portal', 'supervisor') }}" class="bg-green-600 text-white py-2 rounded-lg hover:bg-green-700">👨‍🏫 Supervisor</a>
             <a href="{{ route('register.portal', 'industrial_supervisor') }}" class="bg-yellow-600 text-white py-2 rounded-lg hover:bg-yellow-700">🏭 Industry</a>
             <a href="{{ route('register.portal', 'company') }}" class="bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">🏢 Company</a>
-            <a href="{{ route('register.portal', 'admin') }}" class="bg-red-600 text-white py-2 rounded-lg hover:bg-red-700">🛡️ Admin</a>
+           
         </div>
 
         <p class="text-gray-600 text-sm mt-6">

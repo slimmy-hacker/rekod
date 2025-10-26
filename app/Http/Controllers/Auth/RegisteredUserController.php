@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Student;
+
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,32 +27,34 @@ class RegisteredUserController extends Controller
     /**
      * Handle an incoming registration request (default Breeze form).
      */
-    public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-//dd($request->all());
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+   public function store(Request $request)
+{
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+    ]);
 
-        event(new Registered($user));
-        Auth::login($user);
+    $portal = $request->input('portal'); // get selected portal
 
-        return redirect(route('dashboard', absolute: false));
-    }
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'portal' => $portal, // ✅ store portal
+    ]);
 
+    event(new Registered($user));
+
+    // Redirect user to login page with a success message
+    return redirect()->route('login')->with('status', 'Registration successful! Please log in to your ' . ucfirst($portal) . ' portal.');
+}
     /**
      * ✅ Show the registration form for a specific portal.
      */
     public function showPortalForm($portal): View
     {
-        $validPortals = ['student', 'supervisor', 'industry', 'company'];
+        $validPortals = ['student', 'supervisor', 'industrial_supervisor', 'company','admin'];
 
         if (!in_array($portal, $validPortals)) {
             abort(404);
@@ -62,24 +66,79 @@ class RegisteredUserController extends Controller
     /**
      * ✅ Handle registration for specific portals.
      */
-    public function storePortal(Request $request, $portal): RedirectResponse
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+   public function storePortal(Request $request, $portal): RedirectResponse
+{
+    $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+    ]);
 
-        // Create the user (you can extend this to store portal-specific data)
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => $portal, // ✅ Assign role automatically
+    ]);
 
-        event(new Registered($user));
+    event(new Registered($user));
 
-        // Redirect to login instead of auto-login
-        return redirect()->route('login')->with('success', ucfirst($portal) . ' registered successfully!');
+    Auth::login($user); // ✅ Automatically log them in
+
+    // ✅ Redirect based on role
+    switch ($portal) {
+        case 'student':
+            return redirect()->route('student.portal');
+        case 'supervisor':
+            return redirect()->route('supervisor.portal');
+        case 'industrial_supervisor':
+            return redirect()->route('industrial_supervisor.portal');
+            case 'admin':
+            return redirect()->route('admin.portal');
+        case 'company':
+            return redirect()->route('company.portal');
+        default:
+            return redirect()->route('welcome');
     }
+}
+
+public function student(Request $request): RedirectResponse
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users|unique:students',
+        'registration_number' => 'required|string|max:50|unique:students',
+        'course' => 'required|string|max:100',
+        'telephone' => 'required|string|max:15',
+        'password' => 'required|string|confirmed|min:8',
+    ]);
+
+    // ✅ Create user
+    $user = User::create([
+        'name'     => $request->name,
+        'email'    => $request->email,
+        'password' => Hash::make($request->password),
+    ]);
+
+    // ✅ Create student record
+    Student::create([
+        'user_id'             => $user->id,
+        'name'                => $request->name,
+        'email'               => $request->email,
+        'registration_number' => $request->registration_number,
+        'course'              => $request->course,
+        'telephone'           => $request->telephone,
+    ]);
+
+    // ✅ Fire event
+    event(new Registered($user));
+
+    // ✅ Auto login
+    Auth::login($user);
+
+    // ✅ Redirect to student portal
+    return redirect()->route('student.portal')
+                     ->with('success', 'Student registered successfully!');
+}
+
 }

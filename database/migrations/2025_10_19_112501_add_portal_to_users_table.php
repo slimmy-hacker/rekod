@@ -9,19 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::table('students', function (Blueprint $table) {
-            //
-        });
-    }
+   public function up()
+{
+    Schema::table('users', function (Blueprint $table) {
+        $table->string('portal')->nullable(); // store student, company, supervisor, admin
+    });
+}
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::table('students', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             //
         });
     }

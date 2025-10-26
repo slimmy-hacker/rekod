@@ -76,7 +76,7 @@
             @endif
 
             {{-- Industry Fields --}}
-            @if($portal === 'industry')
+            @if($portal === 'industrial_supervisor')
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Student Name</label>
                     <input type="text" name="student_name" value="{{ old('student_name') }}" required
