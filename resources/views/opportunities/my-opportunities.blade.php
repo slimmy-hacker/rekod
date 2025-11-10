@@ -35,6 +35,7 @@
                             <span class="text-green-600 font-semibold">Active</span>
                         @endif
                     </td>
+                    
                     <td class="border p-2 text-center">
                         <form action="{{ route('opportunities.destroy', $opportunity) }}" method="POST" onsubmit="return confirm('Delete this opportunity?')">
                             @csrf

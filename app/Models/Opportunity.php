@@ -40,6 +40,19 @@ public function getIsExpiredAttribute()
     }
 
     
+public function applicants()
+{
+    return $this->belongsToMany(User::class, 'opportunity_applications', 'opportunity_id', 'user_id')
+                ->withPivot(['cover_letter', 'cv_path', 'applied_at'])
+                ->withTimestamps();
+}
 
-    
+public function applications()
+{
+    return $this->hasMany(\App\Models\Application::class, 'opportunity_id', 'id');
+}
+
+
+ 
+
 }

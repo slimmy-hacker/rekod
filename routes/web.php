@@ -56,3 +56,9 @@ Route::middleware(['portal:admin'])
         Route::get('/login/{portal}', [AuthenticatedSessionController::class, 'create'])
     ->name('portal.login');
     });
+
+    Route::get('/opportunities/{opportunity}/apply', [OpportunityController::class, 'showApplyForm'])->name('opportunities.apply');
+Route::post('/opportunities/{opportunity}/apply', [OpportunityController::class, 'submitApplication'])->name('opportunities.apply');
+Route::post('/opportunities/{opportunity}/apply', [OpportunityController::class, 'submitApplication'])->name('opportunities.apply.submit');
+Route::get('/opportunities/{opportunity}/applications', [OpportunityController::class, 'showApplications']) ->name('opportunities.applications');
+   

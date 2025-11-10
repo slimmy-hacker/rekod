@@ -44,7 +44,7 @@
 
     {{-- Opportunities List --}}
     <div class="grid gap-6">
-        @forelse ($opportunities as $opportunity)
+        @foreach ($opportunities as $opportunity)
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h3 class="text-lg font-bold text-gray-800">{{ $opportunity->title }}</h3>
                 <p class="text-gray-600 mt-2">{{ $opportunity->description }}</p>
@@ -55,10 +55,22 @@
 
                 @if(!$isCompany)
                     <p class="text-sm text-gray-500 mt-1">🏢 Posted by: {{ $opportunity->company->name ?? 'Company' }}</p>
-                @endif
 
-                {{-- Company delete option --}}
-                @if($isCompany)
+                    {{-- Apply button for students only --}}
+                    <form action="{{ route('opportunities.apply', $opportunity->id) }}" method="GET" class="mt-3">
+                        @csrf
+                        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                            Apply
+                        </button>
+                    </form>
+                @else
+                    {{-- View Applications button for companies only --}}
+                    <a href="{{ route('opportunities.applications', ['opportunity' => $opportunity->id]) }}" 
+                       class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mt-3">
+                       View Applications
+                    </a>
+
+                    {{-- Delete option for companies --}}
                     <form action="{{ route('opportunities.destroy', $opportunity) }}" method="POST" class="mt-3">
                         @csrf
                         @method('DELETE')
@@ -68,9 +80,7 @@
                     </form>
                 @endif
             </div>
-        @empty
-            <p class="text-gray-500">No opportunities available at the moment.</p>
-        @endforelse
+        @endforeach
     </div>
 </div>
 @endsection
