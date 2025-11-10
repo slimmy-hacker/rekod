@@ -14,7 +14,7 @@
         </h2>
 
         <!-- Registration Form -->
-        <form method="POST" action="{{ route('register.portal.store', ['portal' => 'industrial_supervisor']) }}">
+       <form method="POST" action="{{ route('register.portal.store', ['portal' => $portal]) }}">
 
             @csrf
             <input type="hidden" name="portal" value="industrial_supervisor">

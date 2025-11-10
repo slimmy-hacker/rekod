@@ -29,3 +29,4 @@ Route::post('budgets', [AdminController::class, 'storeBudget'])->name('admin.bud
 
 Route::get('budgets/{id}', [AdminController::class, 'showBudget'])
     ->name('admin.budgets.show');
+    Route::delete('budgets/{id}', [AdminController::class, 'destroyBudget'])->name('admin.budgets.destroy');

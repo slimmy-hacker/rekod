@@ -10,13 +10,17 @@
         </p>
     </div>
 
-    <!-- Quick Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="p-6 bg-white shadow rounded-lg">
-            <h2 class="text-lg font-semibold text-gray-700">Opportunities</h2>
-            <p class="text-gray-500">Create and manage internship/attachment opportunities.</p>
-            <a href="{{ route('company.opportunities') }}" class="mt-3 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Manage</a>
-        </div>
+    <div class="p-6 bg-white shadow rounded-lg">
+        <h2 class="text-lg font-semibold text-gray-700">Opportunities</h2>
+        <p class="text-gray-500">Create and manage internship/attachment opportunities.</p>
+        <a href="{{ route('opportunities.index') }}" 
+           class="mt-3 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+           Manage
+        </a>
+    </div>
+</div>
+
 
         <div class="p-6 bg-white shadow rounded-lg">
             <h2 class="text-lg font-semibold text-gray-700">Students</h2>
@@ -24,12 +28,7 @@
             <a href="{{ route('company.students') }}" class="mt-3 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">View</a>
         </div>
 
-        <div class="p-6 bg-white shadow rounded-lg">
-            <h2 class="text-lg font-semibold text-gray-700">Documents</h2>
-            <p class="text-gray-500">Upload and manage official documents.</p>
-            <a href="{{ route('company.documents') }}" class="mt-3 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Upload</a>
-        </div>
-    </div>
+        
 
     <!-- More Features -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -6,9 +6,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 
 
 
-Route::post('/register/industrial_supervisor', [RegisteredUserController::class, 'industrial_supervisor'])
-    ->name('register.industrial_supervisor');
-// Industrial Supervisor Portal
+
 Route::get('/portal', function () {
     return view('industry.portal');
 })->name('industrial_supervisor.portal');

@@ -6,7 +6,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-
+use App\Http\Controllers\OpportunityController;
 
 Route::get('/', function () {
     if (Auth::check() && Auth::user()->role) {
@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::middleware(['auth'])->get('/opportunities', [OpportunityController::class, 'index'])->name('opportunities.index');
 
 Route::middleware(['portal:student'])
     ->prefix('students')
@@ -41,11 +42,11 @@ Route::middleware(['portal:admin'])
         })->name('register.select.portal');
 
         Route::get('/register/{portal}', [RegisteredUserController::class, 'showPortalForm'])
-            ->where('portal', 'student|supervisor|industry|company')
+            ->where('portal', 'student|supervisor|industrial_supervisor|company')
             ->name('register.portal');
 
         Route::post('/register/{portal}', [RegisteredUserController::class, 'storePortal'])
-            ->where('portal', 'student|supervisor|industry|company')
+            ->where('portal', 'student|supervisor|industrial_supervisor|company')
             ->name('register.portal.store');
 
         // --- Test route ---

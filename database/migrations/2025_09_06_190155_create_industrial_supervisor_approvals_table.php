@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('indurstrial_supervisor_approvals', function (Blueprint $table) {
+        Schema::create('industrial_supervisor_approvals', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
         });
@@ -22,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('indurstrial_supervisor_approvals');
+        Schema::dropIfExists('industrial_supervisor_approvals');
     }
 };
