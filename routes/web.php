@@ -10,6 +10,7 @@ use App\Http\Controllers\IndurstrialSupervisorController;
 use App\Http\Controllers\CompanyController;
 
 
+use App\Http\Controllers\OpportunityController;
 
 Route::get('/', function () {
     if (Auth::check() && Auth::user()->role) {
@@ -33,6 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::get('get-company-industrial-supervisors/{id}', [IndurstrialSupervisorController::class, 'getCompanyIndustrialSupervisors'])->name('get_company_industrial_supervisors');
 });
 
+Route::middleware(['auth'])->get('/opportunities', [OpportunityController::class, 'index'])->name('opportunities.index');
 
 Route::middleware(['portal:student'])
     ->prefix('students')
@@ -61,7 +63,14 @@ Route::middleware(['portal:admin'])
 
 
         // --- Test route ---
-
+        Route::get('/test-tailwind', function () {
+            return view('test-tailwind');
+        });
         Route::get('/login/{portal}', [AuthenticatedSessionController::class, 'create'])
     ->name('portal.login');
     });
+
+    Route::get('/opportunities/{opportunity}/apply', [OpportunityController::class, 'showApplyForm'])->name('opportunities.apply');
+Route::post('/opportunities/{opportunity}/apply', [OpportunityController::class, 'submitApplication'])->name('opportunities.apply');
+Route::post('/opportunities/{opportunity}/apply', [OpportunityController::class, 'submitApplication'])->name('opportunities.apply.submit');
+Route::get('/opportunities/{opportunity}/applications', [OpportunityController::class, 'showApplications']) ->name('opportunities.applications');

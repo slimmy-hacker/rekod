@@ -42,3 +42,5 @@ Route::get('/lecturers', [LecturerController::class, 'index'])
 
 Route::post('upload-lecturers', [LecturerController::class, 'upload'])
     ->name('admin.lecturers.upload');
+
+    Route::delete('budgets/{id}', [AdminController::class, 'destroyBudget'])->name('admin.budgets.destroy');
