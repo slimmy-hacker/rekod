@@ -14,21 +14,19 @@ class PortalMiddleWare
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, ...$portals)
-    {
-
-        if (Auth::check()) {
-            foreach ($portals as $portal) {
-                if (auth()->user()->role === $portal) {
-                    return $next($request);
-                }
-            }
-
-            return redirect()->route(Auth::user()->role . '.portal');
+   public function handle(Request $request, Closure $next, ...$portals)
+{
+    if (Auth::check()) {
+        if (empty($portals) || in_array(Auth::user()->role, $portals)) {
+            return $next($request);
         }
 
- return redirect()->route('welcome');
+        // optional: deny access to portal not allowed for this role
+        abort(403, 'Unauthorized access to this portal.');
     }
 
+    return redirect()->route('login');
+}
 
 }
+

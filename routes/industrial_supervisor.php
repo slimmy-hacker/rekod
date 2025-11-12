@@ -1,9 +1,19 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\IndurstrialSupervisorApprovalController;
+use App\Http\Controllers\IndustrialSupervisorApprovalController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+
+
+
+
 Route::get('/portal', function () {
-return view('industry.portal');
+    return view('industry.portal');
 })->name('industrial_supervisor.portal');
 
-Route::get('/ind-sup/approval/index', [IndurstrialSupervisorApprovalController::class, 'index'])->name('indur.student.calender');
-Route::post('/ind-sup/approval/store', [IndurstrialSupervisorApprovalController::class, 'store'])->name('in.sup.store');
+// Approvals
+Route::get('/approvals', [IndustrialSupervisorApprovalController::class, 'index'])
+    ->name('industrial_supervisor.approvals.index');
+
+Route::post('/approvals/store', [IndustrialSupervisorApprovalController::class, 'store'])
+    ->name('industrial_supervisor.approvals.store');

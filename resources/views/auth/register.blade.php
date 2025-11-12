@@ -2,17 +2,23 @@
 @extends('layouts.guest')
 
 @section('title', ucfirst($portal) . ' Registration')
-
+@php
+if($portal=='student')
+    $reg_route = route('register.portal.student');
+else{
+    $reg_route = route('register.portal.store', ['portal' => $portal]);
+}
+@endphp
 @section('content')
 <div class="min-h-screen flex items-center justify-center bg-gray-100">
-    <div class="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
-        <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">
+    <div class="bg-white p-8 rounded-2xl shadow-md w-full max-w-md border border-gray-300">
+        <h2 class="text-2xl font-bold text-center mb-6 text-gray-800 border-b pb-3">
             Register as {{ ucfirst($portal) }}
         </h2>
 
         {{-- Validation Errors --}}
         @if ($errors->any())
-            <div class="mb-4 bg-red-100 text-red-700 p-3 rounded-lg text-sm">
+            <div class="mb-4 bg-red-100 text-red-700 p-3 rounded-lg text-sm border border-red-300">
                 <ul class="list-disc pl-5">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -76,7 +82,7 @@
             @endif
 
             {{-- Industry Fields --}}
-            @if($portal === 'industry')
+            @if($portal === 'industrial_supervisor')
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Student Name</label>
                     <input type="text" name="student_name" value="{{ old('student_name') }}" required

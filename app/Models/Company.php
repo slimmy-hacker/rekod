@@ -16,4 +16,9 @@ class Company extends Model
     {
         return $this->belongsTo(Location::class, 'subcounty');
     }
+    public function opportunities()
+{
+    return $this->hasMany(Opportunity::class);
+}
+
 }

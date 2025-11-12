@@ -44,40 +44,61 @@
                         <table class="table-fixed min-w-full divide-y divide-gray-200" id="attarchment_schedules_table">
                             <thead class="bg-gray-100">
                             <tr>
-                                <th scope="col" class="p-4">
-                                    <div class="flex items-center">
+                                <!-- Small # column -->
+                                <th scope="col" class="p-2 w-12">
+                                    <div class="flex items-center justify-center text-xs font-medium text-gray-500 uppercase">
                                         #
                                     </div>
                                 </th>
+
+                                <!-- Name -->
                                 <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
                                     Name
                                 </th>
+
+                                <!-- Alias -->
                                 <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
                                     Alias
                                 </th>
+
+                                <!-- Email with wrap -->
                                 <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                   Email
+                                    <div class="whitespace-normal break-words">
+                                        Email
+                                    </div>
                                 </th>
 
+                                <!-- Contact -->
                                 <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
                                     Contact
                                 </th>
+
+                                <!-- County -->
                                 <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                   County
+                                    County
                                 </th>
+
+                                <!-- Sub County -->
                                 <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
                                     Sub County
                                 </th>
 
+                                <!-- Latitude -->
                                 <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                    Latitude
+                                   Street
                                 </th>
+
+                                <!-- Longitude -->
                                 <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                    Longitude
+                                    Building
                                 </th>
-                                <th scope="col" class="p-4">
-                                    <button type="button" id="open-modal-btn" class="w-1/2 text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium inline-flex items-center justify-center rounded-lg text-sm px-3 py-2 text-center sm:w-auto">
-                                        <svg class="-ml-1 mr-2 h-6 w-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
+
+                                <!-- Add button small column -->
+                                <th scope="col" class="p-4 w-32">
+                                    <button type="button" id="open-modal-btn" class="w-full text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium inline-flex items-center justify-center rounded-lg text-sm px-3 py-2 text-center">
+                                        <svg class="-ml-1 mr-2 h-6 w-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path>
+                                        </svg>
                                         Add
                                     </button>
                                 </th>
@@ -207,6 +228,29 @@
                                     </select>
                                 </div>
                                 <!-- Latitude & Longitude side by side -->
+
+
+                                <div class="grid grid-cols-2 gap-4 col-span-2">
+                                    <div>
+                                        <label for="street" class="block font-semibold required">
+                                            street
+                                            <span class="text-red-600">*</span>
+                                        </label>
+                                        <input type="text" name="street" id="street" value="{{ old('street') }}"
+                                               class="w-full border rounded p-2" required>
+                                        @error('street') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
+                                    </div>
+
+                                    <div>
+                                        <label for="building" class="block font-semibold ">
+                                            Building
+                                            <span class="text-red-600">*</span>
+                                        </label>
+                                        <input type="text" name="building" id="building" value="{{ old('building') }}"
+                                               class="w-full border rounded p-2" required>
+                                        @error('building') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
+                                    </div>
+                                </div>
                                 <div class="grid grid-cols-2 gap-4 col-span-2">
                                     <div>
                                         <label for="latitude" class="block font-semibold">
@@ -226,6 +270,7 @@
                                         @error('longitude') <p class="text-red-600 text-sm">{{ $message }}</p> @enderror
                                     </div>
                                 </div>
+
 
                                 <!-- Use Current Location button -->
                                 <div class="col-span-2">
@@ -276,18 +321,17 @@
                             processing: true,
                             serverSide: true,
                             ordering: false,
-                            ajax: "{{ route('student.companies') }}",
+                            ajax: "{{ route('companies') }}",
                             columns: [
                                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                                 { data: 'name', name: 'name' },
                                 { data: 'alias', name: 'alias' },
                                 { data: 'email', name: 'email' },
-
                                 { data: 'contact', name: 'contact' },
                                 { data: 'county', name: 'county' },
                                 { data: 'subcounty', name: 'subcounty' },
-                                { data: 'latitude', name: 'latitude' },
-                                { data: 'longitude', name: 'longitude' },
+                                { data: 'street', name: 'street' },
+                                { data: 'building', name: 'building' },
                                 { data: 'action', name: 'action', orderable: false, searchable: false }
                             ]
                         });
@@ -298,7 +342,7 @@
                             let formData = new FormData(this);
 
                             $.ajax({
-                                url: "{{ route('student.companies.store') }}", // adjust route name
+                                url: "{{ route('companies.store') }}", // adjust route name
                                 type: "POST",
                                 data: formData,
                                 processData: false,

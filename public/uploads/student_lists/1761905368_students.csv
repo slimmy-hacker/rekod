@@ -1,0 +1,13 @@
+reg_no,attachment_slug,department_slug
+REG001,january,cs
+REG002,february,bbit
+REG003,march,cival
+REG004,april,cs
+REG005,may,bbit
+REG006,june,cival
+REG007,july,cs
+REG008,august,bbit
+REG009,september,cival
+REG010,october,cs
+REG011,november,bbit
+REG012,december,cival

@@ -21,8 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->middleware(['web','portal:admin'])
                ->group(base_path('routes/admin.php'));
           Route::prefix('school-supervisor')
-                ->middleware(['web','portal:school_supervisor'])
-               ->group(base_path('routes/school_supervisor.php'));
+                ->middleware(['web','portal:supervisor'])
+               ->group(base_path('routes/supervisor.php'));
           Route::prefix('industrial-supervisor')
                 ->middleware(['web','portal:industrial_supervisor'])
                ->group(base_path('routes/industrial_supervisor.php'));

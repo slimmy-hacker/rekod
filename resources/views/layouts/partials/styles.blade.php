@@ -28,3 +28,11 @@
     href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.min.css"
     rel="stylesheet"
 />
+
+<style>
+    .required::after {
+        content: " *";
+        color: red;
+        font-weight: bold;
+    }
+</style>

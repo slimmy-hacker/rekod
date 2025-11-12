@@ -15,16 +15,18 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role', 
+        'role',
+            'phone_number',
+        'portal',
     ];
 
-    
+
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    
+
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
@@ -48,7 +50,7 @@ public function isAdmin()
     {
         return $this->role === 'Admin';
     }
-    
+
     public function reports()
     {
         return $this->hasMany(WeeklyReport::class);

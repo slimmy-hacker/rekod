@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('industry_supervisors', function (Blueprint $table) {
+       Schema::create('lecturers', function (Blueprint $table) {
     $table->id();
-    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-    $table->string('company_name');
-    $table->string('position_title');
-    $table->string('phone_alt')->nullable();
+    $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
+    $table->string('staff_number')->unique();
+    $table->string('department');
+    $table->string('office_phone')->unique()->nullable();
+    $table->string('office_location')->nullable();
     $table->timestamps();
 });
 
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('industry_supervisors');
+        Schema::dropIfExists('lecturer_profiles');
     }
 };

@@ -4,6 +4,9 @@ use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CalenderController;
 use App\Http\Controllers\LogbookController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\OpportunityController;
+
 
 Route::get('/portal', function () {
     return view('student.portal');
@@ -15,6 +18,8 @@ Route::get('/attachment-form', [StudentController::class, 'showAttachmentForm'])
 
 Route::post('/attachment-form', [StudentController::class, 'storeAttachmentForm'])
 ->name('attachment-form.store');
+Route::post('/register/student', [RegisteredUserController::class, 'student'])
+    ->name('register.student');
     Route::get('/student/attachment-form', [StudentController::class, 'showAttachmentForm'])->name('attachment.form');
     Route::post('/student/attachment-form', [StudentController::class, 'submitAttachmentForm'])->name('attachment.form.submit');
     Route::get('/student/reports', [StudentController::class, 'reports'])->name('reports');
@@ -22,6 +27,7 @@ Route::post('/attachment-form', [StudentController::class, 'storeAttachmentForm'
     Route::get('/student/results', [StudentController::class, 'results'])->name('results');
      Route::get('/student/companies', [StudentController::class, 'companies'])->name('companies');
     Route::post('/student/companies', [StudentController::class, 'storeCompany'])->name('companies.store');
+
 });
 
 Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
@@ -32,3 +38,8 @@ Route::get('/logbook/entries', [LogbookController::class, 'index'])->name('stude
 Route::get('/calendar', [CalenderController::class, 'index'])->name('cal.index');
 Route::post('/calendar/store', [CalenderController::class, 'store'])->name('cal.store');
 
+Route::get('reports', [StudentController::class, 'reportForm'])->name('student.reports.form');
+Route::post('reports', [StudentController::class, 'storeReport'])->name('student.reports.store');
+Route::get('final-report', [StudentController::class, 'finalReportForm'])->name('student.finalReport.form');
+Route::post('final-report', [StudentController::class, 'storeFinalReport'])->name('student.finalReport.store');
+Route::get('/opportunities', [OpportunityController::class, 'index'])->name('opportunities.index');
