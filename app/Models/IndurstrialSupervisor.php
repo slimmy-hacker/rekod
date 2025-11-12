@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class IndurstrialSupervisor extends Model
 {
-    protected $table = 'industry_supervisors';
+    protected $table = 'industrial_supervisors';
     protected $guarded = [];
 
     public function user()

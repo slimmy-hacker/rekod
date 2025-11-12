@@ -52,7 +52,7 @@ class IndurstrialSupervisorController extends Controller
             'phone_number' => 'nullable|string|max:50|unique:users,phone_number',
             'staff_number' => [
                 'nullable',
-                Rule::unique('industry_supervisors')->where(fn ($query) =>
+                Rule::unique('industrial_supervisors')->where(fn ($query) =>
                 $query->where('company_id', $user_company->id)
                 ),
             ],
