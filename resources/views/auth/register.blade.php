@@ -2,7 +2,13 @@
 @extends('layouts.guest')
 
 @section('title', ucfirst($portal) . ' Registration')
-
+@php
+if($portal=='student')
+    $reg_route = route('register.portal.student');
+else{
+    $reg_route = route('register.portal.store', ['portal' => $portal]);
+}
+@endphp
 @section('content')
 <div class="min-h-screen flex items-center justify-center bg-gray-100">
     <div class="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
@@ -21,7 +27,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('register.portal.store', ['portal' => $portal]) }}" class="space-y-4">
+        <form method="POST" action="{{ $reg_route }}" class="space-y-4">
             @csrf
 
             {{-- Common Fields --}}

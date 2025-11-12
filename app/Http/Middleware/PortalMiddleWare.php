@@ -25,7 +25,7 @@ class PortalMiddleWare
         abort(403, 'Unauthorized access to this portal.');
     }
 
-    return redirect()->route('welcome');
+    return redirect()->route('login');
 }
 
 }

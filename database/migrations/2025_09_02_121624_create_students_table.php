@@ -13,15 +13,14 @@ class CreateStudentsTable extends Migration
     public function up(): void
     {
        Schema::create('students', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-    $table->string('registration_number')->unique();
-    $table->string('programme');
-    $table->string('year_of_study');
-    $table->string('department');
-    $table->string('phone_alt')->nullable();
-    $table->timestamps();
-});
+            $table->id();
+            $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
+            $table->string('reg_no')->unique();
+            $table->string('year_of_study')->nullable();
+            $table->string('programme_slug');
+            $table->string('phone_number')->unique()->nullable();
+            $table->timestamps();
+        });
 
     }
 

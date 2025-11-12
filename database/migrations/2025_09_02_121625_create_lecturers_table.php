@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('lecturer_profiles', function (Blueprint $table) {
+       Schema::create('lecturers', function (Blueprint $table) {
     $table->id();
-    $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+    $table->foreignId('user_id')->unique()->constrained()->cascadeOnDelete();
     $table->string('staff_number')->unique();
     $table->string('department');
-    $table->string('office_phone')->nullable();
+    $table->string('office_phone')->unique()->nullable();
     $table->string('office_location')->nullable();
     $table->timestamps();
 });

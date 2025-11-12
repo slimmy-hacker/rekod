@@ -12,17 +12,23 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('companies', function (Blueprint $table) {
-            $table->id(); 
-            $table->string('name'); 
-
-            $table->decimal('longitude', 10, 7)->nullable(); 
-            $table->decimal('latitude', 10, 7)->nullable();  
-            
-            $table->string('county'); 
-            $table->string('sub_county')->nullable(); 
-            $table->string('ward')->nullable(); 
-
+            $table->id();
+            $table->integer('user_id');
+            $table->string('name')->unique();       // Company Name
+            $table->string('alias')->unique();      // Company Alias
+            $table->string('parent_company')->nullable();     // Company Branch
+            $table->string('address');
+            $table->string('email')->unique();
+            $table->string('contact')->unique();
+            $table->string('county');     // County (dropdown)
+            $table->string('subcounty')->nullable();
+            $table->string('ward')->nullable(); // Subcounty
+            $table->string('street');
+            $table->string('building');
+            $table->decimal('latitude', 10, 7)->nullable();   // Latitude
+            $table->decimal('longitude', 10, 7)->nullable();  // Longitude
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

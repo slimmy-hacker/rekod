@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AttarchmentScheduleController;
 use App\Http\Controllers\AttachmentSchoolSupervisorController;
 use App\Http\Controllers\AttachmentStudentController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\LecturerController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -29,3 +30,15 @@ Route::post('budgets', [AdminController::class, 'storeBudget'])->name('admin.bud
 
 Route::get('budgets/{id}', [AdminController::class, 'showBudget'])
     ->name('admin.budgets.show');
+
+Route::get('students', [StudentController::class, 'index'])
+    ->name('admin.student.index');
+
+Route::post('upload-students', [StudentController::class, 'upload'])
+    ->name('admin.student.upload');
+
+Route::get('/lecturers', [LecturerController::class, 'index'])
+    ->name('admin.lecturers.index');
+
+Route::post('upload-lecturers', [LecturerController::class, 'upload'])
+    ->name('admin.lecturers.upload');
