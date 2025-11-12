@@ -6,6 +6,10 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\IndurstrialSupervisorController;
+use App\Http\Controllers\CompanyController;
+
+
 use App\Http\Controllers\OpportunityController;
 
 Route::get('/', function () {
@@ -23,6 +27,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/companies', [CompanyController::class, 'companies'])->name('companies');
+    Route::post('/companies', [CompanyController::class, 'storeCompany'])->name('companies.store');
+
+    Route::get('get-company-industrial-supervisors/{id}', [IndurstrialSupervisorController::class, 'getCompanyIndustrialSupervisors'])->name('get_company_industrial_supervisors');
 });
 
 Route::middleware(['auth'])->get('/opportunities', [OpportunityController::class, 'index'])->name('opportunities.index');
@@ -42,12 +51,16 @@ Route::middleware(['portal:admin'])
         })->name('register.select.portal');
 
         Route::get('/register/{portal}', [RegisteredUserController::class, 'showPortalForm'])
-            ->where('portal', 'student|supervisor|industrial_supervisor|company')
+            ->where('portal', 'student|supervisor|industry|company')
             ->name('register.portal');
 
+        Route::post('/student/register', [RegisteredUserController::class, 'storeStudent'])
+                        ->name('register.portal.student');
+
         Route::post('/register/{portal}', [RegisteredUserController::class, 'storePortal'])
-            ->where('portal', 'student|supervisor|industrial_supervisor|company')
+            ->where('portal', 'student|supervisor|industry|company')
             ->name('register.portal.store');
+
 
         // --- Test route ---
         Route::get('/test-tailwind', function () {
@@ -61,4 +74,3 @@ Route::middleware(['portal:admin'])
 Route::post('/opportunities/{opportunity}/apply', [OpportunityController::class, 'submitApplication'])->name('opportunities.apply');
 Route::post('/opportunities/{opportunity}/apply', [OpportunityController::class, 'submitApplication'])->name('opportunities.apply.submit');
 Route::get('/opportunities/{opportunity}/applications', [OpportunityController::class, 'showApplications']) ->name('opportunities.applications');
-   

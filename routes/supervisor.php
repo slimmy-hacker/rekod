@@ -1,23 +1,23 @@
 <?php
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\SupervisorController;
+use App\Http\Controllers\LecturerController;
 
 Route::get('portal', function () {
     return view('supervisor.portal');
 })->name('supervisor.portal');
 
 Route::name('supervisor.')->group(function () {
-   Route::get('/students-assigned', [SupervisorController::class, 'studentsAssigned'])
+   Route::get('/students-assigned', [LecturerController::class, 'studentsAssigned'])
         ->name('students-assigned');
 
 
-    Route::get('/reports', [SupervisorController::class, 'reports'])
+    Route::get('/reports', [LecturerController::class, 'reports'])
         ->name('reports');
 
-    Route::get('/logbook', [SupervisorController::class, 'logbook'])
+    Route::get('/logbook', [LecturerController::class, 'logbook'])
         ->name('logbook');
 
-    Route::get('/evaluate', [SupervisorController::class, 'evaluate'])
+    Route::get('/evaluate', [LecturerController::class, 'evaluate'])
         ->name('evaluate');
 });

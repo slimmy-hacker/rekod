@@ -9,17 +9,10 @@ class Student extends Model
 {
     use HasFactory;
 
-   
+
     protected $table = 'students';
 
-    protected $fillable = [
-        'user_id',
-        'registration_number',
-        'programme',
-        'year_of_study',
-        'department',
-        'phone_alt',
-    ];
+    protected $guarded = [];
 
     public function placements()
     {
@@ -29,5 +22,9 @@ class Student extends Model
 {
     return $this->belongsTo(User::class, 'supervisor_id');
 }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
 }
