@@ -26,7 +26,7 @@ class LocationController extends Controller
                 ->make(true);
         }
 
-        return view('admin.locations.index');
+        return view('admin.locations');
     }
 
     // Upload Excel file
