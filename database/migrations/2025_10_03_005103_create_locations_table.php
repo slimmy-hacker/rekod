@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('code');
-            $table->string('parent_id')->nullable();
+            $table->string('parent_code')->nullable();
+            $table->integer('level');
             $table->timestamps();
             $table->softDeletes();
         });

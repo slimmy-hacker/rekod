@@ -233,7 +233,8 @@
                                 timer: 9000,
                                 timerProgressBar: true
                             });
-                        } else {
+                        }
+                        else {
                             Swal.fire({
                                 toast: true,
                                 position: 'top-end',
