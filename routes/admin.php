@@ -6,6 +6,7 @@ use App\Http\Controllers\AttachmentStudentController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LecturerController;
+use App\Http\Controllers\DepartmentController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -47,5 +48,11 @@ Route::get('/lecturers', [LecturerController::class, 'index'])
 
 Route::post('upload-lecturers', [LecturerController::class, 'upload'])
     ->name('admin.lecturers.upload');
+    Route::get('/departments', [DepartmentController::class, 'index'])
+    ->name('admin.departments');
+
+Route::post('upload-departments', [DepartmentController::class, 'upload'])
+    ->name('admin.departments.upload');
 
     Route::delete('budgets/{id}', [AdminController::class, 'destroyBudget'])->name('admin.budgets.destroy');
+
