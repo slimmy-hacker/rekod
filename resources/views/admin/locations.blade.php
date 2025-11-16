@@ -20,10 +20,17 @@
                 <table class="table-fixed min-w-full divide-y divide-gray-200" id="locations_table">
                     <thead class="bg-gray-100">
                         <tr>
+
                             <th class="p-4">#</th>
                             <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
                             <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Parent code</th>
                             <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+
+                            <th class="p-4 w-12">#</th>
+                            <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                            <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+                            <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Parent</th>
+
                             <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Level</th>
                             <th class="p-4">
                                 <button id="open-modal-btn" class="text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium inline-flex items-center justify-center rounded-lg text-sm px-3 py-2">
@@ -85,11 +92,19 @@ $(document).ready(function () {
         ordering: false,
         ajax: "{{ route('admin.locations.index') }}",
         columns: [
+
             { data: 'DT_RowIndex', name: 'DT_RowIndex' },
             { data: 'code', name: 'code' },
             { data: 'parent_code', name: 'parent_code' },
             { data: 'name', name: 'name' },
             { data: 'level', name: 'level' },
+
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', searchable: false },
+            { data: 'name', name: 'name' },
+            { data: 'code', name: 'code' },
+            { data: 'parent_name', name: 'locations.name' },
+            { data: 'level_name', name: 'level_name' },
+
             { data: 'action', name: 'action', orderable: false, searchable: false },
         ]
     });
@@ -114,20 +129,37 @@ $(document).ready(function () {
                     timer: 3000
                 });
                 if (response.status === "success") {
+
                     $("#locationForm")[0].reset();
                     modal.hide();
                     table.ajax.reload(null, false);
                 }
             },
-            error: function () {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'error',
-                    title: 'Upload failed!',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
+            error: function (xhr) {
+                let res = xhr.responseJSON;
+                if (res && res.errors) {
+                    let messages = Object.values(res.errors).flat().join("\n");
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: "Validation failed:\n" + messages,
+                        showConfirmButton: false,
+                        timer: 9000,
+                        timerProgressBar: true
+                    });
+                }
+                else {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: 'Something went wrong',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    });
+                }
             }
         });
     });
