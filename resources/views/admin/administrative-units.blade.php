@@ -1,14 +1,14 @@
 @extends('layouts.my_app')
 
 @section('title')
-   Upload Locations
+   Upload administrative units
 @endsection
 
 @section('content')
 <div class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5">
     <div class="mb-1 w-full">
         <div class="mb-4">
-            <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">All Locations</h1>
+            <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">All Administrative units</h1>
         </div>
     </div>
 </div>
@@ -17,21 +17,14 @@
     <div class="overflow-x-auto">
         <div class="align-middle inline-block min-w-full">
             <div class="shadow overflow-hidden">
-                <table class="table-fixed min-w-full divide-y divide-gray-200" id="locations_table">
+                <table class="table-fixed min-w-full divide-y divide-gray-200" id="administrative_units_table">
                     <thead class="bg-gray-100">
-<<<<<<< HEAD
-  
-                            <th class="p-4 w-12">#</th>
-                            <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                            <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
-              
-=======
-                        <tr>
+                        <tr>  
                             <th class="p-4 w-12">#</th>
                             <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                             <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
                             <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Parent</th>
->>>>>>> eeabcf49eea11f93c231154f3b5393a922c9a347
+
                             <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Level</th>
                             <th class="p-4">
                                 <button id="open-modal-btn" class="text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium inline-flex items-center justify-center rounded-lg text-sm px-3 py-2">
@@ -53,7 +46,7 @@
     <div class="relative w-full max-w-2xl px-4 h-full md:h-auto">
         <div class="bg-white rounded-lg shadow relative">
             <div class="flex items-start justify-between p-5 border-b rounded-t">
-                <h3 class="text-xl font-semibold">Upload Locations</h3>
+                <h3 class="text-xl font-semibold">Upload Administrative units</h3>
                 <button type="button" class="close-modal-btn text-gray-400 hover:bg-gray-200 rounded-lg p-1.5">
                     ✕
                 </button>
@@ -68,7 +61,7 @@
                     </div>
 
                     <div class="items-center p-6 border-t border-gray-200 rounded-b">
-                        <button id="uploadBtn" class="text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="submit">
+                        <button class="text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="submit">
                             Upload
                         </button>
                     </div>
@@ -87,14 +80,12 @@ $(document).ready(function () {
     $('#open-modal-btn').click(() => modal.show());
     $('.close-modal-btn').click(() => modal.hide());
 
-    var table = $("#locations_table").DataTable({
+    var table = $("#administrative_units_table").DataTable({
         processing: true,
         serverSide: true,
         ordering: false,
-        ajax: "{{ route('admin.locations.index') }}",
+        ajax: "{{ route('admin.administrative-units.index') }}",
         columns: [
-<<<<<<< HEAD
-
 
             { data: 'DT_RowIndex', name: 'DT_RowIndex' },
             { data: 'code', name: 'code' },
@@ -102,33 +93,22 @@ $(document).ready(function () {
             { data: 'name', name: 'name' },
             { data: 'level', name: 'level' },
 
-
-=======
->>>>>>> eeabcf49eea11f93c231154f3b5393a922c9a347
             { data: 'DT_RowIndex', name: 'DT_RowIndex', searchable: false },
             { data: 'name', name: 'name' },
             { data: 'code', name: 'code' },
-            { data: 'parent_name', name: 'locations.name' },
+            { data: 'parent_name', name: 'administrative units.name' },
             { data: 'level_name', name: 'level_name' },
-<<<<<<< HEAD
 
-=======
->>>>>>> eeabcf49eea11f93c231154f3b5393a922c9a347
             { data: 'action', name: 'action', orderable: false, searchable: false },
         ]
     });
 
     $("#locationForm").submit(function (e) {
         e.preventDefault();
-        let btn = $("#uploadBtn");
-
-        // Disable and show loading text
-        btn.prop("disabled", true)
-            .html('Uploading <span class="loading-dots"></span>');
         let formData = new FormData(this);
 
         $.ajax({
-            url: "{{ route('admin.locations.upload') }}",
+            url: "{{ route('admin.administrative-units.upload') }}",
             type: "POST",
             data: formData,
             processData: false,
@@ -174,10 +154,6 @@ $(document).ready(function () {
                         timerProgressBar: true
                     });
                 }
-            },
-            complete: function () {
-                // ALWAYS re-enable button after request completes
-                $("#uploadBtn").prop("disabled", false).html("Upload");
             }
         });
     });

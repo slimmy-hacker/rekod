@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('attachment_students', function (Blueprint $table) {
             $table->id();
-            $table->string('student_id');
-            $table->string('attachment_id');
+            $table->unsignedBigInteger('student_id');   // ✔ correct
+            $table->unsignedBigInteger('attachment_id'); // ✔ correct
+
             $table->string('company_id')->nullable();
             $table->string('lecturer_id')->nullable();
             $table->string('industrial_supervisor_id')->nullable();
