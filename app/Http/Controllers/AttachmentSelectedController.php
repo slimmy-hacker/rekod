@@ -21,9 +21,9 @@ class AttachmentSelectedController extends Controller
             case 'student':
                 $student = Student::where('user_id', Auth::id())->first();
               $attachment_students =  AttachmentStudent::with('attachment')
-                                                        ->where('student_id', $student->id)
-                                                        ->orderBy('attachment.start_date', 'desc')
-                                                        ->get();
+                  ->where('student_id', $student->id)
+                  ->select('attachment_students.*')
+                  ->get();
                 return view('attachment_selected.students', compact('attachment_students'));
                 break;
 
