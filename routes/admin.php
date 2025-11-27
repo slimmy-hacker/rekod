@@ -48,9 +48,7 @@ Route::get('/lecturers', [LecturerController::class, 'index'])
 
 Route::post('upload-lecturers', [LecturerController::class, 'upload'])
     ->name('admin.lecturers.upload');
-    
-Route::get('/administrative-units', [AdministrativeUnitController::class, 'index'])
-    ->name('admin.administrative-units');
+  
     Route::post('/administrative-units/upload', [AdministrativeUnitController::class, 'upload'])->name('admin.administrative-units.upload');
 Route::get('/administrative-units', [AdministrativeUnitController::class, 'index'])->name('admin.administrative-units.index');
 
