@@ -57,5 +57,29 @@ class AttachmentLecturerController extends Controller
             ], 500);
         }
     }
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name'            => 'required|string|max:255',
+        'staff_no'        => 'required|string|max:255',
+        'attachment'      => 'required|string|max:255',
+        'department'      => 'required|string|max:255',
+        'students'        => 'required|integer',
+    ]);
+
+    $record = AttachmentLecturer::create([
+        'name'            => $request->name,
+        'staff_no'        => $request->staff_no,
+        'attachment'      => $request->attachment,
+        'department'      => $request->department,
+        'students'        => $request->students,
+    ]);
+
+    return response()->json([
+        'status'  => 'success',
+        'message' => 'Record stored successfully.',
+        'data'    => $record,
+    ], 201);
+}
 
 }

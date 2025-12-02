@@ -89,4 +89,28 @@ class LocationController extends Controller
             ], 500);
         }
     }
+   public function add(Request $request)
+{
+    $request->validate([
+        'name'        => 'required|string|max:255',
+        'code'        => 'required|string|max:50|unique:locations,code',
+        'parent_code' => 'nullable|string|exists:locations,code',
+        'level'       => 'required|integer|min:1|max:3',
+    ]);
+
+    $location = Location::create([
+        'name'        => $request->name,
+        'code'        => $request->code,
+        'parent_code' => $request->parent_code,
+        'level'       => $request->level,
+    ]);
+
+    return response()->json([
+        'status'  => 'success',
+        'message' => 'Location added successfully.',
+        'data'    => $location,
+    ]);
+}
+
+
 }
