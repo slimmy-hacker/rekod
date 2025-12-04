@@ -56,13 +56,13 @@
                 @if(!$isCompany)
                     <p class="text-sm text-gray-500 mt-1">🏢 Posted by: {{ $opportunity->company->name ?? 'Company' }}</p>
 
-                    {{-- Apply button for students only --}}
+                    <!-- {{-- Apply button for students only --}}
                     <form action="{{ route('opportunities.apply', $opportunity->id) }}" method="GET" class="mt-3">
                         @csrf
                         <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                             Apply
                         </button>
-                    </form>
+                    </form> -->
                 @else
                     {{-- View Applications button for companies only --}}
                     <a href="{{ route('opportunities.applications', ['opportunity' => $opportunity->id]) }}" 
