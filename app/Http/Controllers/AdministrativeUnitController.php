@@ -88,4 +88,47 @@ class AdministrativeUnitController extends Controller
             ], 500);
         }
     }
+    public function add(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'code' => 'required|string|max:50|unique:administrative_units,code',
+        'parent_code' => 'nullable|string|exists:administrative_units,code',
+        'level' => 'required|integer|min:1',
+    ]);
+
+    AdministrativeUnit::create([
+        'name' => $request->name,
+        'code' => $request->code,
+        'parent_code' => $request->parent_code,
+        'level' => $request->level,
+    ]);
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Administrative unit added successfully.',
+    ]);
+}
+
+public function store(Request $request)
+{
+    // Validate incoming data
+    $validated = $request->validate([
+        'name'        => 'required|string|max:255',
+        'code'        => 'required|string|max:255|unique:administrative_units,code',
+        'parent_code' => 'nullable|string|max:255',
+        'level'       => 'required|string|max:255',
+    ]);
+
+    // Create the administrative unit
+    AdministrativeUnit::create([
+        'name'        => $request->name,
+        'code'        => $request->code,
+        'parent_code' => $request->parent_code,
+        'level'       => $request->level,
+    ]);
+
+    return redirect()->back()->with('success', 'Administrative unit added successfully.');
+}
+
 }

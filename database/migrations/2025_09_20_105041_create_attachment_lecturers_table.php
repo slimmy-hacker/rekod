@@ -20,7 +20,11 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->unique(['lecturer_id','attachment_id', 'department_id']);
+            // Short unique index name to avoid MySQL 1059 error
+            $table->unique(
+                ['lecturer_id', 'attachment_id', 'department_id'],
+                'att_lec_att_dept_uq'
+            );
         });
     }
 
