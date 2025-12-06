@@ -6,10 +6,10 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\AttachmentSelectedController;
 use App\Http\Controllers\IndurstrialSupervisorController;
 use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\AttachmentSelectedController;
+
 
 
 
@@ -19,7 +19,7 @@ Route::get('/', function () {
     if (Auth::check() && Auth::user()->role) {
         return redirect()->route(Auth::user()->role . '.portal');
     }
-    return view('welcome');
+    return redirect()->route('login');
 })->name('welcome');
 
 
@@ -37,18 +37,6 @@ Route::middleware('auth')->group(function () {
     Route::get('get-company-industrial-supervisors/{id}', [IndurstrialSupervisorController::class, 'getCompanyIndustrialSupervisors'])->name('get_company_industrial_supervisors');
 
 
-    Route::get('/select-attachment', [AttachmentSelectedController::class, 'index'])->name('attachment.select');
-    Route::post('/attachment/select', [AttachmentSelectedController::class, 'store'])->name('attachment.store');
-    Route::post('/attachment/change', [AttachmentSelectedController::class, 'change'])->name('attachment.change');
-
-    Route::middleware(['ensure.period.selected'])->group(function () {
-        Route::get('/dashboard', [AttachmentSelectedController::class, 'dashboard'])->name('dashboard');
-    });
-    Route::get('/select-attachment', [AttachmentSelectedController::class, 'index'])->name('attachment_selected.select');
-    Route::post('/attachment/select', [AttachmentSelectedController::class, 'store'])->name('attachment_selected.store');
-    Route::post('/attachment/change', [AttachmentSelectedController::class, 'change'])->name('attachment_selected.change');
-
-
     Route::get('/select-attachment', [AttachmentSelectedController::class, 'index'])->name('attachment_selected.select');
     Route::post('/attachment/select', [AttachmentSelectedController::class, 'store'])->name('attachment_selected.store');
     Route::post('/attachment/change', [AttachmentSelectedController::class, 'change'])->name('attachment_selected.change');
@@ -58,7 +46,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/opportunities/{opportunity}/apply', [OpportunityController::class, 'submitApplication'])->name('opportunities.apply');
     Route::post('/opportunities/{opportunity}/apply', [OpportunityController::class, 'submitApplication'])->name('opportunities.apply.submit');
     Route::get('/opportunities/{opportunity}/applications', [OpportunityController::class, 'showApplications']) ->name('opportunities.applications');
-
 
 });
 
@@ -87,11 +74,4 @@ Route::middleware(['portal:admin'])
         Route::post('/register/{portal}', [RegisteredUserController::class, 'storePortal'])
             ->where('portal', 'student|lecturer|industry|company')
             ->name('register.portal.store');
-
-
-
-
     });
-
-
-    
