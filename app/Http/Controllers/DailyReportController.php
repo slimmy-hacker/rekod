@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\GenerateWeekNumber;
+use App\Models\AttachmentStudent;
 use App\Models\Calender;
 use App\Models\Student;
 use App\Models\User;
@@ -54,10 +55,29 @@ class DailyReportController extends Controller
     public function store(Request $request)
     {
         try {
+            $attachment_student_id = $request->session()->get('attachment_student_id');
+            $attachment_student = AttachmentStudent::find($attachment_student_id);
+            if (!$attachment_student->company_id ?? null || !$attachment_student->start_date ?? null) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Fill in your attachment form first.',
+
+                ]);
+            }
             $validated = $request->validate([
                 'daily_report_id' => 'nullable|exists:daily_reports,id',
-                'start_date' => 'required|date',
-                'end_date' => 'required|date|after_or_equal:start_date',
+                'start_date' => [
+                    'required',
+                    'date',
+                    'after_or_equal:' . $attachment_student->start_date,
+                    'before_or_equal:' . $attachment_student->end_date,
+                ],
+                'end_date' => [
+                    'required',
+                    'date',
+                    'after_or_equal:start_date', // must be after the chosen start_date
+                    'before_or_equal:' . $attachment_student->end_date,
+                ],
                 'task_title' => 'required|string|max:255',
                 'tasks' => 'required|string',
                 'skills_learned' => 'required|string',
@@ -66,7 +86,7 @@ class DailyReportController extends Controller
             $weekGen = new GenerateWeekNumber();
             $uniqueWeekId = $weekGen->weekId($validated['start_date']);
             $weekly_report = WeeklyReport::where('week_id', $uniqueWeekId)
-                ->where('attachment_student_id', $request->session()->get('attachment_student_id'))
+                ->where('attachment_student_id', $attachment_student_id)
                 ->first();
 
             if (!$weekly_report) {
@@ -74,7 +94,7 @@ class DailyReportController extends Controller
                 $week_range = $weekGen->weekRangeFromId($uniqueWeekId);
 
                 $weekly_report = new WeeklyReport();
-                $weekly_report->attachment_student_id = $request->session()->get('attachment_student_id');
+                $weekly_report->attachment_student_id = $attachment_student_id;
                 $weekly_report->week_start_date = $week_range['start'];
                 $weekly_report->week_end_date = $week_range['end'];
                 $weekly_report->week_id = $uniqueWeekId;
@@ -105,7 +125,6 @@ class DailyReportController extends Controller
                 $daily_report = DailyReport::create($validated);
             }
 
-// Prepare the response data
             $data = [
                 [
                 'id'             => $daily_report->id,
@@ -134,7 +153,7 @@ class DailyReportController extends Controller
 
             return response()->json([
                 'status'  => 'success',
-                'message' => 'Calender entry created successfully.',
+                'message' => 'Daily activity recorded successfully.',
                 'data'    => $data
             ], 201);
 

@@ -1,6 +1,6 @@
 @extends('layouts.my_app')
 @section('title')
-    My Activities
+    Daily Activities
 @endsection
 
 
@@ -90,10 +90,6 @@
                 backdrop: 'static',
                 closable: false
             });
-
-            /
-
-
 
             var calendarEl = document.getElementById('daily_activities');
             var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -185,7 +181,7 @@
                                 toast: true,
                                 position: 'top-end',
                                 icon: 'success',
-                                title: 'Tasks Saved Successfully',
+                                title: response.message || 'Tasks Saved Successfully',
                                 showConfirmButton: false,
                                 timer: 3000,
                                 timerProgressBar: true
@@ -209,7 +205,7 @@
                                 toast: true,
                                 position: 'top-end',
                                 icon: 'error',
-                                title: 'Unexpected Error Occurred',
+                                title: response.message || 'Unexpected Error Occurred',
                                 showConfirmButton: false,
                                 timer: 3000,
                                 timerProgressBar: true
