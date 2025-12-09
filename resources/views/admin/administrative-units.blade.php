@@ -92,28 +92,55 @@
 
             <div class="p-6 space-y-6">
                 <form id="addAdminUnitForm">
-                    @csrf
-                    <div class="mb-4">
-                        <label for="name" class="block text-sm font-medium text-gray-900 mb-1">Name <span class="text-red-500">*</span></label>
-                        <input type="text" id="name" name="name" class="block w-full border border-gray-300 rounded-lg p-2.5" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="code" class="block text-sm font-medium text-gray-900 mb-1">Code <span class="text-red-500">*</span></label>
-                        <input type="text" id="code" name="code" class="block w-full border border-gray-300 rounded-lg p-2.5" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="parent_code" class="block text-sm font-medium text-gray-900 mb-1">Parent Code</label>
-                        <input type="text" id="parent_code" name="parent_code" class="block w-full border border-gray-300 rounded-lg p-2.5" placeholder="Optional">
-                    </div>
-                    <div class="mb-4">
-                        <label for="level" class="block text-sm font-medium text-gray-900 mb-1">Level <span class="text-red-500">*</span></label>
-                        <input type="number" id="level" name="level" class="block w-full border border-gray-300 rounded-lg p-2.5" min="1" required>
-                    </div>
+                    @csrf               
+    
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+            Code
+        </label>
+        <input type="text" name="code" value="{{ old('code') }}"
+            class="block w-full p-2 border rounded focus:ring focus:border-blue-300 @error('code') border-red-500 @enderror" required>
+        @error('code')
+            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+        @enderror
+    </div>
 
-                    <div class="flex justify-end pt-4 border-t border-gray-200">
-                        <button type="submit" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-200 font-medium rounded-lg text-sm px-5 py-2.5">Add</button>
-                    </div>
-                </form>
+    <!-- Name -->
+    <div class="mb-4">
+        <label class="block  text-sm font-medium text-gray-700 mb-1">
+            Name
+        </label>
+        <input type="text" name="name" value="{{ old('name') }}"
+            class="block w-full p-2 border rounded focus:ring focus:border-blue-300 @error('name') border-red-500 @enderror" required>
+        @error('name')
+            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <!-- Level -->
+    <div class="mb-4">
+        <label class="block  select2 text-sm font-medium text-gray-700 mb-1">
+            Select Level
+        </label>
+        <select name="level"
+            class="select2 block w-full p-2 border rounded focus:ring focus:border-blue-300 @error('level') border-red-500 @enderror" required>
+            <option value="">-- Select Level --</option>
+            <option value="1" {{ old('level') == '1' ? 'selected' : '' }}>School</option>
+            <option value="2" {{ old('level') == '2' ? 'selected' : '' }}>department</option>
+            <option value="3" {{ old('level') == '3' ? 'selected' : '' }}>Course</option>
+        </select>
+        @error('level')
+            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+        @enderror
+    </div>
+
+    <!-- Submit button -->
+    <button type="submit" id="addAdministrativeUnitBtn"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full">
+        Add Administrative Unit
+    </button>
+</form>
+
             </div>
         </div>
     </div>
@@ -124,10 +151,8 @@
 @section('scripts')
 <script>
 $(document).ready(function () {
-    // Upload modal instance - unchanged
+   
     const uploadModal = new Modal($('#add-location-modal')[0], { backdrop: 'static', closable: false });
-
-    // New Add modal instance
     const addModal = new Modal($('#add-administrative-unit-modal')[0], { backdrop: 'static', closable: false });
 
     // Buttons to open modals

@@ -133,97 +133,66 @@
                 <h3 class="text-xl font-semibold">Add Single Location</h3>
                 <button type="button" class="close-add-modal-btn text-gray-400 hover:bg-gray-200 rounded-lg p-1.5">✕</button>
             </div>
-            <form id="addLocationForm">
-                @csrf
-                <div class="mb-4">
-                    <label for="name" class="text-sm font-medium text-gray-900 block mb-2">Name <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" id="name" required class="block w-full border border-gray-300 rounded-lg p-2.5" placeholder="Enter location name">
-                </div>
-
-                <div class="mb-4">
-                    <label for="code" class="text-sm font-medium text-gray-900 block mb-2">Code <span class="text-red-500">*</span></label>
-                    <input type="text" name="code" id="code" required class="block w-full border border-gray-300 rounded-lg p-2.5" placeholder="Enter unique code">
-                </div>
-
-                <div class="mb-4">
-                    <label for="parent_code" class="text-sm font-medium text-gray-900 block mb-2">Parent Code</label>
-                    <input type="text" name="parent_code" id="parent_code" class="block w-full border border-gray-300 rounded-lg p-2.5" placeholder="Enter parent code (optional)">
-                </div>
-
-                <div class="mb-4">
-                    <label for="level" class="text-sm font-medium text-gray-900 block mb-2">Level <span class="text-red-500">*</span></label>
-                    <select name="level" id="level" required class="block w-full border border-gray-300 rounded-lg p-2.5">
-                        <option value="">Select level</option>
-                        <option value="1">County</option>
-                        <option value="2">Subcounty</option>
-                        <option value="3">Ward</option>
-                    </select>
-                </div>
-
-                <div class="flex justify-end">
-                    <button id="addBtn" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-200 font-medium rounded-lg text-sm px-5 py-2.5" type="submit">
-                        Add
-                    </button>
-                </div>
-            </form>
-        </div>
+     <form id="addLocationForm" >
+@csrf
+    <!-- Code -->
+    <div>
+        <label class="block text-sm font-medium">Code</label>
+        <input type="text" name="code" value="{{ old('code') }}"
+            class="mt-1 w-full border rounded p-2 @error('code') border-red-500 @enderror" required>
+        @error('code')
+            <p class="text-red-600 text-sm">{{ $message }}</p>
+        @enderror
     </div>
-</div>
 
-<div class="hidden overflow-x-hidden overflow-y-auto fixed top-4 left-0 right-0 md:inset-0 z-50 justify-center items-center h-modal sm:h-full" id="add-location-modal">
-    <div class="relative w-full max-w-2xl px-4 h-full md:h-auto">
-        <!-- Modal content -->
-        <div class="bg-white rounded-lg shadow relative">
-            <!-- Modal header -->
-            <div class="flex items-start justify-between p-5 border-b rounded-t">
-                <h3 class="text-xl font-semibold">
-                    Add Location
-                </h3>
-                <button type="button" class="close-add-modal-btn text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" >
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd"
-                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                              clip-rule="evenodd"></path>
-                    </svg>
-                </button>
-            </div>
+    <!-- Name -->
+    <div>
+        <label class="block text-sm font-medium">Name</label>
+        <input type="text" name="name" value="{{ old('name') }}"
+            class="mt-1 w-full border rounded p-2 @error('name') border-red-500 @enderror" required>
+        @error('name')
+            <p class="text-red-600 text-sm">{{ $message }}</p>
+        @enderror
+    </div>
 
-            <!-- Modal body -->
-            <div class="p-6 space-y-6">
-                <form id="addLocationForm">
-                    @csrf
-                    <div class="mb-4">
-                        <label for="name" class="text-sm font-medium text-gray-900 block mb-2">Name <span class="text-red-500">*</span></label>
-                        <input type="text" name="name" id="name" required class="block w-full border border-gray-300 rounded-lg p-2.5" placeholder="Enter location name">
-                    </div>
+    <!-- Level -->
+    <div>
+        <label class="block text-sm font-medium">Level</label>
+<select name="level"
+    class="mt-1 w-full border rounded p-2 @error('level') border-red-500 @enderror" required>
+    <option value="">Select Level</option>
+    <option value="1">County</option>
+    <option value="2">Subcounty</option>
+    <option value="3">Ward</option>
+</select>
+        @error('level')
+            <p class="text-red-600 text-sm">{{ $message }}</p>
+        @enderror
+    </div>
 
-                    <div class="mb-4">
-                        <label for="code" class="text-sm font-medium text-gray-900 block mb-2">Code <span class="text-red-500">*</span></label>
-                        <input type="text" name="code" id="code" required class="block w-full border border-gray-300 rounded-lg p-2.5" placeholder="Enter unique code">
-                    </div>
+    <!-- Parent Code -->
+    <div>
+        <label class="block select2 text-sm font-medium">Parent Code (optional)</label>
+        <select name="parent_code"
+            class="mt-1 w-full border rounded p-2 @error('parent_code') border-red-500 @enderror">
+            <option value="">No Parent</option>
+            @foreach($locations as $location)
+                <option value="{{ $location->code }}">{{ strtoupper($location->code) }} - {{ $location->name }}</option>
+            @endforeach
+        </select>
+        @error('parent_code')
+            <p class="text-red-600 text-sm">{{ $message }}</p>
+        @enderror
+    </div>
 
-                    <div class="mb-4">
-                        <label for="parent_code" class="text-sm font-medium text-gray-900 block mb-2">Parent Code</label>
-                        <input type="text" name="parent_code" id="parent_code" class="block w-full border border-gray-300 rounded-lg p-2.5" placeholder="Enter parent code (optional)">
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="level" class="text-sm font-medium text-gray-900 block mb-2">Level <span class="text-red-500">*</span></label>
-                        <select name="level" id="level" required class="block w-full border border-gray-300 rounded-lg p-2.5">
-                            <option value="">Select level</option>
-                            <option value="1">County</option>
-                            <option value="2">Subcounty</option>
-                            <option value="3">Ward</option>
-                        </select>
-                    </div>
-                    <div class="items-center p-6 border-t border-gray-200 rounded-b">
-                        <button id="addBtn"  class="text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium
-                               rounded-lg text-sm px-5 py-2.5 text-center"
-                                type="submit">
-                             Add
-                        </button>
-                    </div>
-                </form>
+    <!-- Submit Button -->
+    <div>
+        <button type="submit"
+            class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">
+            Save Location
+        </button>
+    </div>
+</form>
 
             </div>
         </div>
