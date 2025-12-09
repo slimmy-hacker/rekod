@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Imports\AttachmentStudentsImport;
 use App\Models\Attachment;
 use App\Models\AttachmentStudent;
+use App\Models\student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
@@ -41,7 +42,11 @@ class AttachmentStudentController extends Controller
         $attachments = Attachment::select('id', 'name')
             ->orderBy('start_date', 'desc')
             ->get();
-        return view('admin.attachment_students', compact('attachments'));
+            $students = Student::select('id', 'user_id')
+    ->with('user:id,name')
+    ->get();
+
+        return view('admin.attachment_students', compact('attachments','students'));
     }
     public function upload(Request $request)
     {
@@ -70,35 +75,40 @@ class AttachmentStudentController extends Controller
         }
     }
 public function add(Request $request)
-    {
-        // Validation rules
-        $validator = Validator::make($request->all(), [
-            'student_name' => 'required|string|max:255',
-            'reg_no' => 'required|string|max:50|unique:attachment_students,reg_no',
-            // add more validation rules if needed
-        ]);
+{
+   
+    $validated = $request->validate([
+        'student_id' => 'required|exists:students,id',
+        'attachment_id' => 'required|exists:attachments,id',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
+    // Check if student already uploaded for this attachment
+    $exists = AttachmentStudent::where('student_id', $validated['student_id'])
+        ->where('attachment_id', $validated['attachment_id'])
+        ->first();
 
-        // Create new student record
-        $student = new AttachmentStudent();
-        $student->name = $request->input('student_name');
-        $student->reg_no = $request->input('reg_no');
-        // set other fields as needed
-
-        $student->save();
-
+    if ($exists) {
         return response()->json([
-            'status' => 'success',
-            'message' => 'Student added successfully',
-            'student' => $student,
-        ]);
+                'status' => 'error',
+                'message' => 'attachment student already exists',
+                
+            ]);
     }
+
+    // Create the record
+    AttachmentStudent::create([
+        'student_id' => $validated['student_id'],
+        'attachment_id' => $validated['attachment_id'],
+    ]);
+
+   return response()->json([
+                'status' => 'success',
+                'message' => 'File processed',
+    
+                
+            ]);
+}
+
     public function store(Request $request)
 {
     $validated = $request->validate([

@@ -123,4 +123,9 @@ class LecturerController extends Controller
     {
         return view('lecturer.evaluate');
     }
+    public function myStudents()
+{
+    return view('lecturer.my-students');
+}
+
 }

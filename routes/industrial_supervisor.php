@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IndustrialSupervisorApprovalController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\AttachmentAssessmentController;
+use App\Http\Controllers\IndustrialSupervisorController;
 
 
 
@@ -42,3 +43,6 @@ Route::post('/industrial-supervisor/assessment/store',
         [AttachmentAssessmentController::class, 'listStudents'])
         ->name('industrial_supervisor.assessment.students_list');
         Route::get('/cal', [CalController::class, 'index'])->name('cal.index');
+        Route::get('/industrial-supervisor/attaches', [IndustrialSupervisorController::class, 'attaches']) ->name('industrial_supervisor.attaches');
+           
+            
