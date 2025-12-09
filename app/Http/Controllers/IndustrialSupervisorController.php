@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
-class IndurstrialSupervisorController extends Controller
+class IndustrialSupervisorController extends Controller
 {
     public function index(Request $request)
     {
@@ -97,6 +97,10 @@ class IndurstrialSupervisorController extends Controller
 
 
 
+public function attaches()
+{
+    return view('industrial_supervisor.attaches');
+}
 
 
     public function students()

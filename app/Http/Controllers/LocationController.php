@@ -59,9 +59,18 @@ class LocationController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
+         $locations = Location::select('code', 'name', 'level')
+        ->orderBy('name', 'asc')
+        ->get();
 
-        return view('admin.locations');
+    return view('admin.locations', compact('locations'));
     }
+public function create()
+{
+    $locations = Location::select('code', 'name')->get();
+
+    return view('locations.create', compact('locations'));
+}
 
     // Upload Excel file
     public function upload(Request $request)
@@ -90,27 +99,23 @@ class LocationController extends Controller
         }
     }
    public function add(Request $request)
-{
-    $request->validate([
-        'name'        => 'required|string|max:255',
-        'code'        => 'required|string|max:50|unique:locations,code',
-        'parent_code' => 'nullable|string|exists:locations,code',
-        'level'       => 'required|integer|min:1|max:3',
-    ]);
+    {
+        $validated = $request->validate([
+            'code'        => 'required|string|max:255|unique:locations,code',
+            'name'        => 'required|string|max:255',
+            'level'       => 'required|integer|in:1,2,3',
 
-    $location = Location::create([
-        'name'        => $request->name,
-        'code'        => $request->code,
-        'parent_code' => $request->parent_code,
-        'level'       => $request->level,
-    ]);
+            'parent_code' => 'nullable|exists:locations,code'
+        ]);
 
-    return response()->json([
-        'status'  => 'success',
-        'message' => 'Location added successfully.',
-        'data'    => $location,
-    ]);
-}
+        Location::create([
+    'code'        => strtolower($validated['code']),
+    'name'        => $validated['name'],
+    'level'       => $validated['level'],
+    'parent_code' => strtolower($validated['parent_code'] ?? null),
+]);
 
 
+        return redirect()->back()->with('success', 'Location added successfully.');
+    }
 }

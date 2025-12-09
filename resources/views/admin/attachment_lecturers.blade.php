@@ -198,41 +198,71 @@
         </svg>
       </button>
     </div>
+      <form id="addStudentForm" >
+        @csrf
 
-    <form id="addLecturerForm">
-      @csrf
+        {{-- Lecturer --}}
+        <div>
+            <label class="block font-medium mb-1">Select Lecturer</label>
+            <select name="lecturer_id"
+                class="w-full border-gray-300 rounded-lg focus:ring-blue-500"
+                required>
+                <option value="">-- Choose Lecturer --</option>
+                @foreach($lecturers as $lecturer)
+                    <option value="{{ $lecturer->id }}" >
+                        {{ $lecturer->name }} ({{ $lecturer->staff_number }})
+                    </option>
+                @endforeach
+            </select>
+            @error('lecturer_id')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
 
-      <div class="mb-4">
-        <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-        <input type="text" id="name" name="name" required class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Full name" />
-      </div>
+        {{-- Attachment --}}
+        <div>
+            <label class="block select2 font-medium mb-1">Select Attachment</label>
+            <select name="attachment_id"
+                class="w-full border-gray-300 rounded-lg focus:ring-blue-500"
+                required>
+                <option value="">-- Choose Attachment --</option>
+                @foreach($attachments as $attachment)
+                    <option value="{{ $attachment->id }}" >
+                        {{ $attachment->name }} ({{ $attachment->slug }})
+                    </option>
+                @endforeach
+            </select>
+            @error('attachment_id')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
 
-      <div class="mb-4">
-        <label for="staff_number" class="block text-sm font-medium text-gray-700 mb-1">Staff Number</label>
-        <input type="text" id="staff_number" name="staff_number" required class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Staff number" />
-      </div>
+        {{-- Department --}}
+        <div>
+            <label class="block select2 font-medium mb-1">Select Department</label>
+            <select name="department_id"
+                class="w-full border-gray-300 rounded-lg focus:ring-blue-500"
+                required>
+                <option value="">-- Choose Department --</option>
+                @foreach($departments as $department)
+                    <option value="{{ $department->id }}">
+                        {{ $department->name }} ({{ $department->code }})
+                    </option>
+                @endforeach
+            </select>
+            @error('department_id')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
+        </div>
 
-      <div class="mb-4">
-        <label for="attachment" class="block text-sm font-medium text-gray-700 mb-1">Attachment</label>
-        <input type="text" id="attachment" name="attachment" required class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Attachment info" />
-      </div>
+        {{-- Submit --}}
+        <div>
+            <button type="submit"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                Submit
+            </button>
+        </div>
 
-      <div class="mb-4">
-        <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
-        <input type="text" id="department" name="department" required class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Department name" />
-      </div>
-
-      <div class="mb-4">
-        <label for="students" class="block text-sm font-medium text-gray-700 mb-1">Students</label>
-        <input type="number" id="students" name="students" min="0" required class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Number of students" />
-      </div>
-
-      <div class="flex justify-end">
-        <button type="submit" id="addBtn" class="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded">
-          Add
-        </button>
-      </div>
-    </form>
   </div>
 </div>
 

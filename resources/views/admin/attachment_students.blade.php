@@ -170,51 +170,45 @@
 
                 <!-- Modal body -->
                 <div class="p-6 space-y-6">
-                    <form id="addStudentForm">
-                        @csrf()
-                        <!-- Add your input fields here for adding a student -->
-                        <div class="mb-4">
-                            <label for="student_name" class="text-sm font-medium text-gray-900 block mb-2">Student Name <span class="text-red-500">*</span></label>
-                            <input type="text" name="student_name" id="student_name" required class="block w-full border border-gray-300 rounded-lg p-2.5" placeholder="Enter student name">
-                        </div>
-                        <div class="mb-4">
-                            <label for="reg_no" class="text-sm font-medium text-gray-900 block mb-2">Registration Number <span class="text-red-500">*</span></label>
-                            <input type="text" name="reg_no" id="reg_no" required class="block w-full border border-gray-300 rounded-lg p-2.5" placeholder="Enter registration number">
-                        </div>
-                        <div class="mb-4">
-    <label for="attachment" class="text-sm font-medium text-gray-900 block mb-2">Attachment <span class="text-red-500">*</span></label>
-    <input type="text" name="attachment" id="attachment" required
-      class="block w-full border border-gray-300 rounded-lg p-2.5" placeholder="Enter attachment name">
-  </div>
+                    <form id ="addStudentForm" >
+    @csrf
 
-  <div class="mb-4">
-    <label for="department" class="text-sm font-medium text-gray-900 block mb-2">Department <span class="text-red-500">*</span></label>
-    <input type="text" name="department" id="department" required
-      class="block w-full border border-gray-300 rounded-lg p-2.5" placeholder="Enter department name">
-  </div>
+    <!-- Student -->
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+            Select Student
+        </label>
+        <select name="student_id"  class="select2 block w-full p-2 border rounded focus:ring focus:border-blue-300">
+            <option value="">-- choose student --</option>
+            @foreach ($students as $student)
+                <option value="{{ $student->id }}">
+                    {{ $student->reg_no }} - {{ $student->user->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
 
-  <div class="mb-4">
-    <label for="lecturer" class="text-sm font-medium text-gray-900 block mb-2">Lecturer <span class="text-red-500">*</span></label>
-    <input type="text" name="lecturer" id="lecturer" required
-      class="block w-full border border-gray-300 rounded-lg p-2.5" placeholder="Enter lecturer name">
-  </div>
+    <!-- Attachment -->
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+            Select Attachment
+        </label>
+        <select name="attachment_id" class="select2 block w-full p-2 border rounded focus:ring focus:border-blue-300">
+            <option value="">-- choose attachment --</option>
+            @foreach ($attachments as $attachment)
+                <option value="{{ $attachment->id }}" >
+                    {{ $attachment->name}}
+                </option>
+            @endforeach
+        </select>
+    </div>
 
-  <div class="mb-4">
-    <label for="status" class="text-sm font-medium text-gray-900 block mb-2">Status <span class="text-red-500">*</span></label>
-    <select name="status" id="status" required class="block w-full border border-gray-300 rounded-lg p-2.5">
-      <option value="">Select status</option>
-      <option value="active">Active</option>
-      <option value="inactive">Inactive</option>
-      <option value="pending">Pending</option>
-    </select>
-  </div>
-
-                        <div class="items-center p-6 border-t border-gray-200 rounded-b">
-                            <button id="addStudentBtn" class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center" type="submit">
-                                Add
-                            </button>
-                        </div>
-                    </form>
+    <!-- Submit button -->
+    <button type="submit" id="addStudentBtn"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full">
+        Add
+    </button>
+</form>
                 </div>
             </div>
         </div>

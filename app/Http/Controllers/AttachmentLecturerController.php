@@ -4,40 +4,48 @@ namespace App\Http\Controllers;
 
 use App\Imports\AttachmentLecturersImport;
 use App\Models\Attachment;
+use App\Models\Lecturer;
+use App\Models\AdministrativeUnit;
 use Illuminate\Http\Request;
 use App\Models\AttachmentLecturer;
 use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
+
 class AttachmentLecturerController extends Controller
 {
 
     public function index(Request $request)
-    {
-        if ($request->ajax()) {
-            $data = AttachmentLecturer::with(['attachment', 'lecturer.user','department']);
-            if (!empty($request->attachment_id)) {
-                $data->where('attachment_id', $request->attachment_id);
-            }                    // ->orderBy('');
+{
+    if ($request->ajax()) {
+        $data = AttachmentLecturer::with(['attachment', 'lecturer.user', 'department']);
 
-            return DataTables::of($data)
-                ->addIndexColumn() // adds DT_RowIndex
-                ->addColumn('name', fn ($row) => $row->lecturer->user->name ?? '-')// adds DT_RowIndex
-                ->addColumn('staff_no', fn ($row) => $row->lecturer->staff_number ?? '-')
-                ->addColumn('attachment', fn ($row) => $row->attachment->name ?? '-')
-                ->addColumn('department', fn ($row) => $row->department->name ?? '-')
-                ->addColumn('students', fn ($row) => $row->department->slug ?? 0)
-                ->addColumn('action', function ($row) {
-                    return '<button class="btn btn-sm btn-danger delete" data-id="'.$row->id.'">Delete</button>';
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+        if (!empty($request->attachment_id)) {
+            $data->where('attachment_id', $request->attachment_id);
         }
-        $attachments = Attachment::select('id', 'name')
-                                ->orderBy('start_date', 'desc')
-                                ->get();
-        return view('admin.attachment_lecturers', compact('attachments'));
+
+        return DataTables::of($data)
+            ->addIndexColumn()
+            ->addColumn('name', fn ($row) => $row->lecturer->user->name ?? '-')
+            ->addColumn('staff_no', fn ($row) => $row->lecturer->staff_number ?? '-')
+            ->addColumn('attachment', fn ($row) => $row->attachment->name ?? '-')
+            ->addColumn('department', fn ($row) => $row->department->name ?? '-')
+            ->addColumn('students', fn ($row) => $row->department->slug ?? 0)
+            ->addColumn('action', function ($row) {
+                return '<button class="btn btn-sm btn-danger delete" data-id="'.$row->id.'">Delete</button>';
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
+
+    // 💡 FIX: load required data
+    $attachments = Attachment::orderBy('start_date', 'desc')->get();
+    $lecturers   = Lecturer::with('user')->orderBy('staff_number')->get();
+    $departments = AdministrativeUnit::where('level', 2)->orderBy('name')->get();
+
+    return view('admin.attachment_lecturers', compact('attachments', 'lecturers', 'departments'));
+}
+
     public function upload(Request $request)
     {
         $request->validate([
@@ -87,5 +95,39 @@ public function store(Request $request)
         'data'    => $record,
     ], 201);
 }
+
+    public function add(Request $request)
+    {
+        $validated = $request->validate([
+            'lecturer_id' => 'required|exists:lecturers,id',
+            'attachment_id' => 'required|exists:attachments,id',
+            'department_id' => 'required|exists:administrative_units,id',
+        ]);
+
+        // Check if already exists
+        $exists = AttachmentLecturer::where('lecturer_id', $validated['lecturer_id'])
+            ->where('attachment_id', $validated['attachment_id'])
+            ->where('department_id', $validated['department_id'])
+            ->first();
+
+        if ($exists) {
+            return back()->withErrors([
+                'duplicate' => 'This record already exists in the system.',
+            ])->withInput();
+        }
+
+        AttachmentLecturer::create([
+            'lecturer_id' => $validated['lecturer_id'],
+            'attachment_id' => $validated['attachment_id'],
+            'department_id' => $validated['department_id'],
+        ]);
+
+        return response()->json([
+                'status' => 'success',
+                'message' => 'File processed',
+    
+                
+            ]);
+}  
 
 }
