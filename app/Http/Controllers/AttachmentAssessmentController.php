@@ -101,12 +101,18 @@ class AttachmentAssessmentController extends Controller
     {
         $request->validate([
             'student_id' => 'required|exists:students,id',
-            'practical_marks' => 'nullable|integer|min:0|max:100',
+            'practical_marks' => 'nullable|integer|min:0|max:5',
             'practical_remarks' => 'nullable|string',
-            'report_marks' => 'nullable|integer|min:0|max:100',
+            'report_marks' => 'nullable|integer|min:0|max:5',
             'report_remarks' => 'nullable|string',
-            'presentation_marks' => 'nullable|integer|min:0|max:100',
+            'presentation_marks' => 'nullable|integer|min:0|max:5',
             'presentation_remarks' => 'nullable|string',
+            'communication_marks' => 'nullable|integer|min:0|max:5',
+            'communication_remarks' => 'nullable|string',
+            'skills_marks' => 'nullable|integer|min:0|max:5',
+            'skills_remarks' => 'nullable|string',
+            'innovativeness_marks' => 'nullable|integer|min:0|max:5',
+            'innovativeness_remarks' => 'nullable|string',
         ]);
 
         AttachmentAssessment::updateOrCreate(
@@ -118,6 +124,12 @@ class AttachmentAssessmentController extends Controller
                 'report_remarks',
                 'presentation_marks',
                 'presentation_remarks',
+                'skills_marks',
+                'skills_remarks' ,
+                'innovativeness_marks',
+                'innovativeness_remarks',
+                'communication_marks',
+                'communication_remarks',
             ])
         );
 
