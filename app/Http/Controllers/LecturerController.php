@@ -143,12 +143,24 @@ class LecturerController extends Controller
                         : '-';
                 })
                 ->addColumn('reg_no', fn ($row) =>  $row->student->reg_no ?? '-')
-                ->addColumn('attachment', fn ($row) => $row->attachment->name ?? '-')
+              
                 ->addColumn('department', fn ($row) => $row->department->name ?? '-')
-                ->addColumn('lecturer', fn ($row) => $row->lecturer->user->name ?? '-')
                 ->addColumn('status', fn ($row) => $row->attachment->status ?? '-')
-                ->addColumn('action', function ($row) {
-                    return '<button class="btn btn-sm btn-danger delete" data-id="'.$row->id.'">Delete</button>';
+                
+                ->rawColumns(['action'])
+                
+                ->addColumn('action', function ($row)
+                 {
+                    return '
+                    
+                    <button 
+                            class="assessBtn bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
+                            data-id="'.$row->id.'" 
+                            data-name="'.$row->student->user->name.'">
+                            Assess
+                        </button>
+                        ';
+
                 })
                 ->rawColumns(['action'])
                 ->make(true);
