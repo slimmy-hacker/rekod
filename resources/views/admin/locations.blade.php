@@ -49,6 +49,8 @@
                             <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
                             <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Parent</th>
                             <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Level</th>
+                            <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Latitude</th>
+                            <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Longitude</th>
 
                             <th class="p-4 flex space-x-2 justify-end">
                                 <div class="flex space-x-2 justify-end">
@@ -236,6 +238,8 @@ $(document).ready(function () {
             { data: 'code', name: 'code' },
             { data: 'parent_name', name: 'locations.name' },
             { data: 'level_name', name: 'level_name' },
+            { data: 'latitude', name: 'latitude' },
+            { data: 'longitude', name: 'longitude' },
             { data: 'action', name: 'action', orderable: false, searchable: false },
         ]
     });
@@ -395,6 +399,7 @@ $(document).ready(function () {
                     });
             },
             complete: function () {
+                table.ajax.reload(null, false);
                 btn.prop("disabled", false).html("Update");
             }
         });
