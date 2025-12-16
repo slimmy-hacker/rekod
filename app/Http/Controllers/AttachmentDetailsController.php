@@ -20,6 +20,9 @@ class AttachmentDetailsController extends Controller
     $my_student_details = Student::with('program')
                                     ->where('user_id', $logged_user->id)
                                     ->first();
+    if($attachment_student->company_id){
+        return view('student.form-submitted', compact('attachment_student_id'));
+    }
     return view('student.attachment-form',  compact('companies',  'logged_user','my_student_details','attachment_student'));
 }
     public function update(Request $request)

@@ -29,7 +29,7 @@
                         </li>
                     </ol>
                 </nav>
-                <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">All Attached Students</h1>
+                <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">All My Students</h1>
             </div>
         </div>
     </div>
@@ -56,6 +56,15 @@
                             </th>
                             <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
                                 Department
+                            </th>
+                            <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
+                                Company
+                            </th>
+                            <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
+                               Indur Supervisor
+                            </th>
+                            <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
+                                Indur Sup Phone
                             </th>
 
                             <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
@@ -188,6 +197,9 @@
                 { data: 'name', name: 'name' },
                 { data: 'reg_no', name: 'reg_no' },
                 { data: 'department', name: 'department' },
+                { data: 'company', name: 'company' },
+                { data: 'industrial_supervisor', name: 'industrial_supervisor' },
+                { data: 'industrial_supervisor_phone', name: 'industrial_supervisor_phone' },
 
                 { data: 'status', name: 'status' },
                 { data: 'action', name: 'action', orderable: false, searchable: false },
