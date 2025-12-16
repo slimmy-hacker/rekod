@@ -130,7 +130,7 @@ class LecturerController extends Controller
 {
      if ($request->ajax()) {
 
-            $data = AttachmentStudent::with(['attachment', 'student', 'student.user']);
+            $data = AttachmentStudent::with(['attachment', 'student', 'student.user', 'industrialSupervisor.user', 'company',]);
                 if (!empty($request->attachment_id)) {
                     $data->where('attachment_id', $request->attachment_id);
                 }
@@ -146,6 +146,9 @@ class LecturerController extends Controller
 
                 ->addColumn('department', fn ($row) => $row->department->name ?? '-')
                 ->addColumn('status', fn ($row) => $row->attachment->status ?? '-')
+                ->addColumn('company', fn ($row) => $row->company->name ?? '-')
+                ->addColumn('industrial_supervisor', fn ($row) => $row->industrialSupervisor->user->name ?? '-')
+                ->addColumn('industrial_supervisor_phone', fn ($row) => $row->industrialSupervisor->user->phone_number ?? '-')
 
                 ->rawColumns(['action'])
 

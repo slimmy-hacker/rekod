@@ -16,6 +16,11 @@ class AttachmentStudent extends Model
     {
         return $this->belongsTo(Lecturer::class, 'lecturer_id');
     }
+    public function attachment_lecturer()
+    {
+        return $this->belongsTo(AttachmentLecturer::class, 'lecturer_id');
+    }
+
     public function industrialSupervisor()
     {
         return $this->belongsTo(IndustrialSupervisor::class, 'industrial_supervisor_id');

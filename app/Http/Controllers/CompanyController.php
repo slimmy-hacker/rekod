@@ -41,9 +41,13 @@ class CompanyController extends Controller
 
 
         $counties = Location::where('level','1')
+                                ->whereNotNull('latitude')
+                                ->whereNotNull('longitude')
                              ->select('id','name','code')
                             ->get();
         $sub_counties = Location::where('level','2')
+                                ->whereNotNull('latitude')
+                                ->whereNotNull('longitude')
                                 ->select('id','name','code','parent_code')
                                 ->get();
         return view('companies', compact('counties',  'sub_counties'));
