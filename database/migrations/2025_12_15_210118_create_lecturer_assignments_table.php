@@ -51,11 +51,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // Prevent duplicate student drafts per period
-            $table->unique([
-                'batch',
-                'attachment_student_id'
-            ], 'unique_student_attachment_draft');
+
         });
     }
 
