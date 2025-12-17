@@ -44,7 +44,7 @@ $table->unsignedTinyInteger('basic_skills_marks')->default(0);
 $table->text('basic_skills_remarks')->default('');
 
 $table->unsignedTinyInteger('general_office_applications_marks')->default(0);
-$table->text('general_office_applications_remarks')->default('');
+$table->text('general_office_applications_remarks')->default('nullable');
 
 $table->unsignedTinyInteger('technical_applications_marks')->default(0);
 $table->text('technical_applications_remarks')->default('');
