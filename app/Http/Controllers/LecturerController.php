@@ -19,6 +19,7 @@ class LecturerController extends Controller
     public function index(Request $request){
 
         if ($request->ajax()) {
+
             $data = Lecturer::with(['user','department'])->latest()->get();
 
             return DataTables::of($data)
@@ -129,11 +130,10 @@ class LecturerController extends Controller
    public function myStudents(Request $request)
 {
      if ($request->ajax()) {
-
-            $data = AttachmentStudent::with(['attachment', 'student', 'student.user']);
-                if (!empty($request->attachment_id)) {
-                    $data->where('attachment_id', $request->attachment_id);
-                }
+         $attachment_lecturer_id = $request->session()->get('attachment_lecturer_id');
+         $attachment_id= $request->session()->get('attachment_id');
+            $data = AttachmentStudent::with(['attachment', 'student', 'student.user', 'industrialSupervisor.user', 'company',])
+                                    ->where('lecturer_id', $attachment_lecturer_id );
 
             return DataTables::of($data)
                 ->addIndexColumn() // adds DT_RowIndex
@@ -146,6 +146,9 @@ class LecturerController extends Controller
 
                 ->addColumn('department', fn ($row) => $row->department->name ?? '-')
                 ->addColumn('status', fn ($row) => $row->attachment->status ?? '-')
+                ->addColumn('company', fn ($row) => $row->company->name ?? '-')
+                ->addColumn('industrial_supervisor', fn ($row) => $row->industrialSupervisor->user->name ?? '-')
+                ->addColumn('industrial_supervisor_phone', fn ($row) => $row->industrialSupervisor->user->phone_number ?? '-')
 
                 ->rawColumns(['action'])
 

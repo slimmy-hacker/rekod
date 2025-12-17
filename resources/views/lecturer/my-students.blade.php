@@ -29,7 +29,11 @@
                         </li>
                     </ol>
                 </nav>
+
                 <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">My students</h1>
+
+                <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">All My Students</h1>
+
             </div>
         </div>
     </div>
@@ -56,6 +60,15 @@
                             </th>
                             <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
                                 Department
+                            </th>
+                            <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
+                                Company
+                            </th>
+                            <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
+                               Indur Supervisor
+                            </th>
+                            <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
+                                Indur Sup Phone
                             </th>
 
                             <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
@@ -90,7 +103,6 @@
                                     <span class="sr-only">Close modal</span>
                                 </button>
                             </div>
-                                <div class="p-2">
                                      <form id="assessForm">
 
                                 @csrf
@@ -106,7 +118,7 @@
                                         <label for="practical_orientation_remarks" class="required block font-medium">practical Orientation Remarks</label>
                                         <textarea id="practical_orientation_remarks" name="practical_orientation_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
                                     </div>
-                                   
+
                                     <div>
                                         <label for="intellectual_activity_Marks" class="required block font-medium">Intellectual Activity Marks(max5)</label>
                                         <input type="number" min="0" max="5" id="report_marks" name="intellectual_activity_Marks" class="w-full border rounded p-2" required>
@@ -187,6 +199,9 @@
                 { data: 'name', name: 'name' },
                 { data: 'reg_no', name: 'reg_no' },
                 { data: 'department', name: 'department' },
+                { data: 'company', name: 'company' },
+                { data: 'industrial_supervisor', name: 'industrial_supervisor' },
+                { data: 'industrial_supervisor_phone', name: 'industrial_supervisor_phone' },
 
                 { data: 'status', name: 'status' },
                 { data: 'action', name: 'action', orderable: false, searchable: false },

@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('code',50);
             $table->string('parent_code',50)->nullable();
             $table->integer('level');
-            $table->string('latitude',14)->nullable();
-            $table->string('longitude',14)->nullable();
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

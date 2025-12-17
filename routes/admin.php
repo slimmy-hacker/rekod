@@ -8,6 +8,8 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LecturerController;
 use App\Http\Controllers\AdministrativeUnitController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LecturerAssigmentController;
+
 
 
 
@@ -76,3 +78,9 @@ Route::get('/assessments', [AdminController::class, 'index'])
         ->name('assessments');
         Route::get('admin/assessments', [AdminController::class, 'index'])
     ->name('admin.assessments');
+
+Route::get('/lecturers-assignment', [LecturerAssigmentController::class, 'index'])
+    ->name('admin.lecturerAssignment.index');
+Route::post('/lecturers-assignment/generate', [LecturerAssigmentController::class, 'generateDraft'])
+    ->name('admin.lecturerAssignment.generate');
+
