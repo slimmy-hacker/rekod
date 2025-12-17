@@ -29,7 +29,11 @@
                         </li>
                     </ol>
                 </nav>
+
+                <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">My students</h1>
+
                 <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">All My Students</h1>
+
             </div>
         </div>
     </div>

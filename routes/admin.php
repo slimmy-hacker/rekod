@@ -73,6 +73,12 @@ Route::post('attachment-student/add', [AttachmentStudentController::class, 'add'
 Route::post('/admin/attachment-lecturers/add', [AttachmentLecturerController::class, 'store'])
     ->name('admin.attachment_lecturers.add');
 
+
+Route::get('/assessments', [AdminController::class, 'index'])
+        ->name('assessments');
+        Route::get('admin/assessments', [AdminController::class, 'index'])
+    ->name('admin.assessments');
+
 Route::get('/lecturers-assignment', [LecturerAssigmentController::class, 'index'])
     ->name('admin.lecturerAssignment.index');
 Route::post('/lecturers-assignment/generate', [LecturerAssigmentController::class, 'generateDraft'])
