@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Auth;
+use App\Models\FinalReport;
 use App\Models\WeeklyReport;
 use App\Imports\LecturersImport;
 use App\Models\Lecturer;
@@ -28,7 +30,9 @@ class LecturerController extends Controller
                 ->addColumn('name', fn ($row) => $row->user->name ?? '-')
                 ->addColumn('email', fn ($row) => $row->user->email ?? '-')
                 ->addColumn('department', fn ($row) =>  $row->department->name ?? '-')
-                 ->addColumn('job_grade', fn ($row) => $row->job_grade ?? '-')
+                ->addColumn('job_grade', function($row) {
+                return $row->jobGrade->dekut_grade ?? 'No Grade Assigned';
+                })
 
                 ->addColumn('action', function ($row) {
                     
@@ -131,7 +135,7 @@ class LecturerController extends Controller
          $attachment_lecturer_id = $request->session()->get('attachment_lecturer_id');
          $attachment_id= $request->session()->get('attachment_id');
             $data = AttachmentStudent::with(['attachment', 'student', 'student.user', 'industrialSupervisor.user', 'company',])
-                                    ->where('lecturer_id', $attachment_lecturer_id );
+                                    ->where('attachment_lecturer_id', $attachment_lecturer_id );
 
             return DataTables::of($data)
                 ->addIndexColumn() // adds DT_RowIndex
@@ -151,15 +155,7 @@ class LecturerController extends Controller
                 ->rawColumns(['action'])
 
                 ->addColumn('action', function ($row){
-               $assessment = AttachmentAssessment::where('attachment_student_id', $row->id)->first();
-
-if ($assessment && $assessment->punctuality_marks !== null) {
-    return '<button type="button" disabled class="bg-green-600 text-white font-semibold px-3 py-1 rounded cursor-not-allowed opacity-70">
-                Already Assessed
-            </button>';
-
-
-}
+             
 
             
                  
@@ -193,53 +189,62 @@ if ($assessment && $assessment->punctuality_marks !== null) {
 
     return view('lecturer.my-students', compact('attachments'));
 }
-
- public function weeklyReports()
+public function weeklyReports(Request $request)
 {
-    $lecturer = auth()->user();
+    // 1. Get Lecturer ID
+    $lecturerId = $request->session()->get('attachment_lecturer_id') 
+                  ?? auth()->user()->lecturer->id 
+                  ?? null;
 
-    if ($lecturer->role !== 'lecturer') {
-        abort(403);
+    if (!$lecturerId) {
+        return redirect()->route('lecturer.my-students')
+            ->with('error', 'Please select or verify your lecturer profile first.');
     }
 
-    // Get attachment_student IDs assigned to this lecturer
-    $attachmentStudentIds = AttachmentStudent::where(
-        'lecturer_id',
-        $lecturer->id
-    )->pluck('id');
-
-    // Fetch weekly reports
-    $weeklyReports = WeeklyReport::whereIn(
-            'attachment_student_id',
-            $attachmentStudentIds
-        )
-        ->orderBy('week_id')
-        ->get();
+    // 2. Get the ATTACHMENT IDs (the bridge records) linked to this lecturer
+    // We pluck the 'id' of the attachment_students table, not the student_id
+    $attachmentIds = \App\Models\AttachmentStudent::where('attachment_lecturer_id', $lecturerId)
+                    ->pluck('id');
+// Change the 'with' part to this exact string
+$weeklyReports = \App\Models\WeeklyReport::whereIn('attachment_student_id', $attachmentIds)
+                    ->with(['attachmentStudent.student.user']) 
+                    ->orderBy('week_id', 'desc')
+                    ->get();
 
     return view('lecturer.weekly-reports', [
         'weeklyReports' => $weeklyReports,
-        'user_role' => 'lecturer',
+        'user_role' => 'lecturer'
     ]);
 }
-
-   public function update(Request $request, WeeklyReport $report)
+public function update(Request $request, $id)
 {
-    if (auth()->user()->role !== 'lecturer') {
-        abort(403);
-    }
-
-    if ($report->attachmentStudent->lecturer_id !== auth()->id()) {
-        abort(403);
-    }
-
-    $request->validate([
-        'lecturer_comment' => 'required|string',
-    ]);
-
+    $report = WeeklyReport::findOrFail($id);
+    
     $report->update([
-        'lecturer_comment' => $request->lecturer_comment,
+        'lecturer_comment' => $request->lecturer_comment
+        // Note: You might want to add 'is_approved' => true here as well
     ]);
 
-    return back()->with('success', 'Lecturer comment submitted successfully.');
+    return redirect()->route('lecturer.weekly-reports')->with('success', 'Comment saved!');
+}
+public function viewStudentReports()
+{
+    // 1. Get the current logged-in lecturer profile
+    $lecturer = Auth::user()->lecturer;
+
+    if (!$lecturer) {
+        return redirect()->back()->with('error', 'Profile not found.');
+    }
+
+    // 2. Fetch all final reports where the student's attachment record 
+    // has THIS lecturer assigned to it.
+    $reports = \App\Models\FinalReport::whereHas('attachmentStudent', function($query) use ($lecturer) {
+        $query->where('attachment_lecturer_id', $lecturer->id);
+    })
+    ->with(['attachmentStudent.student.user']) // Eager load names to avoid extra queries
+    ->latest()
+    ->get();
+
+    return view('lecturer.final-reports', compact('reports'));
 }
 }

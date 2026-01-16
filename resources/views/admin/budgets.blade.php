@@ -1,70 +1,93 @@
 @extends('layouts.my_app')
 
-@section('title', 'Budget Template')
+@section('title', 'Lecturer Budget')
 
 @section('content')
-<div class="bg-white p-6 shadow rounded">
+<div class="bg-white p-6 shadow-lg rounded">
+    <div class="mb-6 border-b pb-4 flex justify-between items-end">
+        <div>
+            <h2 class="font-bold text-2xl text-gray-800 uppercase">Attachment Budget Breakdown</h2>
+            <p class="text-sm text-gray-500 italic">Calculation based on job grades and visit locations</p>
+        </div>
+        <div class="text-right">
+            <span class="text-xs text-gray-400 uppercase font-semibold">Total Budget Value</span>
+            <div class="text-xl font-bold text-blue-900">
+                Ksh {{ number_format($attachment_lecturers->sum(fn($l) => ($l->total_subsistence ?? 0) + ($l->total_transport ?? 0))) }}
+            </div>
+        </div>
+    </div>
 
-    <h2 class="text-center font-bold mb-4">Budget Template</h2>
-
-    <table class="w-full border-collapse border text-sm">
-        <thead>
-            <tr>
-                <th class="border p-2">S/N</th>
-                <th class="border p-2">Lecturer</th>
-                <th class="border p-2">Areas/Towns</th>
-                <th class="border p-2">No. of students</th>
-                <th class="border p-2">Daily Allowance</th>
-                <th class="border p-2">Subsistence amount</th>
-                <th class="border p-2">Transport amount</th>
-                <th class="border p-2">Subtotal (kshs)</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @foreach($lecturers as $index => $lecturer)
-                @php
-                    $daily = optional($lecturer->jobGrade)->daily_allowance;
-                    $visits = optional($lecturer->assessmentVisits) ?? collect();
-
-                    $totalStudents = 0;
-                    $totalSubsistence = 0;
-                    $totalTransport = 0;
-                    $towns = [];
-                @endphp
-
-                @foreach($visits as $visit)
-                    @php
-                        $days = $visit->days ?? 0;
-                        $studentsCount = $visit->students_count ?? 0;
-                        $transport = $visit->transport_amount ?? 0;
-
-                        $subsistence = ($daily && $daily > 0) ? $daily * $days * $studentsCount : 0;
-
-                        $totalStudents += $studentsCount;
-                        $totalSubsistence += $subsistence;
-                        $totalTransport += $transport;
-
-                        if ($visit->town) {
-                            $towns[] = $visit->town;
-                        }
-                    @endphp
-                @endforeach
-
-                <tr>
-                    <td class="border p-2 text-center">{{ $index + 1 }}</td>
-                    <td class="border p-2">{{ optional($lecturer->user)->name ?? 'No Name' }}</td>
-
-                    <td class="border p-2">{{ implode(', ', array_unique($towns)) }}</td>
-                    <td class="border p-2 text-center">{{ $totalStudents }}</td>
-                    <td class="border p-2 text-right">{{ number_format($daily ?? 0) }}</td>
-                    <td class="border p-2 text-right">{{ number_format($totalSubsistence) }}</td>
-                    <td class="border p-2 text-right">{{ number_format($totalTransport) }}</td>
-                    <td class="border p-2 text-right">{{ number_format($totalSubsistence + $totalTransport) }}</td>
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse border border-gray-200 text-sm">
+            <thead>
+                <tr class="bg-gray-100 text-gray-700 uppercase text-[11px] border-b-2">
+                    <th class="border p-3 text-left">Lecturer (System ID)</th>
+                    <th class="border p-3 text-center">Grade</th>
+                    <th class="border p-3 text-left">Visit Locations</th>
+                    <th class="border p-3 text-center">Towns</th>
+                    <th class="border p-3 text-right">Daily Rate</th>
+                    <th class="border p-3 text-right">Subsistence</th>
+                    <th class="border p-3 text-right">Transport</th>
+                    <th class="border p-3 text-right bg-blue-100 text-blue-900 font-bold uppercase">Total</th>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
-
+            </thead>
+            <tbody>
+                @forelse($attachment_lecturers as $lecturer)
+                    <tr class="hover:bg-gray-50 border-b">
+                        <td class="border p-3 font-bold">
+                            {{ $lecturer->lecturer_name ?? 'N/A' }}
+                            {{-- Corrected from attachmentl_lecturer_id to id --}}
+                            <div class="text-[10px] text-blue-500 font-mono">REF_ID: {{ $lecturer->id }}</div>
+                        </td>
+                        <td class="border p-3 text-center text-blue-700 font-semibold">
+                            {{ $lecturer->dekut_grade ?? 'No Grade' }}
+                        </td>
+                        <td class="border p-3">
+                            @if(isset($lecturer->assessmentVisits) && count($lecturer->assessmentVisits) > 0)
+                                @foreach($lecturer->assessmentVisits as $visit)
+                                    <div class="flex justify-between text-[11px] mb-1 px-2 py-0.5 bg-gray-50 rounded border border-gray-100">
+                                        <span class="capitalize">{{ $visit->town }}</span>
+                                        <span class="font-bold text-gray-600">({{ $visit->students_count }})</span>
+                                    </div>
+                                @endforeach
+                            @else
+                                <span class="text-red-400 italic text-[10px]">No assignments found</span>
+                            @endif
+                        </td>
+                        <td class="border p-3 text-center font-medium">{{ $lecturer->town_count }}</td>
+                        <td class="border p-3 text-right text-gray-500">{{ number_format($lecturer->daily_rate_used) }}</td>
+                        <td class="border p-3 text-right">{{ number_format($lecturer->total_subsistence) }}</td>
+                        <td class="border p-3 text-right">{{ number_format($lecturer->total_transport) }}</td>
+                        <td class="border p-3 text-right font-bold bg-blue-50 text-blue-900">
+                            Ksh {{ number_format(($lecturer->total_subsistence ?? 0) + ($lecturer->total_transport ?? 0)) }}
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="8" class="p-12 text-center text-gray-400 italic">
+                            No records found in attachment_lecturers table.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+            
+            @if($attachment_lecturers->isNotEmpty())
+            <tfoot class="bg-gray-100 font-bold text-gray-800">
+                <tr>
+                    <td colspan="5" class="border p-3 text-right uppercase tracking-wider">Grand Totals</td>
+                    <td class="border p-3 text-right">
+                        {{ number_format($attachment_lecturers->sum('total_subsistence')) }}
+                    </td>
+                    <td class="border p-3 text-right">
+                        {{ number_format($attachment_lecturers->sum('total_transport')) }}
+                    </td>
+                    <td class="border p-3 text-right bg-blue-900 text-white">
+                        Ksh {{ number_format($attachment_lecturers->sum(fn($l) => ($l->total_subsistence ?? 0) + ($l->total_transport ?? 0))) }}
+                    </td>
+                </tr>
+            </tfoot>
+            @endif
+        </table>
+    </div>
 </div>
 @endsection

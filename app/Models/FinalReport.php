@@ -14,9 +14,10 @@ class FinalReport extends Model
         'is_submitted',
     ];
 
-    public function attachmentStudent()
+   public function attachmentStudent()
     {
-        return $this->belongsTo(AttachmentStudent::class);
+        // 'attachment_student_id' is the column in your final_reports table
+        return $this->belongsTo(AttachmentStudent::class, 'attachment_student_id');
     }
 }
 

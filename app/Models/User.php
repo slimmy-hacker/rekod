@@ -68,5 +68,12 @@ public function student()
 {
     return $this->hasOne(Student::class, 'user_id');
 }
+public function industrialSupervisor()
+{
+    return $this->hasOne(IndustrialSupervisor::class, 'user_id');
+}
 
+public function lecturer() {
+    return $this->hasOne(Lecturer::class, 'user_id');
+}
 }

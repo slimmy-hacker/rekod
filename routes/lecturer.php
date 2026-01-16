@@ -36,9 +36,12 @@ Route::middleware(['ensure.attachment.selected'])->name('lecturer.')->group(func
     Route::get('/weekly-reports', [LecturerController::class, 'weeklyReports'])
         ->name('weekly-reports');
 
-    Route::post('/weekly-reports/{report}', [LecturerController::class, 'update'])
+    Route::put('/weekly-reports/{report}', [LecturerController::class, 'update'])
         ->name('weekly-reports.update');
 
 
 
 });
+
+Route::get('/final-reports', [LecturerController::class, 'viewStudentReports'])
+         ->name('lecturer.final-reports');

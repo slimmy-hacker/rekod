@@ -19,10 +19,8 @@ class Student extends Model
 {
     return $this->belongsTo(User::class, 'supervisor_id');
 }
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
+   
+
 
     public function program()
     {
@@ -34,6 +32,15 @@ public function attachmentStudent()
 {
     return $this->hasOne(AttachmentStudent::class, 'student_id');
 }
+public function weeklyReports()
+{
+    return $this->hasMany(WeeklyReport::class, 'student_id');
+}
+// app/Models/Student.php
 
+public function user()
+{
+    return $this->belongsTo(User::class, 'user_id');
+}
 
 }

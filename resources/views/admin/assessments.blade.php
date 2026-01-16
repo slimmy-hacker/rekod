@@ -67,10 +67,8 @@
                                     <th class="p-2 w-12 text-center text-xs font-medium text-gray-500 uppercase">#</th>
                                     <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
                                     <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Reg No</th>
-                                    <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
-                                    <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Lecturer</th>
-                                    <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Lecturer Marks</th>
-                                    <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Industrial Supervisor</th>
+                                    <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Department</th>                                   
+                                    <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Lecturer Marks</th>                                    
                                     <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Industrial Marks</th>
                                     <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Total Marks</th>
                                     <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -93,9 +91,9 @@
                                         <td class="p-4">{{ $user->name ?? '' }}</td>
                                         <td class="p-4">{{ $student->reg_no ?? '' }}</td>
                                         <td class="p-4">{{ $program->name ?? '' }}</td>
-                                        <td class="p-4">{{ $assessment->lecturer->user->name ?? '' }}</td>
+                                       
                                         <td class="p-4 font-semibold">{{ $lecturerMarks }}</td>
-                                        <td class="p-4">{{ $assessment->industrialSupervisor->user->name ?? '' }}</td>
+                                        
                                         <td class="p-4 font-semibold">{{ $industrialMarks }}</td>
                                         <td class="p-4 font-semibold">{{ $totalMarks }}</td>
                                         <td class="p-4">{{ ucfirst($assessment->status ?? 'Pending') }}</td>

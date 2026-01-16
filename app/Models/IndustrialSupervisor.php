@@ -13,6 +13,10 @@ class IndustrialSupervisor extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+public function attachmentStudents()
+{
+    return $this->hasMany(AttachmentStudent::class);
+}
 
 
 }

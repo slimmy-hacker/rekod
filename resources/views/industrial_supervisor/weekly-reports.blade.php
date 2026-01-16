@@ -1,56 +1,82 @@
 @extends('layouts.my_app')
 
-@section('title', 'Weekly Reports Review - Industrial Supervisor')
+@section('title', 'Approve Weekly Reports')
 
 @section('content')
 <div class="bg-white p-6 rounded-lg shadow-md">
-    <h1 class="text-2xl font-bold mb-6 text-gray-800">Review Weekly Attachment Reports</h1>
 
-    {{-- Success Message --}}
-    @if (session('success'))
+    <h1 class="text-2xl font-bold mb-6">Weekly Reports Approval</h1>
+
+    @if(session('success'))
         <div class="bg-green-100 text-green-800 p-3 rounded mb-4">
             {{ session('success') }}
         </div>
     @endif
 
-    {{-- Validation Errors --}}
-    @if ($errors->any())
-        <div class="bg-red-100 text-red-800 p-3 rounded mb-4">
-            <ul class="list-disc list-inside">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <table class="w-full border table-auto">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="border p-2">Student</th>
+                <th class="border p-2">Week</th>
+                <th class="border p-2">Report</th>
+                <th class="border p-2">Supervisor Comment</th>
+                <th class="border p-2">Approval</th>
+            </tr>
+        </thead>
+        <tbody>
+        @forelse($weeklyReports as $report)
+            {{-- REMOVED the check for attachmentStudent because we use student_id now --}}
+            <tr>
+                <td class="border p-2">
+                    
+                    {{-- Updated to use the direct student relationship --}}
+                   
+                </td>
 
-    @forelse ($weeklyReports as $report)
-        <div class="border p-4 mb-6 rounded shadow-sm">
-            <p><strong>Week {{ $report->week_id }}</strong> ({{ \Carbon\Carbon::parse($report->week_start_date)->format('Y-m-d') }} to {{ \Carbon\Carbon::parse($report->week_end_date)->format('Y-m-d') }})</p>
-            <p class="mb-3 whitespace-pre-line">{{ $report->weekly_report ?? 'No report content' }}</p>
+                <td class="border p-2">
+                    Week {{ $report->week_id }}
+                </td>
 
-            <form method="POST" action="{{ route('industrial_supervisor.weekly-reports.update', $report->id) }}">
-                @csrf
-                @method('PUT')
+                <td class="border p-2">
+                    {{ $report->weekly_report }}
+                </td>
 
-                <label class="block font-semibold mb-1" for="industrial_supervisor_comment_{{ $report->id }}">
-                    Industrial Supervisor Comment
-                </label>
-                <textarea name="industrial_supervisor_comment" id="industrial_supervisor_comment_{{ $report->id }}" rows="4" required
-                    class="w-full border p-2 rounded mb-3">{{ old('industrial_supervisor_comment', $report->industrial_supervisor_comment) }}</textarea>
+                <td class="border p-2">
+                    @if(!$report->is_approved)
+                        <form method="POST" action="{{ route('industrial_supervisor.weekly-reports.approve', $report->id) }}">
+                            @csrf
+                            <textarea
+                                name="industrial_supervisor_comment"
+                                rows="3"
+                                class="w-full border rounded p-2"
+                                required
+                            ></textarea>
+                    @else
+                        {{ $report->industrial_supervisor_comment }}
+                    @endif
+                    
+                </td>
 
-                <div class="flex items-center mb-3 space-x-2">
-                    <input type="checkbox" name="is_approved" id="is_approved_{{ $report->id }}" value="1" {{ $report->is_approved ? 'checked' : '' }}>
-                    <label for="is_approved_{{ $report->id }}" class="font-medium">Approve Weekly Report</label>
-                </div>
+                <td class="border p-2 text-center">
+                    @if(!$report->is_approved)
+                        <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded">
+                            Approve
+                        </button>
+                        </form>
+                    @else
+                        <span class="text-green-600 font-semibold">Approved</span>
+                    @endif
+                </td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="5" class="text-center p-4 text-gray-500">
+                    No weekly reports found.
+                </td>
+            </tr>
+        @endforelse
+        </tbody>
+    </table>
 
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-                    Save Comment & Approval
-                </button>
-            </form>
-        </div>
-    @empty
-        <p class="text-gray-600">No weekly reports available for review.</p>
-    @endforelse
 </div>
 @endsection

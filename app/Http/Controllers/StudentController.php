@@ -78,83 +78,75 @@ public function index(Request $request){
     public function portal() {
         return view('student.portal');
     }
-
-
-
-
-public function storeWeeklyReport(Request $request)
+  public function storeWeeklyReport(Request $request)
 {
     $request->validate([
-        'week_id' => 'required|integer|min:1|max:12',
-        'weekly_report' => 'required|string',
+        'week_id' => 'required|integer|in:1,2,3,4,5,6,7,8,9,10',
         'week_start_date' => 'required|date',
-         'week_end_date' => 'required|date|after_or_equal:week_start_date',
+        'week_end_date' => 'required|date',
+        'weekly_report' => 'required|string',
     ]);
 
-    $student = Auth::user()->student;
-    $attachmentStudent = $student?->attachmentStudent;
-
-    if (!$attachmentStudent) {
-        return back()->withErrors('Attachment record not found.');
+    $student = auth()->user()->student;
+    if (!$student) {
+        return back()->withErrors('Student record not found.');
     }
 
-    // prevent duplicate week submission
-    if (WeeklyReport::where([
-        'attachment_student_id' => $attachmentStudent->id,
-        'week_id' => $request->week_id,
-    ])->exists()) {
-        return back()->withErrors('This week report is already submitted.');
-    }
+    $attachmentId = session('attachment_id'); // or however you get it
 
-    $filePath = $request->hasFile('report_file')
-        ? $request->file('report_file')->store('reports/weekly')
-        : null;
+    $attachmentstudent = AttachmentStudent::where('student_id', $student->id)
+        ->where('attachment_id', $attachmentId)
+        ->first();
+
+    if (!$attachmentstudent) {
+        return back()->withErrors('You are not registered for this attachment.');
+    }
 
     WeeklyReport::create([
-        'attachment_student_id' => $attachmentStudent->id,
+        'attachment_student_id' => $attachmentstudent->id,  // EXACT spelling & case here
         'week_id' => $request->week_id,
         'week_start_date' => $request->week_start_date,
         'week_end_date' => $request->week_end_date,
         'weekly_report' => $request->weekly_report,
-                'industrial_supervisor_comment' => null, // initially null
-        'lecturer_comment' => null, // initially null
-        'is_approved' => false, // or 0, means not approved yet by industrial supervisor
+        'is_approved' => false,
     ]);
-
-      
-    
 
     return back()->with('success', 'Weekly report submitted successfully.');
 }
+
 public function weeklyReports()
 {
     $user = auth()->user();
-
-    // Determine user role however you store it (example)
-    // Replace this logic with your actual role detection
-  
-
-if ($user->isStudent()) {
-    $user_role = 'student';
-} elseif ($user->isIndustry()) {
-    $user_role = 'industry';
-} elseif ($user->isUniversity()) {
-    $user_role = 'university';
-} elseif ($user->isAdmin()) {
-    $user_role = 'admin';
-} else {
     $user_role = 'guest';
-}
-    $student = $user->student;
-    $attachmentStudent = $student ? $student->attachmentStudent : null;
 
-    $weeklyReports = $attachmentStudent
-        ? $attachmentStudent->weeklyReports()->orderBy('week_id')->get()
-        : collect();
+    if ($user->isStudent()) {
+        $user_role = 'student';
+        $student = $user->student;
+
+        // FETCH: Get reports directly using student_id
+        $weeklyReports = $student 
+            ? WeeklyReport::where('attachment_student_id', $student->id)->orderBy('week_id')->get()
+            : collect();
+
+    } elseif ($user->isIndustry()) {
+        $user_role = 'industry';
+        
+        // FETCH: Get reports for all students who have an attachment record with this supervisor
+        $weeklyReports = WeeklyReport::whereIn('student_id', function ($query) use ($user) {
+            $query->select('student_id')
+                  ->from('attachment_students')
+                  ->where('industrial_supervisor_id', $user->id);
+        })
+        ->with(['student.user']) // Eager load the student and user info
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    } else {
+        $weeklyReports = collect();
+    }
 
     return view('student.weekly-reports', compact('weeklyReports', 'user_role'));
 }
-
 public function storeFinalReport(Request $request)
 {
     $request->validate([
@@ -163,24 +155,19 @@ public function storeFinalReport(Request $request)
         'final_report_file' => 'required|file|mimes:pdf,doc,docx|max:10240',
     ]);
 
-    $student = Auth::user()->student;
-
-    if (!$student) {
-        return back()->withErrors('Student profile not found.');
-    }
-
-    $attachmentStudent = $student->attachmentStudent;
+    $attachmentStudent = Auth::user()->student->attachmentStudent;
 
     if (!$attachmentStudent) {
         return back()->withErrors('Attachment record not found.');
     }
-if (FinalReport::where([
-    'attachment_student_id' => $attachmentStudent->id,
-    
-])->exists()) {
-    return back()->withErrors('Final report with the same content already submitted by you.');
-}
-    $path = $request->file('final_report_file')->store('reports/final');
+
+    // STRICT "SUBMIT ONCE" CHECK
+    if (FinalReport::where('attachment_student_id', $attachmentStudent->id)->exists()) {
+        return back()->withErrors('You have already submitted your final report.');
+    }
+
+  // Old: $path = $request->file('final_report_file')->store('reports/final');
+$path = $request->file('final_report_file')->store('reports/final', 'public');
 
     FinalReport::create([
         'attachment_student_id' => $attachmentStudent->id,
@@ -192,37 +179,15 @@ if (FinalReport::where([
 
     return redirect()->back()->with('success', 'Final report submitted successfully.');
 }
-
-
-    // ===============================
-    // SHOW FINAL REPORT PAGE (GET)
-    // ===============================
-    public function finalReport()
+public function finalReport()
 {
-    $user = Auth::user();
-
-    // 1️⃣ Get student linked to user
-    $student = $user->student;
-
-    if (!$student) {
-        return redirect()->route('student.dashboard')
-            ->withErrors('Student profile not found.');
-    }
-
-    // 2️⃣ Get attachment using student_id
+    $student = Auth::user()->student;
     $attachmentStudent = $student->attachmentStudent;
 
-    if (!$attachmentStudent) {
-        return redirect()->route('student.dashboard')
-            ->withErrors('Please complete attachment registration first.');
-    }
+    // Fetch the report so the Blade can check if it exists
+    $final_report = FinalReport::where('attachment_student_id', $attachmentStudent->id)->first();
 
-    // 3️⃣ Get final report
-    $finalReport = FinalReport::where(
-        'attachment_student_id',
-        $attachmentStudent->id
-    )->first();
-
-    return view('student.final-report', compact('finalReport'));
+    // Pass the variable to the view
+    return view('student.final-report', compact('final_report', 'attachmentStudent'));
 }
 }

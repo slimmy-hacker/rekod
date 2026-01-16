@@ -49,7 +49,15 @@ class LecturerAssigmentController extends Controller
                 ->addColumn('reg_no', fn ($row) =>  $row->student->reg_no ?? '-')
                 ->addColumn('attachment', fn ($row) => $row->attachment->name ?? '-')
                 ->addColumn('department', fn ($row) => $row->department->name ?? '-')
-                ->addColumn('lecturer', fn ($row) => $row->attachment_lecturer->lecturer->user->name ?? '-')
+                ->addColumn('lecturer', function ($row) {
+    // Check the relationship chain safely
+    if ($row->attachmentLecturer && $row->attachmentLecturer->lecturer && $row->attachmentLecturer->lecturer->user) {
+        return $row->attachmentLecturer->lecturer->user->name;
+    }
+    
+    // Fallback: If the ID exists but relationship isn't loading, show ID for debugging
+    return $row->attachment_lecturer_id ? 'Assigned (ID: '.$row->attachment_lecturer_id.')' : 'Not Assigned';
+})
                 ->addColumn('status', fn ($row) => $row->attachment->status ?? '-')
                 ->addColumn('company', fn ($row) => $row->company->name ?? '-')
                 ->addColumn('subcounty', fn ($row) => $row->company->subcounty->name ?? '-')
@@ -201,7 +209,7 @@ if ($prev_assigment) {
             foreach ($clusters as $row) {
                 $student = $students->firstWhere('id', $row['student_id']);
               AttachmentStudent::find($row['student_id'])->update([
-                  'lecturer_id' => $row['lecturer_id'],
+                 'attachment_lecturer_id' => $row['lecturer_id'],
               ]);
                 LecturerAssigment::create([
                     'attachment_id' => $request->attachment_id,

@@ -124,17 +124,6 @@ class IndustrialSupervisorController extends Controller
         ->addColumn('lecturer', fn ($row) => $row->lecturer->user->name ?? '-')
         ->addColumn('status', fn ($row) => $row->attachment->status ?? '-')
         ->addColumn('action', function ($row) {
-    $supervisorId = request()->session()->get('industrial_supervisor_id');
-
-$assessment = AttachmentAssessment::where('attachment_student_id', $row->id)
-    ->where('industrial_supervisor_id', $supervisorId)
-    ->first();
-
-if ($assessment && $assessment->punctuality_marks !== null) {
-    return '<button type="button" disabled class="bg-green-600 text-white font-semibold px-3 py-1 rounded cursor-not-allowed opacity-70">
-                Already Assessed 
-            </button>';
-}
 
     
             return '
@@ -178,43 +167,52 @@ if ($assessment && $assessment->punctuality_marks !== null) {
 
         return response()->json($supervisors);
     }
-
-public function weeklyReports()
+    public function weeklyReports()
 {
-    $industrialSupervisor = auth()->user();
+    $user = auth()->user();
+    $industrialSupervisor = $user->industrialSupervisor;
 
-    if ($industrialSupervisor->role !== 'industrial_supervisor') {
-        abort(403);
+    if (!$industrialSupervisor) {
+        return view('industrial_supervisor.weekly-reports', ['weeklyReports' => collect()]);
     }
 
-    $weeklyReports = WeeklyReport::whereHas('attachmentStudent', function ($q) use ($industrialSupervisor) {
-        $q->where('industrial_supervisor_id', $industrialSupervisor->id);
-    })->orderBy('week_id')->get();
+    // Get IDs of attachment_students assigned to this supervisor
+    $attachmentStudentIds = \App\Models\AttachmentStudent::where('industrial_supervisor_id', $industrialSupervisor->id)
+        ->pluck('id'); // <-- use 'id' here
 
-    return view('industrial_supervisor.weekly-reports', compact('weeklyReports'))
-           ->with('user_role', 'industrial_supervisor');
+    // Fetch weekly reports where attachment_student_id is in those IDs
+    $weeklyReports = \App\Models\WeeklyReport::whereIn('attachment_student_id', $attachmentStudentIds)
+        ->with(['attachmentStudent.student.user']) // Eager load relations correctly
+        ->orderByDesc('week_id')
+        ->get();
+
+    return view('industrial_supervisor.weekly-reports', compact('weeklyReports'));
 }
-public function update(Request $request, WeeklyReport $report)
+
+public function approveWeeklyReport(Request $request, $id)
 {
     $request->validate([
         'industrial_supervisor_comment' => 'required|string',
-        'is_approved' => 'nullable|boolean',
     ]);
 
-    // Authorization check: the report must belong to the industrial supervisor
-    if ($report->attachmentStudent->industrial_supervisor_id !== auth()->id()) {
-        abort(403);
-    }
+    $industrialSupervisor = auth()->user()->industrialSupervisor;
 
-    $report->update([
+    // Find weekly report and ensure it belongs to attachment_student assigned to this supervisor
+    $weeklyReport = WeeklyReport::where('id', $id)
+        ->whereIn('attachment_student_id', function ($query) use ($industrialSupervisor) {
+            $query->select('id')
+                  ->from('attachment_students')
+                  ->where('industrial_supervisor_id', $industrialSupervisor->id);
+        })
+        ->firstOrFail();
+
+    $weeklyReport->update([
         'industrial_supervisor_comment' => $request->industrial_supervisor_comment,
-        'is_approved' => $request->has('is_approved'),
+        'is_approved' => true,
     ]);
 
-    return back()->with('success', 'Comment and approval updated successfully.');
+    return redirect()
+        ->route('industrial_supervisor.weekly-reports')
+        ->with('success', 'Weekly report approved successfully.');
 }
-
-
-
-
 }
