@@ -227,24 +227,32 @@ public function update(Request $request, $id)
 
     return redirect()->route('lecturer.weekly-reports')->with('success', 'Comment saved!');
 }
-public function viewStudentReports()
+public function viewStudentReports(Request $request)
 {
-    // 1. Get the current logged-in lecturer profile
-    $lecturer = Auth::user()->lecturer;
+    // 1. Get Lecturer ID (Matches your weekly report logic)
+    $lecturerId = $request->session()->get('attachment_lecturer_id') 
+                  ?? auth()->user()->lecturer->id 
+                  ?? null;
 
-    if (!$lecturer) {
-        return redirect()->back()->with('error', 'Profile not found.');
+    if (!$lecturerId) {
+        return redirect()->route('lecturer.my-students')
+            ->with('error', 'Please select or verify your lecturer profile first.');
     }
 
-    // 2. Fetch all final reports where the student's attachment record 
-    // has THIS lecturer assigned to it.
-    $reports = \App\Models\FinalReport::whereHas('attachmentStudent', function($query) use ($lecturer) {
-        $query->where('attachment_lecturer_id', $lecturer->id);
-    })
-    ->with(['attachmentStudent.student.user']) // Eager load names to avoid extra queries
-    ->latest()
-    ->get();
+    // 2. Get the ATTACHMENT IDs linked to this lecturer
+    // This plucks the IDs from the attachment_students table
+    $attachmentIds = \App\Models\AttachmentStudent::where('attachment_lecturer_id', $lecturerId)
+                    ->pluck('id');
 
-    return view('lecturer.final-reports', compact('reports'));
+    // 3. Get Final Reports using the bridge IDs
+    $reports = \App\Models\FinalReport::whereIn('attachment_student_id', $attachmentIds)
+                    ->with(['attachmentStudent.student.user']) 
+                    ->latest()
+                    ->get();
+
+    return view('lecturer.final-reports', [
+        'reports' => $reports,
+        'user_role' => 'lecturer'
+    ]);
 }
 }

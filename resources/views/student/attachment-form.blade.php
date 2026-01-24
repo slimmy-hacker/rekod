@@ -43,7 +43,7 @@
                 @foreach($companies as $company)
                     <option
                         value="{{ $company->id }}"
-                        data-town="{{ $company->subcounty->name }}"
+                        data-town="{{ $company->town?->name }}"
                         data-street="{{ $company->street }}"
                         data-building="{{ $company->building }}"
                         {{ old('company_id', $attachment_student->company_id) == $company->id ? 'selected' : '' }}
@@ -53,7 +53,7 @@
                 @endforeach
 
             </select>
-p
+
             @error('company_id')
             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
             @enderror

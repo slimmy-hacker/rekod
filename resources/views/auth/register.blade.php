@@ -1,24 +1,12 @@
-{{-- resources/views/auth/register-portal.blade.php --}}
 @extends('layouts.guest')
 
-@section('title', ucfirst($portal) . ' Registration')
-@php
-if($portal=='student')
-    $reg_route = route('register.portal.student');
-else{
-    $reg_route = route('register.portal.store', ['portal' => $portal]);
-}
-@endphp
 @section('content')
-<div class="min-h-screen flex items-center justify-center bg-gray-100">
-    <div class="bg-white p-8 rounded-2xl shadow-md w-full max-w-md border border-gray-300">
-        <h2 class="text-2xl font-bold text-center mb-6 text-gray-800 border-b pb-3">
-            Register as {{ ucfirst($portal) }}
-        </h2>
+<div class="min-h-screen flex items-center justify-center bg-gray-100 py-10">
+    <div class="w-full max-w-lg bg-white p-8 rounded shadow">
+        <h2 class="text-2xl font-bold text-center mb-6">User Registration</h2>
 
-        {{-- Validation Errors --}}
         @if ($errors->any())
-            <div class="mb-4 bg-red-100 text-red-700 p-3 rounded-lg text-sm border border-red-300">
+            <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">
                 <ul class="list-disc pl-5">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -27,112 +15,120 @@ else{
             </div>
         @endif
 
-        <form method="POST" action="{{ route('register.portal.store', ['portal' => $portal]) }}" class="space-y-4">
+        <form method="POST" action="{{ route('register') }}" id="regForm">
             @csrf
 
-            {{-- Common Fields --}}
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Name</label>
-                <input type="text" name="name" value="{{ old('name') }}" required
-                       class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2">
+            <div class="mb-4">
+                <label class="block text-sm font-medium">Full Name</label>
+                <input type="text" name="name" value="{{ old('name') }}" required class="w-full mt-1 p-2 border rounded">
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" name="email" value="{{ old('email') }}" required
-                       class="mt-1 w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2">
+            <div class="mb-4">
+                <label class="block text-sm font-medium">Email</label>
+                <input type="email" name="email" value="{{ old('email') }}" required class="w-full mt-1 p-2 border rounded">
             </div>
 
-            {{-- Student Fields --}}
-            @if($portal === 'student')
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Registration Number</label>
-                    <input type="text" name="registration_number" value="{{ old('registration_number') }}" required
-                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Course</label>
-                    <input type="text" name="course" value="{{ old('course') }}" required
-                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Telephone</label>
-                    <input type="text" name="telephone" value="{{ old('telephone') }}" required
-                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
-                </div>
-            @endif
+            <div class="mb-4">
+                <label class="block text-sm font-medium">Register As</label>
+                <select name="role" id="role" required class="w-full mt-1 p-2 border rounded">
+                    <option value="">-- Select Role --</option>
+                    <option value="student" {{ old('role') == 'student' ? 'selected' : '' }}>Student</option>
+                    <option value="lecturer" {{ old('role') == 'lecturer' ? 'selected' : '' }}>Lecturer</option>
+                </select>
+            </div>
+            <div id="student-fields" class="hidden">
+    <div class="mb-4">
+        <label class="block text-sm font-medium">Registration Number</label>
+        <input type="text" name="reg_no" value="{{ old('reg_no') }}" class="w-full mt-1 p-2 border rounded">
+    </div>
 
-            {{-- Supervisor Fields --}}
-            @if($portal === 'lecturer')
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Staff Number</label>
-                    <input type="text" name="staff_number" value="{{ old('staff_number') }}" required
-                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Grade</label>
-                    <input type="text" name="grade" value="{{ old('grade') }}" required
-                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Telephone</label>
-                    <input type="text" name="telephone" value="{{ old('telephone') }}" required
-                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
-                </div>
-            @endif
+    <div class="mb-4">
+        <label class="block text-sm font-medium">Year of Study</label>
+        <select name="year_of_study" class="w-full mt-1 p-2 border rounded">
+            <option value="">-- Select Year --</option>
+            <option value="Year 1">Year 1</option>
+            <option value="Year 2">Year 2</option>
+            <option value="Year 3">Year 3</option>
+            <option value="Year 4">Year 4</option>
+        </select>
+    </div>
 
-            {{-- Industry Fields --}}
-            @if($portal === 'industrial_supervisor')
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Student Name</label>
-                    <input type="text" name="student_name" value="{{ old('student_name') }}" required
-                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Role in Company</label>
-                    <input type="text" name="role" value="{{ old('role') }}" required
-                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Telephone</label>
-                    <input type="text" name="telephone" value="{{ old('telephone') }}" required
-                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
-                </div>
-            @endif
+    <div class="mb-4">
+        <label class="block text-sm font-medium">Program</label>
+        <select name="program_id" class="w-full mt-1 p-2 border rounded">
+            <option value="">-- Select Program --</option>
+            @foreach($programs as $program)
+                <option value="{{ $program->id }}">{{ $program->name }}</option>
+            @endforeach
+        </select>
+    </div>
 
-            {{-- Admin Fields --}}
-            @if($portal === 'admin')
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Telephone</label>
-                    <input type="text" name="telephone" value="{{ old('telephone') }}" required
-                           class="mt-1 w-full border-gray-300 rounded-lg p-2">
+    <div class="mb-4">
+        <label class="block text-sm font-medium">Phone Number</label>
+        <input type="text" name="phone_number" value="{{ old('phone_number') }}" class="w-full mt-1 p-2 border rounded">
+    </div>
+</div>
+            <div id="lecturer-fields" class="hidden">
+                <div class="mb-4">
+                    <label class="block text-sm">Staff Number</label>
+                    <input type="text" name="staff_number" value="{{ old('staff_number') }}" class="w-full mt-1 p-2 border rounded">
                 </div>
-            @endif
-
-            {{-- Password --}}
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Password</label>
-                <input type="password" name="password" required
-                       class="mt-1 w-full border-gray-300 rounded-lg p-2">
+                <div class="mb-4">
+                    <label class="block text-sm">Phone Number</label>
+                    <input type="text" name="office_phone" value="{{ old('office_phone') }}" class="w-full mt-1 p-2 border rounded">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm">Job Grade</label>
+                    <input type="text" name="job_grade" value="{{ old('job_grade') }}" class="w-full mt-1 p-2 border rounded">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium">Department</label>
+                    <select name="department" class="w-full mt-1 p-2 border rounded">
+                        <option value="">-- Select Department --</option>
+                        @foreach($departments as $dept)
+    <option value="{{ $dept->id }}" {{ old('department') == $dept->id ? 'selected' : '' }}>
+        {{ $dept->name }}
+    </option>
+@endforeach
+                    </select>
+                </div>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
-                <input type="password" name="password_confirmation" required
-                       class="mt-1 w-full border-gray-300 rounded-lg p-2">
+            <div class="mb-4">
+                <label class="block text-sm font-medium">Password</label>
+                <input type="password" name="password" required class="w-full mt-1 p-2 border rounded">
             </div>
 
-            {{-- Submit --}}
-            <button type="submit"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition">
+            <div class="mb-6">
+                <label class="block text-sm font-medium">Confirm Password</label>
+                <input type="password" name="password_confirmation" required class="w-full mt-1 p-2 border rounded">
+            </div>
+
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
                 Register
             </button>
-
-            <p class="text-sm text-center text-gray-600 mt-4">
-                Already registered?
-                <a href="{{ route('login') }}" class="text-blue-600 hover:underline">Login</a>
-            </p>
         </form>
     </div>
 </div>
+
+<script>
+    const roleSelect = document.getElementById('role');
+    const studentFields = document.getElementById('student-fields');
+    const lecturerFields = document.getElementById('lecturer-fields');
+
+    function toggleFields() {
+        const role = roleSelect.value;
+        
+        const setupSection = (section, isVisible) => {
+            section.classList.toggle('hidden', !isVisible);
+            section.querySelectorAll('input, select').forEach(el => el.disabled = !isVisible);
+        };
+
+        setupSection(studentFields, role === 'student');
+        setupSection(lecturerFields, role === 'lecturer');
+    }
+
+    roleSelect.addEventListener('change', toggleFields);
+    window.addEventListener('load', toggleFields);
+</script>
 @endsection

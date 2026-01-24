@@ -60,7 +60,7 @@ class LecturerAssigmentController extends Controller
 })
                 ->addColumn('status', fn ($row) => $row->attachment->status ?? '-')
                 ->addColumn('company', fn ($row) => $row->company->name ?? '-')
-                ->addColumn('subcounty', fn ($row) => $row->company->subcounty->name ?? '-')
+                ->addColumn('town', fn ($row) => $row->company->town->name ?? '-')
                 ->addColumn('action', function ($row) {
                     return '<button class="btn btn-sm btn-danger delete" data-id="'.$row->id.'">Delete</button>';
                 })
@@ -179,8 +179,8 @@ class LecturerAssigmentController extends Controller
                 ]);
             }
         $students  =$students ->map(function ($s) {
-                $s->lat = $s->company->subcounty->latitude;
-                $s->lng = $s->company->subcounty->longitude;
+                $s->lat = $s->company->town->latitude;
+                $s->lng = $s->company->town->longitude;
                 return $s;
             });
         $lecturers = AttachmentLecturer::where([

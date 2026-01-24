@@ -28,10 +28,15 @@
             {{-- REMOVED the check for attachmentStudent because we use student_id now --}}
             <tr>
                 <td class="border p-2">
-                    
-                    {{-- Updated to use the direct student relationship --}}
-                   
-                </td>
+    {{-- Path: Report -> AttachmentStudent -> Student -> User -> Name --}}
+    @if($report->attachmentStudent && $report->attachmentStudent->student && $report->attachmentStudent->student->user)
+        <span class="font-semibold">{{ $report->attachmentStudent->student->user->name }}</span>
+        <br>
+        <small class="text-gray-500">{{ $report->attachmentStudent->student->admission_number }}</small>
+    @else
+        <span class="text-red-500">Unknown Student</span>
+    @endif
+</td>
 
                 <td class="border p-2">
                     Week {{ $report->week_id }}

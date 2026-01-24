@@ -102,7 +102,6 @@ class AttachmentAssessmentController extends Controller
         'effective_time_use_marks' => 'required|integer|min:0|max:5',
         'effective_time_use_remarks' => 'required|string',
     ]);
-
     AttachmentAssessment::updateOrCreate(
         ['attachment_student_id' => $validated['attachment_student_id']],
         [
@@ -195,7 +194,16 @@ class AttachmentAssessmentController extends Controller
         'innovativeness_marks'   => 'required|integer|min:0|max:5',
         'innovativeness_remarks' => 'required|string',
     ]);
+    $assessment = AttachmentAssessment::where('attachment_student_id', $request->attachment_student_id)->first();
 
+    // Check if communication_marks is already set to something other than NULL or 0
+    if ($assessment && $assessment->communication_marks > 0) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Assessment already submitted!'
+        ]);
+    }
+  
     AttachmentAssessment::updateOrCreate(
         [
             'attachment_student_id' => $validated['attachment_student_id']

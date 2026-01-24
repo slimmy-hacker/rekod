@@ -17,7 +17,7 @@ class User extends Authenticatable
         'password',
         'role',
             'phone_number',
-        'portal',
+        
     ];
 
 

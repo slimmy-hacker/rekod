@@ -2,7 +2,8 @@
 namespace App\Http\Controllers;
 use App\Models\Budget;
 use App\Models\AttachmentAssessment;
-
+use App\Models\FinalReport;
+use App\Models\WeeklyReport;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -113,5 +114,24 @@ public function destroyBudget($id)
 
     return view('admin.assessments', compact('assessments', 'totals'));
 }
+public function allFinalReports()
+{
+    // Filter: Only retrieve reports that have a valid student and user attached
+    $reports = \App\Models\FinalReport::whereHas('attachmentStudent.student.user')
+                ->with(['attachmentStudent.student.user'])
+                ->latest()
+                ->get();
 
+    return view('admin.final_index', compact('reports'));
+}
+public function allLogbooks()
+{
+    // We use whereHas on 'weeklyReport' because that's where the link exists
+    $logbooks = \App\Models\DailyReport::whereHas('weeklyReport.attachmentStudent.student.user')
+                ->with(['weeklyReport.attachmentStudent.student.user'])
+                ->latest()
+                ->get();
+
+    return view('admin.logbooks_index', compact('logbooks'));
+}
 }

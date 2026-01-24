@@ -39,7 +39,7 @@ Route::middleware(['ensure.attachment.selected'])->name('lecturer.')->group(func
     Route::put('/weekly-reports/{report}', [LecturerController::class, 'update'])
         ->name('weekly-reports.update');
 
-
+Route::post('/weekly-activities/store', [DailyReportController::class, 'store'])->name('weekly_activities.store');
 
 });
 

@@ -85,3 +85,9 @@ Route::get('/lecturers-assignment', [LecturerAssigmentController::class, 'index'
 Route::post('/lecturers-assignment/generate', [LecturerAssigmentController::class, 'generateDraft'])
     ->name('admin.lecturerAssignment.generate');
 
+Route::get('/reports/final', [App\Http\Controllers\AdminController::class, 'allFinalReports'])
+        ->name('final_index');
+    
+    
+    Route::get('/reports/logbooks', [App\Http\Controllers\AdminController::class, 'allLogbooks'])
+        ->name('logbooks_index');

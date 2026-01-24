@@ -29,7 +29,7 @@ class LocationController extends Controller
                     $names = [
                         1 => 'County',
                         2 => 'Subcounty',
-                        3 => 'Ward',
+                        3 => 'Town',
                     ];
 
                     return $names[$row->level] ?? 'Unknown';
@@ -39,7 +39,7 @@ class LocationController extends Controller
                     $map = [
                         'county'     => 1,
                         'sub county' => 2,
-                        'ward'       => 3,
+                        'Town'       => 3,
                     ];
 
                     $keyword = strtolower($keyword);

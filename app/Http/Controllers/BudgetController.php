@@ -15,20 +15,24 @@ class BudgetController extends Controller
      * Display the comprehensive budget for all lecturers.
      * Integrates JobGrade Seeder data and dynamic transport calculations.
      */   
-    public function budgets()
+   public function budgets()
 {
-    // Fetch all attachment lecturers
-    $attachment_lecturers = DB::table('attachment_lecturers')->get();
+    // Fetch attachment lecturers joined with lecturers and users to get the name
+    $attachment_lecturers = DB::table('attachment_lecturers')
+        ->join('lecturers', 'lecturers.id', '=', 'attachment_lecturers.lecturer_id')
+        ->join('users', 'users.id', '=', 'lecturers.user_id')
+        ->select('attachment_lecturers.*', 'users.name as real_name')
+        ->get();
 
     foreach ($attachment_lecturers as $al) {
-        // 1. Fetch Grade Rate by matching text
+        // 1. Fetch Grade Rate
         $gradeData = DB::table('job_grades')
             ->where('dekut_grade', $al->job_grade)
             ->first();
 
         $rate = $gradeData->daily_allowance ?? 0;
 
-        // 2. Fetch Assignments using the ID (the 1, 2, 3 you see in your error log)
+        // 2. Fetch Assignments
         $visits = DB::table('lecturer_assignments')
             ->join('companies', 'companies.id', '=', 'lecturer_assignments.company_id')
             ->where('lecturer_assignments.attachment_lecturer_id', $al->id)
@@ -37,7 +41,8 @@ class BudgetController extends Controller
             ->get();
 
         // 3. Set properties for the Blade
-        $al->lecturer_name = "Lecturer #" . $al->id; 
+        // We now use the 'real_name' from the join instead of "Lecturer #ID"
+        $al->lecturer_name = $al->real_name; 
         $al->dekut_grade = $al->job_grade ?? 'N/A';
         $al->assessmentVisits = $visits;
         $al->town_count = $visits->count(); 

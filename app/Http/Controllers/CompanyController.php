@@ -24,11 +24,12 @@ class CompanyController extends Controller
     {
 
         if ($request->ajax()) {
-            $data = Company::with(['county', 'subcounty'])->orderBy('name', 'ASC')->get();
+            $data = Company::with(['county', 'town'])->orderBy('name', 'ASC')->get();
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->editColumn('county', fn($row) => $row->county->name ?? '-')
-                ->editColumn('subcounty', fn($row) => $row->subcounty->name ?? '-')
+                ->editColumn('town', fn($row) => $row->town->name ?? '-')
+                
                 ->addColumn('action', function ($row) {
                     return '
                         <button class="btn btn-sm btn-primary edit" data-id="'.$row->id.'">Edit</button>
@@ -50,7 +51,11 @@ class CompanyController extends Controller
                                 ->whereNotNull('longitude')
                                 ->select('id','name','code','parent_code')
                                 ->get();
-        return view('companies', compact('counties',  'sub_counties'));
+      $towns = Location::where('level', '3')
+                ->select('id', 'name', 'code', 'parent_code')
+                ->orderBy('name', 'ASC')
+                ->get();
+        return view('companies', compact('counties',  'sub_counties','towns'));
     }
 
 
@@ -66,7 +71,7 @@ class CompanyController extends Controller
             'parent_company'    => 'nullable|string|max:255',
             'address'   => 'required|string|max:255',
             'county_id'    => 'required|exists:locations,id',
-            'sub_county_id'    => 'required|exists:locations,id',
+            'town_id'    => 'required|exists:locations,id',
             'latitude'    => 'nullable|string|max:255',
             'longitude'   => 'nullable|string',
             'street'    => 'nullable|string|max:255',

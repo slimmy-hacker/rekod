@@ -119,7 +119,7 @@
                                 Company
                             </th>
                             <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                Sub County
+                                Town
                             </th>
                             <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
                                 Status
@@ -161,7 +161,7 @@
                 { data: 'department', name: 'department' },
                 { data: 'lecturer', name: 'lecturer' },
                 { data: 'company', name: 'company' },
-                { data: 'subcounty', name: 'subcounty' },
+                { data: 'town', name: 'town' },
                 { data: 'status', name: 'status' },
                 { data: 'action', name: 'action', orderable: false, searchable: false },
             ]

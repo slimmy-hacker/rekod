@@ -16,9 +16,9 @@ class DailyReport extends Model
     {
         return $this->belongsTo(User::class, 'registration_number', 'registration_number');
     }
-    public function weeklyReport()
-    {
-        return $this->belongsTo(WeeklyReport::class);
-    }
-
+   
+public function weeklyReport()
+{
+    return $this->belongsTo(WeeklyReport::class, 'weekly_report_id');
+}
 }

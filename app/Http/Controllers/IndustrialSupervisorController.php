@@ -176,11 +176,10 @@ class IndustrialSupervisorController extends Controller
         return view('industrial_supervisor.weekly-reports', ['weeklyReports' => collect()]);
     }
 
-    // Get IDs of attachment_students assigned to this supervisor
     $attachmentStudentIds = \App\Models\AttachmentStudent::where('industrial_supervisor_id', $industrialSupervisor->id)
-        ->pluck('id'); // <-- use 'id' here
+        ->pluck('id'); 
 
-    // Fetch weekly reports where attachment_student_id is in those IDs
+    
     $weeklyReports = \App\Models\WeeklyReport::whereIn('attachment_student_id', $attachmentStudentIds)
         ->with(['attachmentStudent.student.user']) // Eager load relations correctly
         ->orderByDesc('week_id')
@@ -197,7 +196,7 @@ public function approveWeeklyReport(Request $request, $id)
 
     $industrialSupervisor = auth()->user()->industrialSupervisor;
 
-    // Find weekly report and ensure it belongs to attachment_student assigned to this supervisor
+   
     $weeklyReport = WeeklyReport::where('id', $id)
         ->whereIn('attachment_student_id', function ($query) use ($industrialSupervisor) {
             $query->select('id')

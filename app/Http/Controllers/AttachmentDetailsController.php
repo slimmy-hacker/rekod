@@ -15,7 +15,7 @@ class AttachmentDetailsController extends Controller
 {   
     $attachment_student_id = $req->session()->get('attachment_student_id');
     $attachment_student = AttachmentStudent::find($attachment_student_id);
-    $companies = Company::with('subcounty')->get();
+    $companies = Company::with('town')->get();
     $logged_user = auth()->user();
     $my_student_details = Student::with('program')
                                     ->where('user_id', $logged_user->id)
@@ -95,7 +95,7 @@ class AttachmentDetailsController extends Controller
             'student',
             'student.user',
             'student.program',
-            'company.subcounty',
+            'company.town',
             'industrialSupervisor.user',
             'lecturer',
             'attachment'

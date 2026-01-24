@@ -26,27 +26,8 @@
     </a>
 </li>
 
-<li>
-    <a href="{{ route('company.documents') }}"
-       class="text-base text-white font-normal rounded-lg hover:bg-gray-100 hover:text-gray-900 flex items-center p-2 group">
-        <svg class="w-6 h-6 text-gray-500 flex-shrink-0 group-hover:text-gray-900 transition duration-75"
-             fill="currentColor" viewBox="0 0 20 20">
-             <path d="M6 2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"></path>
-        </svg>
-        <span class="ml-3 flex-1 whitespace-nowrap">Documents</span>
-    </a>
-</li>
 
-<li>
-    <a href="{{ route('company.reports') }}"
-       class="text-base text-white font-normal rounded-lg hover:bg-gray-100 hover:text-gray-900 flex items-center p-2 group">
-        <svg class="w-6 h-6 text-gray-500 flex-shrink-0 group-hover:text-gray-900 transition duration-75"
-             fill="currentColor" viewBox="0 0 20 20">
-             <path d="M9 2a7 7 0 00-7 7v1h14V9a7 7 0 00-7-7zM4 12h12l-1.5 6h-9z"></path>
-        </svg>
-        <span class="ml-3 flex-1 whitespace-nowrap">Reports</span>
-    </a>
-</li>
+
 
 <li>
     <a href="{{ route('company.is.index') }}"

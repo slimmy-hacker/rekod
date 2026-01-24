@@ -13,120 +13,136 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AttachmentSelectedController extends Controller
+{public function index()
 {
-    public function index()
-    {
-        $attachments = [];
-        switch (Auth::user()->role) {
-            case 'student':
-                $student = Student::where('user_id', Auth::id())->first();
-                $attachment_students = AttachmentStudent::with('attachment')
-                    ->where('attachment_students.student_id', $student->id)
-                    ->select('attachment_students.*')
-                    ->get();
+    $role = Auth::user()->role;
 
-                return view('attachment_selected.students', compact('attachment_students'));
-                break;
+    if ($role === 'student') {
+        $student = Student::where('user_id', Auth::id())->first();
+        
+        // Check if they are already enrolled
+        $enrollment = AttachmentStudent::where('student_id', $student->id)->first();
 
-            case 'lecturer':
-                    $lecturer = Lecturer::where('user_id', Auth::id())->first();
-                   $attachment_lecturers = AttachmentLecturer::with('attachment', 'department')
-                                                                        ->where('attachment_lecturers.lecturer_id', $lecturer->id)
-                                                                        ->get();
-
-                    return view('attachment_selected.lecturers', compact('attachment_lecturers'));
-                break ;
-            case 'industrial_supervisor':
-
-                $supervisor = IndustrialSupervisor::where('user_id', Auth::id())->first();
-
-                $attachment_ids = AttachmentStudent::where('industrial_supervisor_id', $supervisor->id)
-                    ->distinct('attachment_id')
-                    ->pluck('attachment_id');
-                $attachments = Attachment::whereIn('id', $attachment_ids)
-                    ->orderBy('start_date', 'DESC')
-                    ->get();
-
-                break;
-
-            case 'company' :
-
-                $company = Company::where('user_id', Auth::id())->first();
-
-
-                $attachment_ids = AttachmentStudent::where('company_id', $company->id)
-                    ->distinct('attachment_id')
-                    ->pluck('attachment_id');
-                $attachments = Attachment::whereIn('id', $attachment_ids)
-                    ->distinct()
-                    ->orderBy('start_date', 'DESC')
-                    ->get();
-                break;
-
-
-            default:
-                $attachments = Attachment::orderBy('start_date', 'desc')->get();
-                break;
+        if (!$enrollment) {
+            // FALLBACK: If not enrolled, show ALL available periods to pick from
+            $attachments = Attachment::orderBy('start_date', 'desc')->get();
+            return view('attachment_selected.index', compact('attachments'));
         }
 
+        // If already enrolled, show their specific selection
+        $attachment_students = AttachmentStudent::with('attachment')
+            ->where('student_id', $student->id)
+            ->get();
+        return view('attachment_selected.students', compact('attachment_students'));
+    }
 
+    if ($role === 'lecturer') {
+        $lecturer = Lecturer::where('user_id', Auth::id())->first();
+        $hasPeriod = AttachmentLecturer::where('lecturer_id', $lecturer->id)->exists();
+
+        if (!$hasPeriod) {
+            $attachments = Attachment::orderBy('start_date', 'desc')->get();
+            return view('attachment_selected.index', compact('attachments'));
+        }
+
+        $attachment_lecturers = AttachmentLecturer::with('attachment')
+            ->where('lecturer_id', $lecturer->id)
+            ->get();
+        return view('attachment_selected.lecturers', compact('attachment_lecturers'));
+    }
+// INDUSTRIAL SUPERVISOR LOGIC (Fixed)
+    if ($role === 'industrial_supervisor') {
+        $supervisor = IndustrialSupervisor::where('user_id', Auth::id())->first();
+
+        // Get IDs of attachments where they are already supervising students
+        $assigned_ids = AttachmentStudent::where('industrial_supervisor_id', $supervisor->id)
+            ->distinct()
+            ->pluck('attachment_id');
+
+        // If they aren't assigned to anyone yet, show ALL attachments so they can pick one to enter the dashboard
+        if ($assigned_ids->isEmpty()) {
+            $attachments = Attachment::orderBy('start_date', 'desc')->get();
+        } else {
+            $attachments = Attachment::whereIn('id', $assigned_ids)
+                ->orderBy('start_date', 'desc')
+                ->get();
+        }
+        
         return view('attachment_selected.index', compact('attachments'));
     }
+    // Default for Admin/Others
+    $attachments = Attachment::orderBy('start_date', 'desc')->get();
+    return view('attachment_selected.index', compact('attachments'));
+}
+public function store(Request $request)
+{
+    try {
+        $request->validate([
+            'attachment_id'   => 'required|exists:attachments,id',
+            'attachment_name' => 'required',
+        ]);
 
-    public function store(Request $request)
-    {
-        try {
-            if (Auth::user()->role == 'student') {
-                $request->validate([
-                    'attachment_student_id' => 'required|exists:attachment_students,id',
-                    'attachment_id' => 'required|exists:attachments,id',
-                    'attachment_name' => 'required',
-                ]);
-                session(['attachment_student_id' => $request->get('attachment_student_id'), 'attachment_id' => $request->get('attachment_id'), 'attachment_name' => $request->get('attachment_name')]);
-            } elseif (Auth::user()->role == 'lecturer') {
-                $request->validate([
-                    'attachment_lecturer_id' => 'required|exists:attachment_lecturers,id',
-                    'attachment_id' => 'required|exists:attachments,id',
-                    'attachment_name' => 'required',
-                ]);
-                session(['attachment_lecturer_id' => $request->get('attachment_lecturer_id'), 'attachment_id' => $request->get('attachment_id'), 'attachment_name' => $request->get('attachment_name')]);
-            } else {
-                $request->validate([
-                    'attachment_id' => 'required|exists:attachments,id',
-                    'attachment_name' => 'required',
-                ]);
-                session(['attachment_id' => $request->get('attachment_id'), 'attachment_name' => $request->get('attachment_name')]);
+        $user = Auth::user();
+
+        if ($user->role == 'student') {
+            $student = Student::where('user_id', $user->id)->first();
+
+            if (!$student) {
+                return redirect()->back()->with('error', 'Student profile not found.');
             }
 
-            // Proceed normally if validation passes
+            // Using updateOrCreate ensures we don't get duplicate rows for one student
+            $enrollment = AttachmentStudent::updateOrCreate(
+                ['student_id' => $student->id], 
+                [
+                    'attachment_id' => $request->attachment_id,
+                    'status' => 'active'
+                ]
+            );
 
-            return redirect()->back()->withInput()->with([
-                'notification' => [
-                    'icon' => 'success',
-                    'title' => 'Success',
-                    'message' => 'Attachment period selected successfully.'
-                ]
+            session([
+                'attachment_id' => $request->attachment_id,
+                'attachment_name' => $request->attachment_name,
+                'attachment_student_id' => $enrollment->id
             ]);
 
-        } catch (ValidationException $e) {
-            return redirect()->back()->withInput()->with([
-                'notification' => [
-                    'icon' => 'error',
-                    'title' => 'Something went wrong',
-                    'message' => 'Please ensure you selected a valid attachment period.'
-                ]
-            ]);
-        } catch (\Exception $e) {
-            dd($e->getMessage());
-            // Catch any other unexpected errors
-            return redirect()->back()->with([
-                'notification' => [
-                    'icon' => 'error',
-                    'title' => 'Error',
-                    'message' => 'Something went wrong. Please try again later.'
-                ]
-            ]);
-        }
+} elseif ($user->role == 'lecturer') {
+    $lecturer = Lecturer::where('user_id', $user->id)->first();
+    
+    if (!$lecturer) {
+        return redirect()->back()->with('error', 'Lecturer profile not found.');
     }
 
+    // Pull the defaults from the lecturer's profile
+    $enrollment = AttachmentLecturer::updateOrCreate(
+        ['lecturer_id' => $lecturer->id],
+        [
+            'attachment_id' => $request->attachment_id,
+            'job_grade'     => $lecturer->job_grade,    // Automatically fill from profile
+            'department_id' => $lecturer->department_id // Automatically fill from profile
+        ]
+    );
+
+    session([
+        'attachment_id' => $request->attachment_id,
+        'attachment_name' => $request->attachment_name,
+        'attachment_lecturer_id' => $enrollment->id
+    ]);
+
+        }if ($user->role == 'industrial_supervisor') {
+            // Industrial Supervisors usually don't have a pivot table like "attachment_supervisors"
+            // because they are linked to students. We just set their session so they can filter data.
+            session([
+                'attachment_id' => $request->attachment_id,
+                'attachment_name' => $request->attachment_name,
+            ]);
+        }
+
+        return redirect()->route('welcome')->with('success', 'Attachment period selected!');
+
+    } catch (\Exception $e) {
+        // This will help you see if there are other missing columns (like department_id)
+        return redirect()->back()->with('error', 'Selection Failed: ' . $e->getMessage());
+    }
+}
 }

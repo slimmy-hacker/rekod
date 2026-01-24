@@ -20,5 +20,9 @@ class Company extends Model
 {
     return $this->hasMany(Opportunity::class);
 }
-
+public function Town()
+    {
+        
+        return $this->belongsTo(Location::class, 'town_id'); 
+    }
 }

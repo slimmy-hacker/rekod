@@ -168,8 +168,8 @@
     class="mt-1 w-full border rounded p-2 @error('level') border-red-500 @enderror" required>
     <option value="">Select Level</option>
     <option value="1">County</option>
-    <option value="2">Subcounty</option>
-    <option value="3">Ward</option>
+    <option value="2">Town</option>
+   
 </select>
         @error('level')
             <p class="text-red-600 text-sm">{{ $message }}</p>

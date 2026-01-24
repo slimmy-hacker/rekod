@@ -92,7 +92,7 @@ public function index(Request $request){
         return back()->withErrors('Student record not found.');
     }
 
-    $attachmentId = session('attachment_id'); // or however you get it
+    $attachmentId = session('attachment_id');
 
     $attachmentstudent = AttachmentStudent::where('student_id', $student->id)
         ->where('attachment_id', $attachmentId)
@@ -102,8 +102,18 @@ public function index(Request $request){
         return back()->withErrors('You are not registered for this attachment.');
     }
 
+    // --- ADD THIS CHECK HERE ---
+    $exists = WeeklyReport::where('attachment_student_id', $attachmentstudent->id)
+        ->where('week_id', $request->week_id)
+        ->exists();
+
+    if ($exists) {
+        return back()->withInput()->withErrors("A weekly report for Week {$request->week_id} has already been submitted.");
+    }
+    // ----------------------------
+
     WeeklyReport::create([
-        'attachment_student_id' => $attachmentstudent->id,  // EXACT spelling & case here
+        'attachment_student_id' => $attachmentstudent->id,
         'week_id' => $request->week_id,
         'week_start_date' => $request->week_start_date,
         'week_end_date' => $request->week_end_date,
@@ -113,7 +123,6 @@ public function index(Request $request){
 
     return back()->with('success', 'Weekly report submitted successfully.');
 }
-
 public function weeklyReports()
 {
     $user = auth()->user();
@@ -123,21 +132,49 @@ public function weeklyReports()
         $user_role = 'student';
         $student = $user->student;
 
-        // FETCH: Get reports directly using student_id
-        $weeklyReports = $student 
-            ? WeeklyReport::where('attachment_student_id', $student->id)->orderBy('week_id')->get()
+        // 1. Get the specific enrollment record for this student and current period
+        $enrollment = \App\Models\AttachmentStudent::where('student_id', $student->id)
+            ->where('attachment_id', session('attachment_id'))
+            ->first();
+
+        // 2. Fetch reports using the ENROLLMENT ID (attachment_student_id)
+        $weeklyReports = $enrollment 
+            ? WeeklyReport::where('attachment_student_id', $enrollment->id)
+                ->orderBy('week_id', 'asc')
+                ->get()
             : collect();
 
-    } elseif ($user->isIndustry()) {
-        $user_role = 'industry';
+    } elseif ($user->role === 'industrial_supervisor') { // Matches your 'isIndustry' check
+        $user_role = 'industrial_supervisor';
         
-        // FETCH: Get reports for all students who have an attachment record with this supervisor
-        $weeklyReports = WeeklyReport::whereIn('student_id', function ($query) use ($user) {
-            $query->select('student_id')
+        // 1. Get the Supervisor's profile ID
+        $supervisor = \App\Models\IndustrialSupervisor::where('user_id', $user->id)->first();
+
+        if (!$supervisor) {
+            $weeklyReports = collect();
+        } else {
+            // 2. Fetch reports for all students assigned to this supervisor
+            $weeklyReports = WeeklyReport::whereIn('attachment_student_id', function ($query) use ($supervisor) {
+                $query->select('id')
+                      ->from('attachment_students')
+                      ->where('industrial_supervisor_id', $supervisor->id);
+            })
+            ->with(['attachmentStudent.student.user']) // Ensure these relationships exist in your models
+            ->orderBy('created_at', 'desc')
+            ->get();
+        }
+
+    } elseif ($user->role === 'lecturer') {
+        $user_role = 'lecturer';
+        $lecturer = \App\Models\Lecturer::where('user_id', $user->id)->first();
+
+        // Fetch reports for students assigned to this lecturer
+        $weeklyReports = WeeklyReport::whereIn('attachment_student_id', function ($query) use ($lecturer) {
+            $query->select('id')
                   ->from('attachment_students')
-                  ->where('industrial_supervisor_id', $user->id);
+                  ->where('lecturer_id', $lecturer->id);
         })
-        ->with(['student.user']) // Eager load the student and user info
+        ->with(['attachmentStudent.student.user'])
         ->orderBy('created_at', 'desc')
         ->get();
 

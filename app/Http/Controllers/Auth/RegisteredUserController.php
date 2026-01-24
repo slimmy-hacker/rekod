@@ -1,145 +1,91 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Student;
-
+use App\Models\Lecturer;
+use App\Models\AdministrativeUnit;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the default registration view.
-     */
-    public function create(): View
-    {
-        return view('auth.register');
-    }
-
-    /**
-     * Handle an incoming registration request (default Breeze form).
-     */
-   public function store(Request $request)
+   public function create(): \Illuminate\View\View
 {
+    // Fetch everything from administrative_units
+    $units = \Illuminate\Support\Facades\DB::table('administrative_units')
+        ->orderBy('name', 'asc')
+        ->get();
+
+    // Pass them to the view. 
+    // We map $units to both names so your @foreach loops work as they are.
+    return view('auth.register', [
+        'departments' => $units,
+        'programs'    => $units
+    ]);
+}
+   
+
+public function store(Request $request)
+{
+    // 1. Validation
     $request->validate([
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
+        'role' => ['required', 'in:student,lecturer'],
+        
+         
+        
+        // Lecturer specific
+        'staff_number' => ['required_if:role,lecturer', 'nullable', 'string', 'unique:lecturers,staff_number'],
+        'job_grade' => ['required_if:role,lecturer', 'nullable', 'string'],
+         'office_phone' => ['required_if:role,lecturer', 'max:20'], // O
+         'department' => ['required_if:role,lecturer', 'string'],
+       // Student Specific Validation
+        'reg_no' => ['required_if:role,student', 'nullable', 'string', 'unique:students,reg_no'],
+        'year_of_study' => ['required_if:role,student', 'nullable', 'string'],
+        'program_id' => ['required_if:role,student', 'nullable', 'integer'],
+        'phone_number' => ['required_if:role,student', 'max:20'],
     ]);
 
-    $portal = $request->input('portal'); // get selected portal
-
-    $user = User::create([
+    // 2. Create the Base User
+    $user = \App\Models\User::create([
         'name' => $request->name,
         'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'portal' => $portal, // ✅ store portal
+        'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+        'role' => $request->role,
+       
     ]);
 
-    event(new Registered($user));
-
-    // Redirect user to login page with a success message
-    return redirect()->route('login')->with('status', 'Registration successful! Please log in to your ' . ucfirst($portal) . ' portal.');
-}
-    /**
-     * ✅ Show the registration form for a specific portal.
-     */
-    public function showPortalForm($portal): View
-    {
-        $validPortals = ['student', 'lecturer', 'industrial_supervisor', 'company','admin'];
-
-        if (!in_array($portal, $validPortals)) {
-            abort(404);
-        }
-
-        return view('auth.register', compact('portal'));
+    // 3. Create Specific Profiles
+    if ($request->role === 'lecturer') {
+        \App\Models\Lecturer::create([
+            'user_id' => $user->id,
+            'staff_number' => $request->staff_number,
+            'department_id' => $request->department,
+            'job_grade' => $request->job_grade,
+            'office_phone' => $request->phone_number,
+        ]);
+    } elseif ($request->role === 'student') {
+        \App\Models\Student::create([
+            'user_id' => $user->id,
+            'reg_no' => $request->reg_no,
+            'year_of_study' => $request->year_of_study,
+            'program_id' => $request->program_id, // Must be an integer
+            'phone_number' => $request->phone_number,
+        ]);
     }
-
-    /**
-     * ✅ Handle registration for specific portals.
-     */
-   public function storePortal(Request $request, $portal): RedirectResponse
-{
-    $request->validate([
-        'name' => ['required', 'string', 'max:255'],
-        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-        'password' => ['required', 'confirmed', Rules\Password::defaults()],
-    ]);
-
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => $portal, // ✅ Assign role automatically
-    ]);
-
+    // 4. Trigger Registration Event
     event(new Registered($user));
 
-    Auth::login($user);
-
-
-    switch ($portal) {
-        case 'student':
-
-            return redirect()->route('student.portal');
-        case 'lecturer':
-            return redirect()->route('lecturer.portal');
-        case 'industrial_supervisor':
-            return redirect()->route('industrial_supervisor.portal');
-            case 'admin':
-            return redirect()->route('admin.portal');
-        case 'company':
-            return redirect()->route('company.portal');
-        default:
-            return redirect()->route('welcome');
-    }
+    // 5. Redirect
+    return redirect()->route('login')
+        ->with('success', 'Registration successful. Please wait for approval.');
 }
-
-public function storeStudent(Request $request): RedirectResponse
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users|unique:students',
-        'registration_number' => 'required|string|max:50|unique:students',
-        'course' => 'required|string|max:100',
-        'telephone' => 'required|string|max:15',
-        'password' => 'required|string|confirmed|min:8',
-    ]);
-
-    // ✅ Create user
-    $user = User::create([
-        'name'     => $request->name,
-        'email'    => $request->email,
-        'password' => Hash::make($request->password),
-    ]);
-
-    // ✅ Create student record
-    Student::create([
-        'user_id'             => $user->id,
-        'name'                => $request->name,
-        'email'               => $request->email,
-        'registration_number' => $request->registration_number,
-        'course'              => $request->course,
-        'telephone'           => $request->telephone,
-    ]);
-
-    // ✅ Fire event
-    event(new Registered($user));
-
-    // ✅ Auto login
-    Auth::login($user);
-
-    // ✅ Redirect to student portal
-    return redirect()->route('student.portal')
-                     ->with('success', 'Student registered successfully!');
-}
-
 }

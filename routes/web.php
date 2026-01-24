@@ -63,19 +63,10 @@ Route::middleware(['portal:admin'])
     ->prefix('admin')
     ->group(base_path('routes/admin.php'));
 
-    Route::middleware('guest')->group(function () {
-        Route::get('/register/select-portal', function () {
-            return view('auth.select-portal');
-        })->name('register.select.portal');
+Route::middleware('guest')->group(function () {
+    Route::get('/register', [RegisteredUserController::class, 'create'])
+        ->name('register');
 
-        Route::get('/register/{portal}', [RegisteredUserController::class, 'showPortalForm'])
-            ->where('portal', 'student|lecturer|industry|company')
-            ->name('register.portal');
+    Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
 
-        Route::post('/student/register', [RegisteredUserController::class, 'storeStudent'])
-                        ->name('register.portal.student');
-
-        Route::post('/register/{portal}', [RegisteredUserController::class, 'storePortal'])
-            ->where('portal', 'student|lecturer|industry|company')
-            ->name('register.portal.store');
-    });
+});

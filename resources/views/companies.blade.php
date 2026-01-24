@@ -61,18 +61,15 @@
                                     Alias
                                 </th>
 
-                                <!-- Email with wrap -->
-                                <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                    <div class="whitespace-normal break-words">
-                                        Email
-                                    </div>
+                                <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                               <div class="truncate max-w-[150px] lg:max-w-none lg:whitespace-normal lg:break-all" title="Email Address">
+                                    Email
+                                     </div>
                                 </th>
 
-                                <!-- Contact -->
-                                <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                    Contact
-                                </th>
-
+                    <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                 Contact
+                     </th>
                                 <!-- County -->
                                 <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
                                     County
@@ -80,7 +77,7 @@
 
                                 <!-- Sub County -->
                                 <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                    Sub County
+                                    Town
                                 </th>
 
                                 <!-- Latitude -->
@@ -214,18 +211,18 @@
                                 <!-- Subcounty (optional) -->
                                 <div>
                                     <label for="county" class="block font-semibold">
-                                       Sub County <span class="text-red-600">*</span>
+                                       Town <span class="text-red-600">*</span>
                                     </label>
-                                    <select name="sub_county_id" id="subcounty" class="w-full border rounded p-2 select2" required>
-                                        <option value="">-- Select Sub-County --</option>
-                                        @foreach($sub_counties as $sub_county)
-                                            <option value="{{ $sub_county['id'] }}"
-                                                    data-county_code="{{ $sub_county['parent_code'] }}"
-                                                {{ old('subcounty') == $sub_county['id'] ? 'selected' : '' }}>
-                                                 {{ $sub_county['name'] }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <select name="town_id" id="town" class="w-full border rounded p-2 select2" required>
+    <option value="">-- Select Town --</option>
+    @foreach($towns as $town)
+        <option value="{{ $town->id }}" 
+                data-county_code="{{ $town->parent_code }}"
+                {{ old('town_id') == $town->id ? 'selected' : '' }}>
+            {{ $town->name }}
+        </option>
+    @endforeach
+</select>
                                 </div>
                                 <!-- Latitude & Longitude side by side -->
 
@@ -328,7 +325,7 @@
                                 { data: 'email', name: 'email' },
                                 { data: 'contact', name: 'contact' },
                                 { data: 'county', name: 'county' },
-                                { data: 'subcounty', name: 'subcounty' },
+                                { data: 'town', name: 'town' },
                                 { data: 'street', name: 'street' },
                                 { data: 'building', name: 'building' },
                                 { data: 'action', name: 'action', orderable: false, searchable: false }
@@ -434,7 +431,7 @@
 
                         let subCounties = @json($sub_counties);
                         let $county = $("#county");
-                        let $subcounty = $("#subcounty");
+                        let $town = $("#town");
                         let selected_source = 'county';
                         // Fill subcounty dropdown when county changes
                         $county.on('change', function () {
@@ -443,25 +440,25 @@
 
                             // Get the value of data-code
                             let countyCode = selectedOption.data('code');
-                            let $subcounty = $('#subcounty');
-                            let selected_subcounty = $subcounty.val();
-                            $subcounty.empty().append('<option value="">-- Select Subcounty --</option>');
+                            let $town = $('#town');
+                            let selected_town = $town.val();
+                            $subcounty.empty().append('<option value="">-- Select Town --</option>');
 
                             if (countyCode) {
-                                let filtered = subCounties.filter(sc => sc.parent_code == countyCode);
+                                let filtered = towns.filter(sc => sc.parent_code == countyCode);
                                 $.each(filtered, function (i, sc) {
-                                    $subcounty.append(
+                                    $town.append(
                                         `<option value="${sc.id}">${sc.name}</option>`
                                     );
                                 });
                             }
-                            if (selected_source === 'sub_county' && selected_subcounty) {
-                                $subcounty.val(selected_subcounty).trigger('change');
+                            if (selected_source === 'town' && selected_town) {
+                                $town.val(selected_town).trigger('change');
                                 selected_source = 'county';
                             }
                         });
 
-                        $subcounty.on("change", function () {
+                        $town.on("change", function () {
                             // Get the county_code from the selected subcounty
                             let selectedCountyCode = $(this).find("option:selected").data("county_code");
 
@@ -474,7 +471,7 @@
 
 
                                 if ($matchingCounty.length) {
-                                    selected_source = 'sub_county';
+                                    selected_source = 'town';
                                     $county.val($matchingCounty.val()).trigger("change");
                                 }
                             }
