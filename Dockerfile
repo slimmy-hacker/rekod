@@ -35,7 +35,8 @@ RUN echo "server { \
 }" > /etc/nginx/sites-available/default
 
 # ENABLE THE CONFIG (This fixes the "No such file or directory" error)
-RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
 
 RUN chmod +x /var/www/html/start.sh
 
