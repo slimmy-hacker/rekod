@@ -56,7 +56,7 @@ Route::get('/attachments/{id}', [AttachmentDetailsController::class, 'show'])
 
 Route::middleware(['portal:student'])
     ->prefix('students')
-    ->group(base_path('routes/Student.php'));
+    ->group(base_path('routes/student.php'));
 
 
 Route::middleware(['portal:admin'])
