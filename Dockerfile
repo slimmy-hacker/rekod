@@ -1,4 +1,4 @@
-FROM richarvey/nginx-php-fpm:latest
+FROM richarvey/nginx-php-fpm:php83
 COPY . /var/www/html
 WORKDIR /var/www/html
 ENV SKIP_COMPOSER 0
