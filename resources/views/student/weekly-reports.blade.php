@@ -59,21 +59,6 @@
                 @if($user_role !== 'student') disabled @endif>{{ old('weekly_report') }}</textarea>
         </div>
 
-        {{-- Industrial Supervisor Comment --}}
-        <div class="mb-4">
-            <label for="industrial_supervisor_comment" class="block text-sm font-medium mb-1">Industrial Supervisor Comment</label>
-            <textarea name="industrial_supervisor_comment" id="industrial_supervisor_comment" rows="3" 
-                class="w-full border p-2 rounded" placeholder="Supervisor's comments"
-                @if($user_role !== 'industrial_supervisor') readonly @endif>{{ old('industrial_supervisor_comment') }}</textarea>
-        </div>
-
-        {{-- Lecturer Comment --}}
-        <div class="mb-4">
-            <label for="lecturer_comment" class="block text-sm font-medium mb-1">Lecturer Comment</label>
-            <textarea name="lecturer_comment" id="lecturer_comment" rows="3" 
-                class="w-full border p-2 rounded" placeholder="Lecturer's comments"
-                @if($user_role !== 'lecturer') readonly @endif>{{ old('lecturer_comment') }}</textarea>
-        </div>
 
         {{-- Approval Checkbox for Industrial Supervisor --}}
         @if($user_role === 'industrial_supervisor')

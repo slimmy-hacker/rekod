@@ -9,25 +9,21 @@ use App\Models\AttachmentStudent;
 use App\Models\LecturerAssigment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
 use Yajra\DataTables\Facades\DataTables;
 
 class LecturerAssigmentController extends Controller
 {
     public function index(Request $request)
     {
-        
-
         if ($request->ajax()) {
             $data = AttachmentStudent::whereNotNull('company_id')
-            ->with([
-                'attachment',
-                'student',
-                'student.user',
-                'student.program.parent',
-                'attachment_lecturer.lecturer.user',
-                'company'
-            ]);
+                ->with([
+                    'attachment',
+                    'student.user',
+                    'student.program.parent', // This is the department
+                    'attachmentLecturer.lecturer.user',
+                    'company.town'
+                ]);
 
             if (!empty($request->attachment_id)) {
                 $data->where('attachment_id', $request->attachment_id);
@@ -40,207 +36,154 @@ class LecturerAssigmentController extends Controller
             }
 
             return DataTables::of($data)
-                ->addIndexColumn() // adds DT_RowIndex
-                ->addColumn('name', function ($row) {
-                    return $row->student && $row->student->user
-                        ? $row->student->user->name
-                        : '-';
-                })
-                ->addColumn('reg_no', fn ($row) =>  $row->student->reg_no ?? '-')
-                ->addColumn('attachment', fn ($row) => $row->attachment->name ?? '-')
-                ->addColumn('department', fn ($row) => $row->department->name ?? '-')
+                ->addIndexColumn()
+                ->addColumn('name', fn($row) => $row->student->user->name ?? '-')
+                ->addColumn('reg_no', fn($row) => $row->student->reg_no ?? '-')
+                ->addColumn('attachment', fn($row) => $row->attachment->name ?? '-')
+                  ->addColumn('phone_number', fn ($row) =>  $row->student->phone_number ?? '-')
+                ->addColumn('department', fn($row) => $row->student->program->parent->name ?? '-')
                 ->addColumn('lecturer', function ($row) {
-    // Check the relationship chain safely
-    if ($row->attachmentLecturer && $row->attachmentLecturer->lecturer && $row->attachmentLecturer->lecturer->user) {
-        return $row->attachmentLecturer->lecturer->user->name;
-    }
-    
-    // Fallback: If the ID exists but relationship isn't loading, show ID for debugging
-    return $row->attachment_lecturer_id ? 'Assigned (ID: '.$row->attachment_lecturer_id.')' : 'Not Assigned';
-})
-                ->addColumn('status', fn ($row) => $row->attachment->status ?? '-')
-                ->addColumn('company', fn ($row) => $row->company->name ?? '-')
-                ->addColumn('town', fn ($row) => $row->company->town->name ?? '-')
-                ->addColumn('action', function ($row) {
-                    return '<button class="btn btn-sm btn-danger delete" data-id="'.$row->id.'">Delete</button>';
+                    if ($row->attachmentLecturer && $row->attachmentLecturer->lecturer->user) {
+                        return $row->attachmentLecturer->lecturer->user->name;
+                    }
+                    return $row->attachment_lecturer_id ? 'Assigned (ID: '.$row->attachment_lecturer_id.')' : '<span class="badge badge-warning">Not Assigned</span>';
                 })
-                ->rawColumns(['action'])
+                ->addColumn('company', fn($row) => $row->company->name ?? '-')
+                ->addColumn('town', fn($row) => $row->company->town->name ?? '-')
+                ->rawColumns(['lecturer'])
                 ->make(true);
         }
-        $attachments = Attachment::select('id', 'name')
-            ->orderBy('start_date', 'desc')
-            ->get();
+
+        $attachments = Attachment::select('id', 'name')->orderBy('created_at', 'desc')->get();
         $departments = AdministrativeUnit::where('level', 2)->get();
 
-        return view('admin.lecturer_assignment', compact('attachments','departments'));
+        return view('admin.lecturer_assignment', compact('attachments', 'departments'));
     }
-    function haversineDistance($lat1, $lon1, $lat2, $lon2)
-    {
-       
-        $earthRadius = 6371; // KM
 
+    /**
+     * Calculate Distance using Haversine Formula
+     */
+    private function haversineDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371; // Kilometers
         $dLat = deg2rad($lat2 - $lat1);
         $dLon = deg2rad($lon2 - $lon1);
 
-        $a = sin($dLat/2) * sin($dLat/2) +
+        $a = sin($dLat / 2) * sin($dLat / 2) +
             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-            sin($dLon/2) * sin($dLon/2);
+            sin($dLon / 2) * sin($dLon / 2);
 
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
         return $earthRadius * $c;
     }
-    function clusterStudents($students, $lecturers)
-    {
-        $k = $lecturers->count();
 
-        if ($k === 0 || $students->isEmpty()) {
-            return collect();
-        }
+    /**
+     * Proximity-based Assignment Logic (Greedy Clustering)
+     */
+  public function generateDraft(Request $request)
+{
+    $request->validate([
+        'department_id' => 'required|exists:administrative_units,id',
+        'attachment_id' => 'required|exists:attachments,id',
+    ]);
 
-        $centroids = $students->shuffle()->take($k)->values();
-  
-        for ($iteration = 0; $iteration < 10; $iteration++) {
+    $regionalRange = 60.0; 
+    $maxStudents = 10;
 
-            // Reset clusters (Collection of Collections)
-            $clusters = collect(range(0, $k - 1))
-                ->map(fn () => collect());
+    // 1. Filter at the DATABASE level to ensure the relationship chain is complete
+    // This stops the "Attempt to read property on null" because we only pull records where town exists.
+    $rawStudents = AttachmentStudent::with(['company.town'])
+        ->where('attachment_id', $request->attachment_id)
+        ->whereNull('attachment_lecturer_id')
+        // Ensure company exists
+        ->whereHas('company', function($q) {
+            // Ensure town exists for that company
+            $q->whereHas('town'); 
+        })
+        ->whereHas('student.program.parent', function($q) use ($request) {
+            $q->where('id', $request->department_id);
+        })
+        ->get();
 
-            // Step 2: assign students to nearest centroid
-            foreach ($students as $student) {
-                $minDistance = INF;
-                $clusterIndex = 0;
-
-                foreach ($centroids as $i => $centroid) {
-                    $distance = $this->haversineDistance(
-                        $student->lat,
-                        $student->lng,
-                        $centroid->lat,
-                        $centroid->lng
-                    );
-
-                    if ($distance < $minDistance) {
-                        $minDistance = $distance;
-                        $clusterIndex = $i;
-                    }
-                }
-
-                $clusters[$clusterIndex]->push($student);
-            }
-
-            // Step 3: recalculate centroids
-            $centroids = $clusters->map(function ($cluster, $i) use ($centroids) {
-                if ($cluster->isEmpty()) {
-                    // Keep previous centroid if cluster is empty
-                    return $centroids[$i];
-                }
-
-                return (object)[
-                    'lat' => $cluster->avg('lat'),
-                    'lng' => $cluster->avg('lng'),
-                ];
-            })->values();
-        }
-
-        // Step 4: assign lecturer per cluster
-        $result = collect();
-       
-
-        foreach ($clusters as $i => $cluster) {
-            foreach ($cluster as $student) {
-                $result->push([
-                    'student_id' => $student->id,
-                    'lecturer_id' => $lecturers[$i]->id,
-                ]);
-            }
-        }
-
-        return $result;
+    if ($rawStudents->isEmpty()) {
+        return response()->json([
+            'status' => 'error', 
+            'message' => 'No unassigned students found with complete location data (Company + Town).'
+        ]);
     }
 
+    // 2. Safe mapping with coordinates
+    $students = $rawStudents->map(function ($s) {
+        // Since we used whereHas, we know these exist
+        $s->lat = (float) $s->company->town->latitude;
+        $s->lng = (float) $s->company->town->longitude;
+        return $s;
+    })
+    ->sortBy('lat') 
+    ->values();
 
-    public function generateDraft(Request $request)
-    {
-      
-        $request->validate([
-            'department_id' => 'required|exists:administrative_units,id',
-            'attachment_id' => 'required|exists:attachments,id',
-        ]);
-        $students = AttachmentStudent::with('company', 'student.program.parent')
-            ->whereNotNull('company_id')
-            ->whereHas('student.program.parent', function ($q) use ($request) {
-                $q->where('id', $request->department_id);
-            })            ->where('attachment_id', $request->attachment_id)
-            ->get();
-            if($students->isEmpty()){
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'No Students with attachment form Found'
-                ]);
-            }
-        $students  =$students ->map(function ($s) {
-                $s->lat = $s->company->town->latitude;
-                $s->lng = $s->company->town->longitude;
-                return $s;
-            });
-        $lecturers = AttachmentLecturer::where([
-            'attachment_id'=> $request->attachment_id,
-            'department_id' => $request->department_id
-        ])->get();
-        if($lecturers->isEmpty()){
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No Lecturers assigned for this attachment and department. '
+    // 3. Fetch Lecturers
+    $lecturers = AttachmentLecturer::where([
+        'attachment_id' => $request->attachment_id,
+        'department_id' => $request->department_id
+    ])->get();
+
+    if ($lecturers->isEmpty()) {
+        return response()->json(['status' => 'error', 'message' => 'No lecturers available.']);
+    }
+
+    $assignedIds = [];
+    $finalAssignments = [];
+
+    // 4. Regional Grouping Loop (Bomet, Kericho, etc.)
+    foreach ($lecturers as $lecturer) {
+        $remaining = $students->whereNotIn('id', $assignedIds);
+        if ($remaining->isEmpty()) break;
+
+        $anchor = $remaining->first();
+
+        $regionalGroup = $remaining->map(function ($target) use ($anchor) {
+            $target->dist = $this->haversineDistance($anchor->lat, $anchor->lng, $target->lat, $target->lng);
+            return $target;
+        })
+        ->filter(fn($t) => $t->dist <= $regionalRange)
+        ->sortBy('dist')
+        ->take($maxStudents);
+
+        foreach ($regionalGroup as $student) {
+            $finalAssignments[] = [
+                'student_id' => $student->id,
+                'lecturer_id' => $lecturer->id,
+                'company_id'  => $student->company_id,
+                'lat'         => $student->lat,
+                'lng'         => $student->lng
+            ];
+            $assignedIds[] = $student->id;
+        }
+    }
+
+    // 5. Save using Transaction
+    return DB::transaction(function () use ($finalAssignments, $request) {
+        $batch = (LecturerAssigment::where(['attachment_id' => $request->attachment_id])->max('batch') ?? 0) + 1;
+
+        foreach ($finalAssignments as $item) {
+            AttachmentStudent::where('id', $item['student_id'])->update([
+                'attachment_lecturer_id' => $item['lecturer_id']
+            ]);
+
+            LecturerAssigment::create([
+                'attachment_id' => $request->attachment_id,
+                'department_id' => $request->department_id,
+                'attachment_student_id' => $item['student_id'],
+                'attachment_lecturer_id' => $item['lecturer_id'],
+                'company_id' => $item['company_id'],
+                'latitude' => $item['lat'],
+                'longitude' => $item['lng'],
+                'batch' => $batch,
+                'created_by' => auth()->id(),
             ]);
         }
-
-        $clusters = $this->clusterStudents($students, $lecturers);
-
-        DB::transaction(function () use ($clusters, $request, $students) {
-          $prev_assigment = LecturerAssigment::where([
-                'attachment_id' => $request->attachment_id,
-                'department_id' => $request->department_id
-            ])->orderBy('batch','desc')
-              ->first();
-$batch = 1;
-if ($prev_assigment) {
-    $batch = $prev_assigment->batch + 1;
+        return response()->json(['status' => 'success', 'message' => count($finalAssignments) . " students assigned to regional clusters."]);
+    });
 }
-            foreach ($clusters as $row) {
-                $student = $students->firstWhere('id', $row['student_id']);
-              AttachmentStudent::find($row['student_id'])->update([
-                 'attachment_lecturer_id' => $row['lecturer_id'],
-              ]);
-                LecturerAssigment::create([
-                    'attachment_id' => $request->attachment_id,
-                    'department_id' => $request->department_id,
-                    'attachment_student_id' => $row['student_id'],
-                    'attachment_lecturer_id' => $row['lecturer_id'],
-                    'company_id' => $student->company_id,
-                    'latitude' => $student->lat,
-                    'longitude' => $student->lng,
-                    'created_by' => auth()->id(),
-                    'batch' => $batch,
-                ]);
-            }
-        });
-
-        return response()->json(['status' => 'success']);
-    }
-    public function updateLecturer(Request $request, $id)
-    {
-        LecturerAssigment::findOrFail($id)
-            ->update(['lecturer_id' => $request->lecturer_id]);
-
-        return response()->json(['status' => 'updated']);
-    }
-    public function finalize(Request $request)
-    {
-        LecturerAssigment::where([
-            'attachment_period_id' => $request->attachment_period_id,
-            'department_id' => $request->department_id
-        ])->update(['is_final' => true]);
-    }
-
-
 }

@@ -122,11 +122,9 @@
                                 Town
                             </th>
                             <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                Status
+                                Phone Number
                             </th>
-                            <th scope="col" class="p-4">
-                               Action
-                            </th>
+                            
                         </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -162,8 +160,8 @@
                 { data: 'lecturer', name: 'lecturer' },
                 { data: 'company', name: 'company' },
                 { data: 'town', name: 'town' },
-                { data: 'status', name: 'status' },
-                { data: 'action', name: 'action', orderable: false, searchable: false },
+                { data: 'phone_number', name: 'phone_number' },
+               
             ]
         });
 

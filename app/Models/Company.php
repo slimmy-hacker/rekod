@@ -25,4 +25,5 @@ public function Town()
         
         return $this->belongsTo(Location::class, 'town_id'); 
     }
+    
 }

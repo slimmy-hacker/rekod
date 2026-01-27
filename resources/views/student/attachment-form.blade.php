@@ -14,13 +14,22 @@
                 <legend class="font-semibold text-lg">Student Details</legend>
                 <div class="grid grid-cols-1 gap-4 mt-4">
                     <input type="text" name="student_name"  value="{{$logged_user->name}}" placeholder="Full Name" class="p-2 border rounded w-full" disabled>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+    <input type="text" name="reg_no" value="{{$my_student_details->reg_no}}" placeholder="Registration Number" class="p-2 border rounded w-full bg-gray-50" readonly>
+    
+    <input type="text" name="course" value="{{$my_student_details->program->name}}" placeholder="Course" class="p-2 border rounded w-full bg-gray-50" readonly>
+    
+    <input type="tel" 
+           name="student_phone" 
+           placeholder="Phone Number" 
+           value="{{ old('student_phone', $my_student_details->phone_number) }}" 
+           class="p-2 border rounded w-full @error('student_phone') border-red-500 @enderror" 
+           required>
+    
+    <input type="email" name="student_email" placeholder="Email" value="{{$logged_user->email}}" class="p-2 border rounded w-full bg-gray-50" readonly>
+</div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <input type="text" name="reg_no" value="{{$my_student_details->reg_no}}" placeholder="Registration Number" class="p-2 border rounded w-full" disabled>
-                    <input type="text" name="course" value="{{$my_student_details->program->name}}" placeholder="Course" class="p-2 border rounded w-full" disabled>
-                    <input type="tel" name="student_phone" placeholder="Phone Number" value="{{$logged_user->phone_number}}" class="p-2 border rounded w-full" disabled>
-                    <input type="email" name="student_email" placeholder="Email" value="{{$logged_user->email}}" class="p-2 border rounded w-full" disabled>
-                </div>
+               
             </fieldset>
 
          <fieldset class="border border-gray-300 p-4 rounded">
