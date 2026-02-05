@@ -191,7 +191,7 @@ public function destroy($id)
     $opportunity = Opportunity::findOrFail($id);
     $opportunity->delete();
 
-    return redirect()->route('company.opportunities')
+    return redirect()->route('opportunities.destroy')
                      ->with('success', 'Opportunity deleted successfully.');
 }
 

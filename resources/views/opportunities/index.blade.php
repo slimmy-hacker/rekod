@@ -1,165 +1,93 @@
 @extends('layouts.my_app')
 
-@section('title')
-    Opportunities
-@endsection
-
 @section('content')
-
-<!-- Page Header -->
-<div class="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5">
-    <div class="mb-1 w-full">
-        <div class="mb-4">
-            <nav class="flex mb-5" aria-label="Breadcrumb">
-                <ol class="inline-flex items-center space-x-1 md:space-x-2">
-                    <li class="inline-flex items-center">
-                        <a href="#" class="text-gray-700 hover:text-gray-900 inline-flex items-center">
-                            <svg class="w-5 h-5 mr-2.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                            </svg>
-                            Home
-                        </a>
-                    </li>
-                    <li>
-                        <div class="flex items-center">
-                            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd"
-                                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                      clip-rule="evenodd"/>
-                            </svg>
-                            <span class="text-gray-400 ml-1 md:ml-2 text-sm font-medium">
-                                Opportunities
-                            </span>
-                        </div>
-                    </li>
-                </ol>
-            </nav>
-
-            <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">
-                Available Opportunities
-            </h1>
+<div class="w-full min-h-screen bg-gray-50/50 p-4 lg:p-8">
+    
+    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight uppercase">Opportunities Hub</h1>
+            <p class="text-gray-500 font-medium">Connect with the next generation of talent from DeKUT.</p>
         </div>
+        @if($isCompany)
+            <button id="btn-post" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-indigo-200 transition-all transform hover:-translate-y-1 flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+                ADVERTISE POSITION
+            </button>
+        @endif
     </div>
-</div>
 
-<!-- Table Section -->
-<div class="flex flex-col">
-    <div class="overflow-x-auto">
-        <div class="align-middle inline-block min-w-full">
-            <div class="shadow overflow-hidden">
-                <table class="table-fixed min-w-full divide-y divide-gray-200" id="opportunities_table">
-                    <thead class="bg-gray-100">
-                    <tr>
-                        <th class="p-2 w-12 text-xs font-medium text-gray-500 uppercase">#</th>
-                        <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                        <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
-                        <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Expiry</th>
-                         <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                        <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
-                        <th class="p-4">
-                            @if($isCompany)
-                                <button id="open-opportunity-modal-btn"
-                                        class="text-white bg-cyan-600 hover:bg-cyan-700
-                                               focus:ring-4 focus:ring-cyan-200
-                                               font-medium rounded-lg text-sm px-3 py-2 inline-flex items-center">
-                                    <svg class="-ml-1 mr-2 h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                              d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                                              clip-rule="evenodd"/>
-                                    </svg>
-                                    Add
-                                </button>
-                            @endif
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200"></tbody>
-                </table>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <div class="text-gray-400 text-xs font-bold uppercase mb-1">Visibility</div>
+            <div class="text-2xl font-black text-indigo-600">Public</div>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <div class="text-gray-400 text-xs font-bold uppercase mb-1">Target Audience</div>
+            <div class="text-2xl font-black text-gray-800">DeKUT Students</div>
+        </div>
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+            <div class="text-gray-400 text-xs font-bold uppercase mb-1">Platform Status</div>
+            <div class="text-2xl font-black text-green-500 flex items-center">
+                <span class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></span> Verified
             </div>
         </div>
     </div>
+
+    <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-8 border-b border-gray-50">
+            <h3 class="text-lg font-bold text-gray-800">Recent Postings</h3>
+        </div>
+        <div class="mb-6 flex justify-between items-center">
+    <h3 class="text-xl font-black text-gray-900 uppercase tracking-tight">Available Opportunities</h3>
+    <div id="search-wrapper"></div> 
 </div>
 
-<!-- ADD OPPORTUNITY MODAL -->
-<div class="hidden overflow-x-hidden overflow-y-auto fixed top-4 left-0 right-0 md:inset-0
-            z-50 justify-center items-center h-modal sm:h-full"
-     data-modal-backdrop="static"
-     id="add-opportunity-modal">
+<table id="opp_table" class="hidden">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Location</th>
+            <th>Date</th>
+             <th>Description</th>
+            <th>Company</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+</table>
 
-    <div class="relative w-full max-w-2xl px-4 h-full md:h-auto">
+<div id="opportunity-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    </div>
+    </div>
+</div>
 
-        <div class="bg-white rounded-lg shadow relative">
-
-            <div class="flex items-start justify-between p-5 border-b rounded-t">
-                <h3 class="text-xl font-semibold">
-                    Post New Opportunity
-                </h3>
-
-                <button type="button"
-                        class="close-opportunity-modal-btn text-gray-400 bg-transparent
-                               hover:bg-gray-200 hover:text-gray-900 rounded-lg
-                               text-sm p-1.5 ml-auto inline-flex items-center">
-                    ✕
-                </button>
+<div id="modal-post" class="fixed inset-0 z-50 hidden bg-gray-900/40 backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl p-10 relative">
+        <button id="close-modal" class="absolute top-8 right-8 text-gray-300 hover:text-gray-600 text-2xl">&times;</button>
+        
+        <div class="text-center mb-8">
+            <div class="bg-indigo-100 text-indigo-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-bullhorn text-2xl"></i>
             </div>
-
-            <div class="p-6 space-y-6">
-                <form id="opportunityForm">
-                    @csrf
-
-                    <div class="grid grid-cols-6 gap-6">
-
-                        <div class="col-span-6">
-                            <label class="text-sm font-medium text-gray-900 block mb-2">Title</label>
-                            <input type="text" name="title"
-                                   class="shadow-sm bg-gray-50 border border-gray-300
-                                          rounded-lg block w-full p-2.5"
-                                   required>
-                        </div>
-
-                        <div class="col-span-6 sm:col-span-3">
-                            <label class="text-sm font-medium text-gray-900 block mb-2">Location</label>
-                            <input type="text" name="location"
-                                   class="shadow-sm bg-gray-50 border border-gray-300
-                                          rounded-lg block w-full p-2.5"
-                                   required>
-                        </div>
-
-                        <div class="col-span-6 sm:col-span-3">
-                            <label class="text-sm font-medium text-gray-900 block mb-2">
-                                Expiry (days)
-                            </label>
-                            <input type="number" name="expiry_days" min="1" max="90"
-                                   class="shadow-sm bg-gray-50 border border-gray-300
-                                          rounded-lg block w-full p-2.5"
-                                   required>
-                        </div>
-
-                        <div class="col-span-6">
-                            <label class="text-sm font-medium text-gray-900 block mb-2">
-                                Description
-                            </label>
-                            <textarea name="description" rows="3"
-                                      class="shadow-sm bg-gray-50 border border-gray-300
-                                             rounded-lg block w-full p-2.5"
-                                      required></textarea>
-                        </div>
-                    </div>
-
-                    <div class="items-center p-6 border-t border-gray-200 rounded-b mt-6">
-                        <button id="saveOpportunityBtn"
-                                class="text-white bg-cyan-600 hover:bg-cyan-700
-                                       focus:ring-4 focus:ring-cyan-200
-                                       font-medium rounded-lg text-sm px-5 py-2.5"
-                                type="submit">
-                            Save
-                        </button>
-                    </div>
-
-                </form>
-            </div>
-
+            <h2 class="text-2xl font-black text-gray-900">New Advertisement</h2>
+            <p class="text-gray-500 text-sm">Define the role and find your next intern.</p>
         </div>
+
+        <form id="postForm" class="space-y-5">
+            @csrf
+            <div>
+                <input type="text" name="title" placeholder="Job Title (e.g. Graphic Design Intern)" class="w-full bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 font-semibold" required>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <input type="text" name="location" placeholder="City / Town" class="bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 font-semibold" required>
+                <input type="number" name="expiry_days" placeholder="Deadline (Days)" class="bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 font-semibold" required>
+            </div>
+            <div>
+                <textarea name="description" rows="4" placeholder="Briefly describe the responsibilities..." class="w-full bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 font-semibold" required></textarea>
+            </div>
+            <button type="submit" id="saveBtn" class="w-full bg-gray-900 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-black transition-all">
+                LAUNCH POSTING
+            </button>
+        </form>
     </div>
 </div>
 
@@ -167,83 +95,101 @@
 
 @section('scripts')
 <script>
-$(document).ready(function () {
+    $(document).ready(function() {
+    $('#btn-post').click(() => $('#modal-post').removeClass('hidden'));
+    $('#close-modal').click(() => $('#modal-post').addClass('hidden'));
 
-    const modal = new Modal(
-        document.getElementById('add-opportunity-modal'),
-        { backdrop: 'static', closable: false }
-    );
-
-    $('#open-opportunity-modal-btn').on('click', function () {
-        modal.show();
-    });
-
-    $('.close-opportunity-modal-btn').on('click', function () {
-        modal.hide();
-    });
-
-    let table = $('#opportunities_table').DataTable({
+    let table = $('#opp_table').DataTable({
         processing: true,
         serverSide: true,
-        ordering: false,
         ajax: "{{ route('opportunities.index') }}",
         columns: [
-            { data: 'DT_RowIndex', searchable: false },
-            { data: 'title' },
-            { data: 'location' },
-            { data: 'expiry_date' },
-             { data: 'description' },
-            { data: 'company' },
-            
-            { data: 'action', orderable: false, searchable: false }
-        ]
+            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+            {data: 'title', name: 'title'},
+            {data: 'location', name: 'location'},
+            {data: 'expiry_date', name: 'expiry_date'},
+            {data: 'description', name: 'description'},
+            {data: 'company_name', name: 'company_name'}, // Matches your Controller
+            {data: 'action', name: 'action', orderable: false}
+        ],
+        dom: 'f', // We only want the search box
+        language: { search: "", searchPlaceholder: "Search opportunities..." },
+        initComplete: function() {
+            // Move and style the search box to match your reference images
+            $('.dataTables_filter').detach().appendTo('#search-wrapper');
+            $('.dataTables_filter input').addClass('bg-gray-50 border-none rounded-2xl px-6 py-3 w-64 focus:ring-2 focus:ring-indigo-500 font-semibold text-sm');
+        },
+        drawCallback: function(settings) {
+            let api = this.api();
+            let rows = api.rows({ page: 'current' }).data();
+            let grid = $('#opportunity-grid');
+            grid.empty();
+
+            if (rows.length === 0) {
+                grid.append('<div class="col-span-full text-center py-12 text-gray-400 font-bold uppercase tracking-widest text-xs">No opportunities found</div>');
+                return;
+            }
+
+            rows.each(function(data) {
+                // Determine if the post is active or closed
+                let expiryDate = new Date(data.expiry_date);
+                let isExpired = expiryDate < new Date();
+                let stateText = isExpired ? 'State: Closed' : 'State: Active';
+                let stateClass = isExpired ? 'text-red-500' : 'text-green-500';
+                
+                // Build the card HTML (Matching your card.png reference)
+                let cardHtml = `
+                    <div class="bg-white p-6 rounded-[1.8rem] border-2 border-gray-100 hover:border-indigo-400 transition-all duration-300 shadow-sm flex flex-col justify-between group">
+                        <div>
+                            <h3 class="text-lg font-black text-gray-800 leading-tight mb-2 group-hover:text-indigo-600 transition-colors capitalize">
+                                ${data.title}
+                            </h3>
+                            <p class="text-indigo-500 font-bold text-[10px] uppercase tracking-widest mb-4">
+                                ${data.company_name}
+                            </p>
+                             <p class="text-indigo-500 font-bold text-[10px] uppercase tracking-widest mb-4">
+                                ${data.description}
+                            </p>
+                            <p class="text-gray-400 text-xs font-semibold">
+                                ${data.location} — ${data.expiry_date}
+                            </p>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-8">
+                            <span class="text-[10px] font-black uppercase tracking-widest ${stateClass}">
+                                ${stateText}
+                            </span>
+                            <div class="transform scale-90 origin-right">
+                                ${data.action}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.append(cardHtml);
+            });
+        }
     });
 
-    $("#opportunityForm").on("submit", function (e) {
+    // AJAX Form Submission
+    $('#postForm').on('submit', function(e) {
         e.preventDefault();
-
-        let btn = $("#saveOpportunityBtn");
-        btn.prop("disabled", true).text("Saving...");
-
+        $('#saveBtn').prop('disabled', true).text('Launching...');
         $.ajax({
             url: "{{ route('opportunities.store') }}",
-            type: "POST",
+            method: "POST",
             data: new FormData(this),
-            processData: false,
+            processData: false, 
             contentType: false,
-
-            success: function (res) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: 'Opportunity posted successfully',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-
-                $("#opportunityForm")[0].reset();
-                modal.hide();
-                table.ajax.reload(null, false);
+            success: function() {
+                $('#modal-post').addClass('hidden');
+                $('#postForm')[0].reset();
+                table.ajax.reload();
+                Swal.fire({ icon: 'success', title: 'Live!', text: 'Your ad is now visible to students.', padding: '3rem', borderRadius: '2rem' });
             },
-
-            error: function () {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'error',
-                    title: 'Failed to save opportunity',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            },
-
-            complete: function () {
-                btn.prop("disabled", false).text("Save");
-            }
+            error: () => Swal.fire('Error', 'Please check your inputs.', 'error'),
+            complete: () => $('#saveBtn').prop('disabled', false).text('LAUNCH POSTING')
         });
     });
-
 });
 </script>
 @endsection

@@ -135,13 +135,21 @@ class LecturerAssigmentController extends Controller
     $assignedIds = [];
     $finalAssignments = [];
 
-    // 4. Regional Grouping Loop (Bomet, Kericho, etc.)
-    foreach ($lecturers as $lecturer) {
+   // 4. Regional Grouping Loop - FIXED to prevent region jumping
+    $lecturerArray = $lecturers->all();
+    $lecturerIndex = 0;
+
+    // We loop as long as we have lecturers AND students
+    while ($lecturerIndex < count($lecturerArray)) {
         $remaining = $students->whereNotIn('id', $assignedIds);
+        
+        // If no students left, stop
         if ($remaining->isEmpty()) break;
 
+        $lecturer = $lecturerArray[$lecturerIndex];
         $anchor = $remaining->first();
 
+        // Find all students within 60km of THIS specific anchor
         $regionalGroup = $remaining->map(function ($target) use ($anchor) {
             $target->dist = $this->haversineDistance($anchor->lat, $anchor->lng, $target->lat, $target->lng);
             return $target;
@@ -160,6 +168,10 @@ class LecturerAssigmentController extends Controller
             ];
             $assignedIds[] = $student->id;
         }
+
+        // IMPORTANT: Move to the next lecturer immediately.
+        // This ensures the current lecturer stays in the current 60km cluster.
+        $lecturerIndex++;
     }
 
     // 5. Save using Transaction

@@ -28,22 +28,34 @@ public function index(Request $request)
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('company', function ($row) {
-                return $row->company->name ?? 'N/A';
-            })
-            ->addColumn('action', function ($row) use ($isCompany) {
-                if ($isCompany) {
-                    return '
-                        <form method="POST" action="' . route('opportunities.destroy', $row->id) . '" onsubmit="return confirm(\'Are you sure?\');">
-                            ' . csrf_field() . method_field('DELETE') . '
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
-                    ';
-                }
-                return ''; // no actions for students
-            })
-            ->rawColumns(['action'])
-            ->make(true);
+            ->addColumn('company_name', function ($row) {
+    return $row->company->name ?? 'N/A';
+})
+   ->editColumn('expiry_date', function($row) {
+
+                    return Carbon::parse($row->expiry_date)->format('M d, Y');
+
+                })
+->addColumn('action', function ($row) use ($isCompany) {
+    if ($isCompany) {
+        return '
+            <form method="POST" action="' . route('opportunities.destroy', $row->id) . '" onsubmit="return confirm(\'Are you sure?\');">
+                ' . csrf_field() . method_field('DELETE') . '
+                <button type="submit" class="text-red-500 hover:text-red-700 transition-colors">
+                   <i class="fas fa-trash-alt"></i>
+                </button>
+            </form>
+        ';
+    }
+    
+    // For students, show the Apply button we styled earlier
+    return '
+        <a href="'.route('opportunities.apply', $row->id).'" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-[10px] font-black transition-all shadow-lg shadow-indigo-100 uppercase tracking-tighter">
+            Apply Now
+        </a>';
+})
+->rawColumns(['action'])
+->make(true);
     }
 
     // Normal page load returns blade view with minimal data (or empty)

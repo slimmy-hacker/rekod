@@ -25,7 +25,14 @@ class JobGradeSeeder extends Seeder
             ],
             [
                 'public_service_group' => 'S',
-                'dekut_grade' => '15 & 16',
+                'dekut_grade' => '15 ',
+                'designation' => 'Principals / Professors / Registrars / Finance Officers',
+                'daily_allowance' => 16800,
+                'applies_to' => 'All Towns',
+            ],
+             [
+                'public_service_group' => 'S',
+                'dekut_grade' => '16',
                 'designation' => 'Principals / Professors / Registrars / Finance Officers',
                 'daily_allowance' => 16800,
                 'applies_to' => 'All Towns',
