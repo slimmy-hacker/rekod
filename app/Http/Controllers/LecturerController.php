@@ -16,9 +16,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class LecturerController extends Controller
 {
-    /**
-     * Display a list of students assigned to the logged-in lecturer.
-     */
+   
     public function index(Request $request){
 
         if ($request->ajax()) {
@@ -26,7 +24,7 @@ class LecturerController extends Controller
             $data = Lecturer::with(['user','department'])->latest()->get();
 
             return DataTables::of($data)
-                ->addIndexColumn() // adds DT_RowIndex
+                ->addIndexColumn() 
                 ->addColumn('name', fn ($row) => $row->user->name ?? '-')
                 ->addColumn('email', fn ($row) => $row->user->email ?? '-')
                 ->addColumn('department', fn ($row) =>  $row->department->name ?? '-')
@@ -74,7 +72,7 @@ class LecturerController extends Controller
 {
     $students = Student::with('user')->get();
 
-    // Load attachments for the filter dropdown
+   
     $attachments = Attachment::all();
 
     return view('lecturer.my-students', compact('students', 'attachments'));
@@ -82,9 +80,7 @@ class LecturerController extends Controller
 
 
 
-    /**
-     * Show a single student's profile.
-     */
+    
     public function showStudent($id)
     {
         $student = Student::with('company')->findOrFail($id);
@@ -92,13 +88,9 @@ class LecturerController extends Controller
         return view('lecturer.student.show', compact('student'));
     }
 
-    /**
-     * Show reports for a specific student.
-     */
+   
     
-    /**
-     * Provide feedback for a student.
-     */
+   
     public function studentFeedback($id)
     {
         $student = Student::findOrFail($id);
@@ -106,25 +98,19 @@ class LecturerController extends Controller
         return view('lecturer.student.feedback', compact('student'));
     }
 
-    /**
-     * Show lecturer's own reports page (general, not student-specific).
-     */
+   
     public function reports()
     {
         return view('lecturer.reports');
     }
 
-    /**
-     * Show lecturer's logbook page.
-     */
+    
     public function logbook()
     {
         return view('lecturer.logbook');
     }
 
-    /**
-     * Show lecturer's evaluate page.
-     */
+    
     public function evaluate()
     {
         return view('lecturer.evaluate');
@@ -138,7 +124,7 @@ class LecturerController extends Controller
                                     ->where('attachment_lecturer_id', $attachment_lecturer_id );
 
             return DataTables::of($data)
-                ->addIndexColumn() // adds DT_RowIndex
+                ->addIndexColumn() 
                 ->addColumn('name', function ($row) {
                     return $row->student && $row->student->user
                         ? $row->student->user->name
@@ -191,7 +177,7 @@ class LecturerController extends Controller
 }
 public function weeklyReports(Request $request)
 {
-    // 1. Get Lecturer ID
+    
     $lecturerId = $request->session()->get('attachment_lecturer_id') 
                   ?? auth()->user()->lecturer->id 
                   ?? null;
@@ -201,11 +187,10 @@ public function weeklyReports(Request $request)
             ->with('error', 'Please select or verify your lecturer profile first.');
     }
 
-    // 2. Get the ATTACHMENT IDs (the bridge records) linked to this lecturer
-    // We pluck the 'id' of the attachment_students table, not the student_id
+   
     $attachmentIds = \App\Models\AttachmentStudent::where('attachment_lecturer_id', $lecturerId)
                     ->pluck('id');
-// Change the 'with' part to this exact string
+
 $weeklyReports = \App\Models\WeeklyReport::whereIn('attachment_student_id', $attachmentIds)
                     ->with(['attachmentStudent.student.user']) 
                     ->orderBy('week_id', 'desc')
@@ -222,14 +207,14 @@ public function update(Request $request, $id)
     
     $report->update([
         'lecturer_comment' => $request->lecturer_comment
-        // Note: You might want to add 'is_approved' => true here as well
+        
     ]);
 
     return redirect()->route('lecturer.weekly-reports')->with('success', 'Comment saved!');
 }
 public function viewStudentReports(Request $request)
 {
-    // 1. Get Lecturer ID (Matches your weekly report logic)
+   
     $lecturerId = $request->session()->get('attachment_lecturer_id') 
                   ?? auth()->user()->lecturer->id 
                   ?? null;
@@ -239,12 +224,11 @@ public function viewStudentReports(Request $request)
             ->with('error', 'Please select or verify your lecturer profile first.');
     }
 
-    // 2. Get the ATTACHMENT IDs linked to this lecturer
-    // This plucks the IDs from the attachment_students table
+    
     $attachmentIds = \App\Models\AttachmentStudent::where('attachment_lecturer_id', $lecturerId)
                     ->pluck('id');
 
-    // 3. Get Final Reports using the bridge IDs
+   
     $reports = \App\Models\FinalReport::whereIn('attachment_student_id', $attachmentIds)
                     ->with(['attachmentStudent.student.user']) 
                     ->latest()

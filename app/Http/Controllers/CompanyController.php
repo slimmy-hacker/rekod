@@ -32,8 +32,7 @@ class CompanyController extends Controller
                 
                 ->addColumn('action', function ($row) {
                     return '
-                        <button class="btn btn-sm btn-primary edit" data-id="'.$row->id.'">Edit</button>
-                        <button class="btn btn-sm btn-danger delete" data-id="'.$row->id.'">Delete</button>
+                        
                     ';
                 })
                 ->rawColumns(['action'])
@@ -89,7 +88,7 @@ class CompanyController extends Controller
                 ]
             );
             $validated['user_id'] = $user->id;
-            Company::create($validated); // if you have a model
+            Company::create($validated); 
             DB::Commit();
             return response()->json([
                 'status' => 'success',
@@ -118,10 +117,10 @@ class CompanyController extends Controller
 
     public function students()
     {
-        // Get logged-in company
-        $companyId = Auth::id();  // if companies log in through users table
+        
+        $companyId = Auth::id();  
 
-        // Get students linked to this company through placements
+        
         $students = Student::whereHas('placements', function ($query) use ($companyId) {
             $query->where('company_id', $companyId);
         })->get();
@@ -133,14 +132,14 @@ class CompanyController extends Controller
 
 public function opportunities()
 {
-    // fetch data (use get() or paginate())
+    
     $opportunities = Opportunity::orderBy('created_at', 'desc')->get();
 
-    // return view and pass the variable
+    
     return view('company.opportunities', compact('opportunities'));
-    // OR: return view('opportunities', compact('opportunities')); depending on your view path
+   
 }
-// Show form to create opportunity
+
 public function createOpportunity()
 {
     return view('company.create-opportunity');
@@ -155,7 +154,7 @@ public function storeOpportunity(Request $request)
     ]);
 
     Opportunity::create([
-        'industry_id' => auth()->id(), // logged in company/industry
+        'industry_id' => auth()->id(), 
         'title' => $request->title,
         'description' => $request->description,
         'location' => $request->location,
@@ -169,13 +168,13 @@ public function storeOpportunity(Request $request)
     ]);
 }
 
-    // 📌 Documents
+  
     public function documents()
     {
         return view('company.documents');
     }
 
-    // 📌 Reports
+   
     public function reports()
     {
         return view('company.reports');

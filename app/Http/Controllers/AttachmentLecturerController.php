@@ -33,13 +33,13 @@ class AttachmentLecturerController extends Controller
             ->addColumn('department', fn ($row) => $row->department->name ?? '-')
             ->addColumn('students', fn ($row) => $row->department->slug ?? 0)
             ->addColumn('action', function ($row) {
-                return '<button class="btn btn-sm btn-danger delete" data-id="'.$row->id.'">Delete</button>';
+                return '';
             })
             ->rawColumns(['action'])
             ->make(true);
     }
 
-    // 💡 FIX: load required data
+   
     $attachments = Attachment::orderBy('start_date', 'desc')->get();
     $lecturers   = Lecturer::with('user')->orderBy('staff_number')->get();
     $departments = AdministrativeUnit::where('level', 2)->orderBy('name')->get();
@@ -107,7 +107,7 @@ public function store(Request $request)
             'department_id' => 'required|exists:administrative_units,id',
         ]);
 
-        // Check if already exists
+       
         $exists = AttachmentLecturer::where('lecturer_id', $validated['lecturer_id'])
             ->where('attachment_id', $validated['attachment_id'])
             ->where('department_id', $validated['department_id'])

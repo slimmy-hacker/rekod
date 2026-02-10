@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Http;
 
 class LocationController extends Controller
 {
-    // Show all locations
+    
     public function index(Request $request)
     {
         if ($request->ajax()) {
@@ -44,11 +44,11 @@ class LocationController extends Controller
 
                     $keyword = strtolower($keyword);
 
-                    // If keyword matches name → convert to level number
+                    
                     if (isset($map[$keyword])) {
                         $query->where('level', $map[$keyword]);
                     } else {
-                        // If user types a number (1,2,3)
+                       
                         if (is_numeric($keyword)) {
                             $query->where('level', intval($keyword));
                         }
@@ -74,7 +74,7 @@ public function create()
     return view('locations.create', compact('locations'));
 }
 
-    // Upload Excel file
+    
     public function upload(Request $request)
     {
         $request->validate([
@@ -144,7 +144,7 @@ public function create()
         return null;
     }
     public function autoFillMissingCoordinates()
-    {ini_set('max_execution_time', 300); // 300 seconds = 5 minutes
+    {ini_set('max_execution_time', 300); 
 
         $results = [];
 

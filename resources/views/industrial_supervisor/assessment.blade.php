@@ -55,7 +55,9 @@
             </div>
         </div>
 
-        <button type="submit" class="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Submit Industrial Assessment</button>
+         <button type="submit" class="mt-6 px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 w-full md:w-auto">
+            Submit School Assessment
+        </button>
     </form>
 </div>
 

@@ -99,31 +99,10 @@
                                 </th>
                                 <th scope="col" class="p-4">
                                     <div class="flex space-x-2 justify-end">
-                                        <!-- Add Button -->
-                                        <button type="button" id="open-add-modal-btn"
-                                            class="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:ring-green-200
-                                            font-medium rounded-lg text-sm px-3 py-2 inline-flex items-center">
-                                            <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd"
-                                                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
-                                            Add
-                                        </button>
+                                       
 
-                                        <!-- Upload Button -->
-                                        <button type="button" id="open-modal-btn"
-                                            class="text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200
-                                            font-medium rounded-lg text-sm px-3 py-2 inline-flex items-center">
-                                            <svg class="-ml-1 mr-2 h-6 w-6" fill="currentColor" viewBox="0 0 20 20"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <path fill-rule="evenodd"
-                                                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                                                    clip-rule="evenodd"></path>
-                                            </svg>
-                                            Upload
-                                        </button>
+                                      
+                                        
                                     </div>
                                 </th>
                             </tr>

@@ -71,7 +71,7 @@ class AttachmentDetailsController extends Controller
             ]);
         }
 
-        // 3. Update the attachment student record
+       
         AttachmentStudent::where('id', $attachment_student_id)
             ->update([
                 'company_id' => $validated['company_id'],

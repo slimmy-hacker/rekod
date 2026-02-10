@@ -80,7 +80,7 @@ class IndustrialSupervisorController extends Controller
                 'staff_number' => Str::upper($validated['staff_number']),
                 'position_title' => $validated['position_title'],
                 'phone_alt' => $validated['phone_number'],
-            ]); // if you have a model
+            ]); 
             DB::Commit();
             return response()->json([
                 'status' => 'success',
@@ -163,7 +163,7 @@ class IndustrialSupervisorController extends Controller
     {
         $supervisors = IndustrialSupervisor::with('user:id,name,phone_number,email')
             ->where('company_id', $company_id)
-            ->get(['id', 'user_id']); // only select what’s needed
+            ->get(['id', 'user_id']); 
 
         return response()->json($supervisors);
     }
@@ -181,7 +181,7 @@ class IndustrialSupervisorController extends Controller
 
     
     $weeklyReports = \App\Models\WeeklyReport::whereIn('attachment_student_id', $attachmentStudentIds)
-        ->with(['attachmentStudent.student.user']) // Eager load relations correctly
+        ->with(['attachmentStudent.student.user']) 
         ->orderByDesc('week_id')
         ->get();
 

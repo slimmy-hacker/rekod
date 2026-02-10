@@ -10,7 +10,7 @@ class WeeklyReport extends Model
     use HasFactory;
 
     protected $fillable = [
-       'attachment_student_id', // Make sure this is first
+       'attachment_student_id',
         'week_id',
         'week_start_date',
         'week_end_date',
@@ -42,12 +42,7 @@ class WeeklyReport extends Model
         return 'completed';
     }
 
-    // --- REMOVED: attachmentStudent() ---
-    // --- REMOVED: getStudentAttribute() ---
-
-    /**
-     * DIRECT Relationship to Student
-     */
+    
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id');
@@ -58,7 +53,7 @@ class WeeklyReport extends Model
         return $this->hasMany(DailyReport::class, 'weekly_report_id');
     }
     
-// In app/Models/WeeklyReport.php
+
 
 public function attachmentStudent()
 {

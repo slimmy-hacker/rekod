@@ -41,11 +41,11 @@ class AdministrativeUnitController extends Controller
 
                     $keyword = strtolower($keyword);
 
-                    // If keyword matches name → convert to level number
+                    
                     if (isset($map[$keyword])) {
                         $query->where('level', $map[$keyword]);
                     } else {
-                        // If user types a number (1,2,3)
+                        
                         if (is_numeric($keyword)) {
                             $query->where('level', intval($keyword));
                         }
@@ -64,7 +64,7 @@ class AdministrativeUnitController extends Controller
         return view('admin.administrative-units',compact('admin_units'));
     }
 
-    // Upload Excel file
+   
     public function upload(Request $request)
     {
         $request->validate([

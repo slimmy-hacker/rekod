@@ -20,7 +20,7 @@ class LecturerAssigmentController extends Controller
                 ->with([
                     'attachment',
                     'student.user',
-                    'student.program.parent', // This is the department
+                    'student.program.parent', 
                     'attachmentLecturer.lecturer.user',
                     'company.town'
                 ]);
@@ -60,12 +60,10 @@ class LecturerAssigmentController extends Controller
         return view('admin.lecturer_assignment', compact('attachments', 'departments'));
     }
 
-    /**
-     * Calculate Distance using Haversine Formula
-     */
+    
     private function haversineDistance($lat1, $lon1, $lat2, $lon2)
     {
-        $earthRadius = 6371; // Kilometers
+        $earthRadius = 6371; 
         $dLat = deg2rad($lat2 - $lat1);
         $dLon = deg2rad($lon2 - $lon1);
 
@@ -77,9 +75,7 @@ class LecturerAssigmentController extends Controller
         return $earthRadius * $c;
     }
 
-    /**
-     * Proximity-based Assignment Logic (Greedy Clustering)
-     */
+   
   public function generateDraft(Request $request)
 {
     $request->validate([
@@ -90,14 +86,13 @@ class LecturerAssigmentController extends Controller
     $regionalRange = 60.0; 
     $maxStudents = 10;
 
-    // 1. Filter at the DATABASE level to ensure the relationship chain is complete
-    // This stops the "Attempt to read property on null" because we only pull records where town exists.
+    
     $rawStudents = AttachmentStudent::with(['company.town'])
         ->where('attachment_id', $request->attachment_id)
         ->whereNull('attachment_lecturer_id')
-        // Ensure company exists
+       
         ->whereHas('company', function($q) {
-            // Ensure town exists for that company
+           
             $q->whereHas('town'); 
         })
         ->whereHas('student.program.parent', function($q) use ($request) {
@@ -112,9 +107,9 @@ class LecturerAssigmentController extends Controller
         ]);
     }
 
-    // 2. Safe mapping with coordinates
+    
     $students = $rawStudents->map(function ($s) {
-        // Since we used whereHas, we know these exist
+        
         $s->lat = (float) $s->company->town->latitude;
         $s->lng = (float) $s->company->town->longitude;
         return $s;
@@ -122,7 +117,7 @@ class LecturerAssigmentController extends Controller
     ->sortBy('lat') 
     ->values();
 
-    // 3. Fetch Lecturers
+    
     $lecturers = AttachmentLecturer::where([
         'attachment_id' => $request->attachment_id,
         'department_id' => $request->department_id
@@ -135,21 +130,21 @@ class LecturerAssigmentController extends Controller
     $assignedIds = [];
     $finalAssignments = [];
 
-   // 4. Regional Grouping Loop - FIXED to prevent region jumping
+  
     $lecturerArray = $lecturers->all();
     $lecturerIndex = 0;
 
-    // We loop as long as we have lecturers AND students
+    
     while ($lecturerIndex < count($lecturerArray)) {
         $remaining = $students->whereNotIn('id', $assignedIds);
         
-        // If no students left, stop
+       
         if ($remaining->isEmpty()) break;
 
         $lecturer = $lecturerArray[$lecturerIndex];
         $anchor = $remaining->first();
 
-        // Find all students within 60km of THIS specific anchor
+       
         $regionalGroup = $remaining->map(function ($target) use ($anchor) {
             $target->dist = $this->haversineDistance($anchor->lat, $anchor->lng, $target->lat, $target->lng);
             return $target;
@@ -169,12 +164,11 @@ class LecturerAssigmentController extends Controller
             $assignedIds[] = $student->id;
         }
 
-        // IMPORTANT: Move to the next lecturer immediately.
-        // This ensures the current lecturer stays in the current 60km cluster.
+       
         $lecturerIndex++;
     }
 
-    // 5. Save using Transaction
+   
     return DB::transaction(function () use ($finalAssignments, $request) {
         $batch = (LecturerAssigment::where(['attachment_id' => $request->attachment_id])->max('batch') ?? 0) + 1;
 

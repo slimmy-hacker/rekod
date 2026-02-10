@@ -50,7 +50,7 @@
             <th>Date</th>
              <th>Description</th>
             <th>Company</th>
-            <th>Action</th>
+          
         </tr>
     </thead>
 </table>
@@ -110,7 +110,7 @@
             {data: 'expiry_date', name: 'expiry_date'},
             {data: 'description', name: 'description'},
             {data: 'company_name', name: 'company_name'}, // Matches your Controller
-            {data: 'action', name: 'action', orderable: false}
+          // { data: 'action', name: 'action', orderable: false, searchable: false },
         ],
         dom: 'f', // We only want the search box
         language: { search: "", searchPlaceholder: "Search opportunities..." },
@@ -159,9 +159,7 @@
                             <span class="text-[10px] font-black uppercase tracking-widest ${stateClass}">
                                 ${stateText}
                             </span>
-                            <div class="transform scale-90 origin-right">
-                                ${data.action}
-                            </div>
+                            
                         </div>
                     </div>
                 `;

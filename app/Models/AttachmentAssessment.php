@@ -12,7 +12,7 @@ class AttachmentAssessment extends Model
     protected $fillable = [
         'attachment_student_id',
         
-            // --- Practical & Professional Skills ---
+            
         'practical_orientation_marks',
         'practical_orientation_remarks',
         'intellectual_activity_marks',
@@ -26,13 +26,13 @@ class AttachmentAssessment extends Model
         'innovativeness_marks',
         'innovativeness_remarks',
 
-        // --- Work Discipline ---
+        
         'punctuality_marks',
         'punctuality_remarks',
         'attendance_marks',
         'attendance_remarks',
 
-        // --- Skills & Knowledge ---
+        
         'basic_skills_marks',
         'basic_skills_remarks',
         'general_office_applications_marks',
@@ -44,7 +44,7 @@ class AttachmentAssessment extends Model
         'scientific_and_technical_knowledge_marks',
         'scientific_and_technical_knowledge_remarks',
 
-        // --- Personal Attributes ---
+        
         'intelligence_marks',
         'intelligence_remarks',
         'learning_ability_marks',
@@ -63,7 +63,7 @@ class AttachmentAssessment extends Model
         'effective_time_use_marks',
         'effective_time_use_remarks',
 
-        // --- Overall ---
+        
         'total_marks',
         'overall_remarks',
     ];
@@ -74,7 +74,7 @@ class AttachmentAssessment extends Model
     
     public function attachmentStudent()
     {
-        // FK is attachment_student_id in attachment_assessments table
+        
         return $this->belongsTo(AttachmentStudent::class, 'attachment_student_id');
     }
 
@@ -98,7 +98,7 @@ class AttachmentAssessment extends Model
             ($this->innovativeness_marks ?? 0);
     }
 
-    // Accessor for industrial supervisor total marks (sum of all industrial supervisor marks)
+    
     public function getIndustrialSupervisorTotalMarksAttribute()
     {
         return

@@ -9,8 +9,7 @@ use Carbon\Carbon;
 use Yajra\DataTables\Facades\DataTables;
 class OpportunityController extends Controller
 {
-    // Display all opportunities (for students)
-  
+    
 
 
 
@@ -48,17 +47,14 @@ public function index(Request $request)
         ';
     }
     
-    // For students, show the Apply button we styled earlier
-    return '
-        <a href="'.route('opportunities.apply', $row->id).'" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-[10px] font-black transition-all shadow-lg shadow-indigo-100 uppercase tracking-tighter">
-            Apply Now
-        </a>';
+    
+  
 })
 ->rawColumns(['action'])
 ->make(true);
     }
 
-    // Normal page load returns blade view with minimal data (or empty)
+    
     return view('opportunities.index', [
         'isCompany' => $isCompany,
     ]);
@@ -67,27 +63,27 @@ public function index(Request $request)
 
 
 
-    // Display company’s own opportunities
+    
     public function myOpportunities()
     {
         $opportunities = Opportunity::where('company_id', Auth::id())->latest()->get();
         return view('opportunities.my-opportunities', compact('opportunities'));
     }
 
-    // Show create form
+    
     public function create()
     {
         return view('opportunities.create');
     }
 
-    // Store new opportunity
+    
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'required|string|max:255',
-            'expiry_days' => 'required|integer|min:1|max:90', // how long it should stay active
+            'expiry_days' => 'required|integer|min:1|max:90', 
              
         ]);
 
@@ -116,20 +112,20 @@ public function index(Request $request)
 {
     $user = auth()->user();
 
-    // Check if user is a student (optional: add your own role check)
+    
     if ($user->role !== 'student') {
         abort(403, 'Only students can apply to opportunities.');
     }
 
     $opportunity = Opportunity::findOrFail($id);
 
-    // Optional: Check if the user already applied
+    
     $alreadyApplied = $opportunity->applicants()->where('user_id', $user->id)->exists();
     if ($alreadyApplied) {
         return redirect()->back()->with('error', 'You have already applied for this opportunity.');
     }
 
-    // Attach the user to the opportunity (assuming many-to-many relationship)
+    
     $opportunity->applicants()->attach($user->id);
 
     return redirect()->back()->with('success', 'Application submitted successfully!');
@@ -144,21 +140,21 @@ public function submitApplication(Request $request, $id)
 
     $opportunity = \App\Models\Opportunity::findOrFail($id);
 
-    // Validate input
+   
     $data = $request->validate([
         'cover_letter' => 'required|string|max:2000',
-        'cv' => 'required|file|mimes:pdf,doc,docx|max:2048',  // max 2MB
+        'cv' => 'required|file|mimes:pdf,doc,docx|max:2048',  
     ]);
 
-    // Check if already applied
+    
     if ($opportunity->applicants()->where('user_id', $user->id)->exists()) {
         return redirect()->route('opportunities.index')->with('error', 'You have already applied for this opportunity.');
     }
 
-    // Store uploaded CV
+    
     $cvPath = $request->file('cv')->store('cvs', 'public');
 
-    // Attach user to opportunity with extra pivot data
+    
     $opportunity->applicants()->attach($user->id, [
         'cover_letter' => $data['cover_letter'],
         'cv_path' => $cvPath,
@@ -180,10 +176,10 @@ public function showApplyForm($id)
 }
 public function showApplications($opportunityId)
 {
-    // Load the opportunity with its applications and applicant user info
+    
     $opportunity = \App\Models\Opportunity::with('applications.user')->findOrFail($opportunityId);
 
-    // Pass to view
+    
     return view('opportunities.applications', compact('opportunity'));
 }
 

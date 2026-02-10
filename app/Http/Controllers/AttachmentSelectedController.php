@@ -20,16 +20,15 @@ class AttachmentSelectedController extends Controller
     if ($role === 'student') {
         $student = Student::where('user_id', Auth::id())->first();
         
-        // Check if they are already enrolled
+        
         $enrollment = AttachmentStudent::where('student_id', $student->id)->first();
 
         if (!$enrollment) {
-            // FALLBACK: If not enrolled, show ALL available periods to pick from
+            
             $attachments = Attachment::orderBy('start_date', 'desc')->get();
             return view('attachment_selected.index', compact('attachments'));
         }
 
-        // If already enrolled, show their specific selection
         $attachment_students = AttachmentStudent::with('attachment')
             ->where('student_id', $student->id)
             ->get();
@@ -50,16 +49,16 @@ class AttachmentSelectedController extends Controller
             ->get();
         return view('attachment_selected.lecturers', compact('attachment_lecturers'));
     }
-// INDUSTRIAL SUPERVISOR LOGIC (Fixed)
+
     if ($role === 'industrial_supervisor') {
         $supervisor = IndustrialSupervisor::where('user_id', Auth::id())->first();
 
-        // Get IDs of attachments where they are already supervising students
+        
         $assigned_ids = AttachmentStudent::where('industrial_supervisor_id', $supervisor->id)
             ->distinct()
             ->pluck('attachment_id');
 
-        // If they aren't assigned to anyone yet, show ALL attachments so they can pick one to enter the dashboard
+        
         if ($assigned_ids->isEmpty()) {
             $attachments = Attachment::orderBy('start_date', 'desc')->get();
         } else {
@@ -70,7 +69,7 @@ class AttachmentSelectedController extends Controller
         
         return view('attachment_selected.index', compact('attachments'));
     }
-    // Default for Admin/Others
+   
     $attachments = Attachment::orderBy('start_date', 'desc')->get();
     return view('attachment_selected.index', compact('attachments'));
 }
@@ -91,7 +90,7 @@ public function store(Request $request)
                 return redirect()->back()->with('error', 'Student profile not found.');
             }
 
-            // Using updateOrCreate ensures we don't get duplicate rows for one student
+            
             $enrollment = AttachmentStudent::updateOrCreate(
                 ['student_id' => $student->id], 
                 [
@@ -113,13 +112,13 @@ public function store(Request $request)
         return redirect()->back()->with('error', 'Lecturer profile not found.');
     }
 
-    // Pull the defaults from the lecturer's profile
+    
     $enrollment = AttachmentLecturer::updateOrCreate(
         ['lecturer_id' => $lecturer->id],
         [
             'attachment_id' => $request->attachment_id,
-            'job_grade'     => $lecturer->job_grade,    // Automatically fill from profile
-            'department_id' => $lecturer->department_id // Automatically fill from profile
+            'job_grade'     => $lecturer->job_grade,   
+            'department_id' => $lecturer->department_id 
         ]
     );
 
@@ -130,8 +129,8 @@ public function store(Request $request)
     ]);
 
         }if ($user->role == 'industrial_supervisor') {
-            // Industrial Supervisors usually don't have a pivot table like "attachment_supervisors"
-            // because they are linked to students. We just set their session so they can filter data.
+           
+        
             session([
                 'attachment_id' => $request->attachment_id,
                 'attachment_name' => $request->attachment_name,
@@ -141,7 +140,7 @@ public function store(Request $request)
         return redirect()->route('welcome')->with('success', 'Attachment period selected!');
 
     } catch (\Exception $e) {
-        // This will help you see if there are other missing columns (like department_id)
+        
         return redirect()->back()->with('error', 'Selection Failed: ' . $e->getMessage());
     }
 }

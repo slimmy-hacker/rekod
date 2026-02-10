@@ -54,7 +54,7 @@ class AdminController extends Controller
         $budget->transport_town = $request->transport_town;
         $budget->totals = $request->totals;
 
-        // Handle file upload
+       
         if ($request->hasFile('student_list_file')) {
             $fileName = time() . '_' . $request->student_list_file->getClientOriginalName();
             $request->student_list_file->move(public_path('uploads/student_lists'), $fileName);
@@ -73,8 +73,7 @@ class AdminController extends Controller
     }
 public function destroyBudget($id)
 {
-    // Import the Budget model at the top if not already done:
-    // use App\Models\Budget;
+   
 
     $budget = \App\Models\Budget::find($id);
 
@@ -116,7 +115,7 @@ public function destroyBudget($id)
 }
 public function allFinalReports()
 {
-    // Filter: Only retrieve reports that have a valid student and user attached
+    
     $reports = \App\Models\FinalReport::whereHas('attachmentStudent.student.user')
                 ->with(['attachmentStudent.student.user'])
                 ->latest()
@@ -126,7 +125,7 @@ public function allFinalReports()
 }
 public function allLogbooks()
 {
-    // We use whereHas on 'weeklyReport' because that's where the link exists
+    
     $logbooks = \App\Models\DailyReport::whereHas('weeklyReport.attachmentStudent.student.user')
                 ->with(['weeklyReport.attachmentStudent.student.user'])
                 ->latest()

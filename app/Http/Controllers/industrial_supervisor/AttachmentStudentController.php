@@ -65,11 +65,11 @@ class AttachmentStudentController extends Controller
     }
 public function add(Request $request)
     {
-        // Validation rules
+       
         $validator = Validator::make($request->all(), [
             'student_name' => 'required|string|max:255',
             'reg_no' => 'required|string|max:50|unique:attachment_students,reg_no',
-            // add more validation rules if needed
+            
         ]);
 
         if ($validator->fails()) {
@@ -79,11 +79,11 @@ public function add(Request $request)
             ], 422);
         }
 
-        // Create new student record
+        
         $student = new AttachmentStudent();
         $student->name = $request->input('student_name');
         $student->reg_no = $request->input('reg_no');
-        // set other fields as needed
+        
 
         $student->save();
 
@@ -99,7 +99,7 @@ public function add(Request $request)
         'name'                  => 'required|string|max:255',
         'reg_no'                => 'required|string|max:255',
         'attachment_id'         => 'required|integer|exists:attachments,id',
-        'department'            => 'required|string|max:255', // or department_id if FK
+        'department'            => 'required|string|max:255', 
         'industrial_supervisor_id' => 'required|integer|exists:supervisors,id',
         'status'                => 'required|string|max:255',
     ]);

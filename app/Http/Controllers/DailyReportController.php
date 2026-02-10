@@ -30,23 +30,7 @@ class DailyReportController extends Controller
                 'type'        => 'daily'
             ];
         }
-        if ($type == 'weekly') {
-            $weekly_report = WeeklyReport::findOrFail($id);
-
-            $data = [
-                    'id' => $weekly_report->week_id,
-                    'title' => $weekly_report->status,
-                    'start' => $weekly_report->week_start_date,
-                    'end' => Carbon::parse($weekly_report->week_end_date)->addDay()->toDateString(),
-                    'status' => $weekly_report->status,
-                    'weekly_report' => $weekly_report->weekly_report,
-                    'weekly_report_id' => $weekly_report->id,
-                    'industrial_supervisor_comment' => $weekly_report->industrial_supervisor_comment,
-                    'lecturer_comment' => $weekly_report->lecturer_comment,
-                    'type' => 'weekly',
-                    'color' => '#28a745',
-                ];
-        }
+        
         return $data;
     }
     public function index(Request $request, $id = null)
@@ -110,7 +94,7 @@ class DailyReportController extends Controller
                 'end_date' => [
                     'required',
                     'date',
-                    'after_or_equal:start_date', // must be after the chosen start_date
+                    'after_or_equal:start_date', 
                     'before_or_equal:' . $attachment_student->end_date,
                 ],
                 'task_title' => 'required|string|max:255',
@@ -139,28 +123,28 @@ class DailyReportController extends Controller
 
             if (!empty($validated['daily_report_id'])) {
 
-                // Get the report using the ID
+                
                 $report = DailyReport::findOrFail($validated['daily_report_id']);
 
-                // Remove the key before update
+                
                 unset($validated['daily_report_id']);
 
-                // Update
+                
                 $report->update($validated);
 
-                // After update, the updated report *is still in $report*
+                
                 $daily_report = $report;
 
             } else {
 
-                // Remove the unused key
+               
                 unset($validated['daily_report_id']);
 
-                // Create new
+                
                 $daily_report = DailyReport::create($validated);
             }
 
-// Prepare the response data
+
             $data = collect([
                 $this->calenderResponse($daily_report->id, 'daily'),
                 $this->calenderResponse($weekly_report->id, 'weekly'),

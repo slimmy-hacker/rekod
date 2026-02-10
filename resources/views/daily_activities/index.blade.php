@@ -90,22 +90,19 @@
 
 </div>
     @endsection
-@section('scripts')
+    @section('scripts')
     <script>
         $(document).ready(function () {
 
             function minusOneDay(dateStr) {
+                if (!dateStr) return "";
                 let d = new Date(dateStr);
                 d.setDate(d.getDate() - 1);
                 return d.toISOString().split('T')[0];
             }
-            // Initialize Flowbite modal
-            const modal = new Modal($('#daily-activities-modal')[0], {
-                backdrop: 'static',
-                closable: false
-            });
 
-            const weekly_report_modal = new Modal($('#weekly-activities-modal')[0], {
+            // Initialize Daily Modal only
+            const modal = new Modal($('#daily-activities-modal')[0], {
                 backdrop: 'static',
                 closable: false
             });
@@ -119,51 +116,48 @@
             });
 
             calendar.render();
+
+            // Handle clicking on an empty date square
             calendar.on('dateClick', function(info) {
                 $("#calender_details_form")[0].reset();
-                modal.show();
+                $("#daily_report_id").val(""); // Clear ID for new entries
                 $('#start_date').val(info.dateStr);
                 $('#end_date').val(info.dateStr);
+                modal.show();
             });
+
+            // Handle clicking on an existing event
             calendar.on('eventClick', function(info) {
                 $("#calender_details_form")[0].reset();
+                
                 const props = info.event.extendedProps;
+                
+                // Map event data to form fields automatically
                 $.each(props, function(key, value) {
                     let $el = $('#' + key);
                     if ($el.length) {
                         $el.val(value);
                     }
                 });
-                let type =props.type;
-                console.log(JSON.stringify(info.event));
-                if(type == "weekly"){
-                    var week_period  = info.event.startStr + ' - ' + info.event.endStr;
-                    $("#attachment_period").html(week_period);
-                    $("#weekly_report_id").val(props.weekly_report_id);
-                    $("#weekly_report").val(props.weekly_report).prop('disabled',false);
-                    $("#industrial_supervisor_comment").val(props.industrial_supervisor_comment);
-                    $("#lecturer_comment").val(props.lecturer_comment);
-                    weekly_report_modal.show();
-                }
-                 else {
-                     console.log('event', info.event)
-                    $("#daily_report_id").val(info.event?.id)
-                    $('#start_date').val(info.event.startStr);
-                    $('#end_date').val(minusOneDay(info.event.endStr) || info.event.startStr);
-                    $('#task_title').val(info.event.title);
-                    modal.show();
-                }
+
+                // Set standard fields
+                $("#daily_report_id").val(info.event.id);
+                $('#start_date').val(info.event.startStr);
+                
+                // FullCalendar end dates are exclusive, so we minus one day for the UI
+                let displayEnd = info.event.endStr ? minusOneDay(info.event.endStr) : info.event.startStr;
+                $('#end_date').val(displayEnd);
+                $('#task_title').val(info.event.title);
+                
+                modal.show();
             });
 
-            // Close modal with button
+            // Close modal
             $(document).on('click', '.close-modals-btn', function () {
-                    modal.hide();
-            });
-            $(document).on('click', '.close-weekly-report-modals-btn', function () {
-                    weekly_report_modal.hide();
+                modal.hide();
             });
 
-            // Submit form via AJAX
+            // Submit Daily Report Form via AJAX
             $('#calender_details_btn').on('click', function (e) {
                 e.preventDefault();
 
@@ -171,8 +165,8 @@
                 let formData = $form.serialize();
                 let hasError = false;
 
-                // 🔹 Frontend Validation
-                $form.find('input[required], textarea[required], select[required]').each(function () {
+                // Validation
+                $form.find('input[required], textarea[required]').each(function () {
                     if ($(this).val().trim() === '') {
                         hasError = true;
                         $(this).addClass('border-red-500');
@@ -186,19 +180,16 @@
                         toast: true,
                         position: 'top-end',
                         icon: 'error',
-                        title: 'Please fill in the required data',
+                        title: 'Please fill in required fields',
                         showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true
+                        timer: 3000
                     });
                     return;
                 }
 
-                // 🔹 Disable button to prevent double submit
                 let $btn = $(this);
                 $btn.prop('disabled', true).text('Saving...');
 
-                // 🔹 Ajax request
                 $.ajax({
                     url: "{{ route('student.daily_activities.store') }}",
                     type: "POST",
@@ -209,208 +200,38 @@
                                 toast: true,
                                 position: 'top-end',
                                 icon: 'success',
-                                title: response.message || 'Tasks Saved Successfully',
+                                title: response.message || 'Saved Successfully',
                                 showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
+                                timer: 3000
                             });
 
-                            // Reset form
                             $form[0].reset();
                             modal.hide();
 
+                            // Refresh calendar events
                             response.data.forEach(function(eventData) {
                                 let event = calendar.getEventById(eventData.id);
                                 if (event) {
-                                    // Update event
                                     event.setProp("title", eventData.title);
                                     event.setStart(eventData.start);
                                     event.setEnd(eventData.end);
-                                    if (eventData.color) event.setProp("color", eventData.color);
+                                    event.setExtendedProp('tasks', eventData.tasks);
+                                    event.setExtendedProp('skills_learned', eventData.skills_learned);
+                                    event.setExtendedProp('challenges', eventData.challenges);
                                 } else {
                                     calendar.addEvent({
                                         id: eventData.id,
                                         title: eventData.title,
                                         start: eventData.start,
                                         end: eventData.end,
-                                        color: eventData.color ?? null,
-                                        extendedProps: eventData        // <— KEEP ALL OTHER DATA HERE
+                                        extendedProps: eventData
                                     });
                                 }
-                            });
-
-
-                        } else {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'error',
-                                title: 'Unexpected Error Occurred',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
                             });
                         }
                     },
                     error: function (xhr) {
-                        if (xhr.status === 422) {
-                            let errors = xhr.responseJSON.errors;
-                            let errorMessages = "";
-
-                            $.each(errors, function (key, value) {
-                                errorMessages += value[0] + "\n";
-                                $form.find('[name="' + key + '"]').addClass('border-red-500');
-                            });
-
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'error',
-                                title: errorMessages,
-                                showConfirmButton: false,
-                                timer: 4000,
-                                timerProgressBar: true
-                            });
-                        } else {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'error',
-                                title: "Something went wrong",
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                        }
-                    },
-                    complete: function () {
-                        $btn.prop('disabled', false).text('Save');
-                    }
-                });
-            });
-            // Submit form via AJAX
-            $('#weekly_report_btn').on('click', function (e) {
-                e.preventDefault();
-
-                let $form = $('#weekly_activities_form');
-                let formData = $form.serialize();
-                let hasError = false;
-
-                // 🔹 Frontend Validation
-                $form.find('input[required], textarea[required], select[required]').each(function () {
-                    if ($(this).val().trim() === '') {
-                        hasError = true;
-                        $(this).addClass('border-red-500');
-                    } else {
-                        $(this).removeClass('border-red-500');
-                    }
-                });
-
-                if (hasError) {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'Please fill in the required data',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true
-                    });
-                    return;
-                }
-
-                // 🔹 Disable button to prevent double submit
-                let $btn = $(this);
-                $btn.prop('disabled', true).text('Saving...');
-
-                // 🔹 Ajax request
-                $.ajax({
-                    url: @json($report_route),
-                    type: "POST",
-                    data: formData,
-                    success: function (response) {
-                        if (response.status === 'success') {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'success',
-                                title: response.message,
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-
-                            // Reset form
-                            $form[0].reset();
-                            weekly_report_modal.hide();
-                            response.data.forEach(function(eventData) {
-                                let event = calendar.getEventById(eventData.id);
-                                if (event) {
-                                    if (eventData.title) event.setProp("title", eventData.title);
-                                    if (eventData.start) event.setStart(eventData.start);
-                                    if (eventData.end) event.setEnd(eventData.end);
-                                    if (eventData.color) event.setProp("color", eventData.color);
-                                    if (eventData) {
-                                        Object.keys(eventData).forEach(key => {
-                                            if (['id', 'title', 'start', 'end', 'color'].includes(key)) return;
-
-                                            event.setExtendedProp(key, eventData[key]);
-                                        });
-                                    }
-                                } else {
-                                    calendar.addEvent({
-                                        id: eventData.id,
-                                        title: eventData.title,
-                                        start: eventData.start,
-                                        end: eventData.end,
-                                        color: eventData.color ?? null,
-                                        extendedProps: eventData        // <— KEEP ALL OTHER DATA HERE
-                                    });
-                                }
-                            });
-
-                        } else {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'error',
-                                title: response.message || 'Unexpected Error Occurred',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                        }
-                    },
-                    error: function (xhr) {
-                        if (xhr.status === 422) {
-                            let errors = xhr.responseJSON.errors;
-                            let errorMessages = "";
-
-                            $.each(errors, function (key, value) {
-                                errorMessages += value[0] + "\n";
-                                $form.find('[name="' + key + '"]').addClass('border-red-500');
-                            });
-
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'error',
-                                title: errorMessages,
-                                showConfirmButton: false,
-                                timer: 4000,
-                                timerProgressBar: true
-                            });
-                        } else {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'error',
-                                title: "Something went wrong",
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                        }
+                        Swal.fire({ icon: 'error', title: 'Error saving report' });
                     },
                     complete: function () {
                         $btn.prop('disabled', false).text('Save');

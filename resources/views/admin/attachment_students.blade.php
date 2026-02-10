@@ -151,7 +151,7 @@
             <option value="">-- choose student --</option>
             @foreach ($students as $student)
                 <option value="{{ $student->id }}">
-                    {{ $student->reg_no }} - {{ $student->user->name }}
+                     {{ $student->reg_no ?? '-' }} - {{ optional($student->user)->name ?? '[No user]' }}
                 </option>
             @endforeach
         </select>

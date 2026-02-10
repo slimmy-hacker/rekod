@@ -32,12 +32,12 @@ class AttachmentStudent extends Model
     public function program()
     {
         return $this->hasOneThrough(
-            AdministrativeUnit::class,     // Final: department
-            Student::class,                // Intermediate: student
-            'id',                          // Local key on students
-            'id',                          // Local key on admin units
-            'student_id',                  // FK on attachment_students
-            'program_id'                   // FK on students table → program
+            AdministrativeUnit::class,     
+            Student::class,               
+            'id',                          
+            'id',                          
+            'student_id',                  
+            'program_id'                   
         )->with('parent');
     }
     public function getDepartmentAttribute()

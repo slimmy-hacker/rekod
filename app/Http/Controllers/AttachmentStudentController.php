@@ -22,7 +22,7 @@ class AttachmentStudentController extends Controller
                 }
 
             return DataTables::of($data)
-                ->addIndexColumn() // adds DT_RowIndex
+                ->addIndexColumn() 
                 ->addColumn('name', function ($row) {
                     return $row->student && $row->student->user
                         ? $row->student->user->name
@@ -85,7 +85,7 @@ public function add(Request $request)
         'attachment_id' => 'required|exists:attachments,id',
     ]);
 
-    // Check if student already uploaded for this attachment
+   
     $exists = AttachmentStudent::where('student_id', $validated['student_id'])
         ->where('attachment_id', $validated['attachment_id'])
         ->first();
@@ -98,7 +98,7 @@ public function add(Request $request)
             ]);
     }
 
-    // Create the record
+    
     AttachmentStudent::create([
         'student_id' => $validated['student_id'],
         'attachment_id' => $validated['attachment_id'],
@@ -118,7 +118,7 @@ public function add(Request $request)
         'name'                  => 'required|string|max:255',
         'reg_no'                => 'required|string|max:255',
         'attachment_id'         => 'required|integer|exists:attachments,id',
-        'department'            => 'required|string|max:255', // or department_id if FK
+        'department'            => 'required|string|max:255', 
         'industrial_supervisor_id' => 'required|integer|exists:supervisors,id',
         'status'                => 'required|string|max:255',
     ]);

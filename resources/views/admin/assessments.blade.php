@@ -39,17 +39,17 @@
         <div class="align-middle inline-block min-w-full">
             <div class="shadow overflow-hidden">
 
-                <!-- Button to open modal -->
+              
                 <button id="openAssessmentsBtn" class="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                     View Assessments
                 </button>
 
-                <!-- Modal -->
+              
                 <div id="assessmentsModal" tabindex="-1" aria-hidden="true" 
                      class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full h-full bg-black bg-opacity-50">
 
                     <div class="relative p-4 w-11/12 max-w-7xl max-h-full bg-white rounded shadow-lg overflow-auto">
-                        <!-- Modal header -->
+                     
                         <div class="flex items-center justify-between p-4 border-b rounded-t">
                             <h3 class="text-lg font-semibold text-gray-900">Assessments</h3>
                             <button type="button" id="closeAssessmentsModal" class="text-gray-400 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center">
@@ -59,7 +59,7 @@
                             </button>
                         </div>
 
-                        <!-- Modal body -->
+                       
                         <div class="p-4">
                             <table id="assessments_table" class="table-fixed min-w-full divide-y divide-gray-200" >
                                 <thead class="bg-gray-100">
@@ -106,7 +106,7 @@
                             </table>
                         </div>
 
-                        <!-- Modal footer -->
+                       
                         <div class="flex justify-end p-4 border-t rounded-b">
                             <button type="button" id="closeAssessmentsBtn" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded">Close</button>
                         </div>
@@ -123,7 +123,7 @@
 @section('scripts')
 <script>
     $(document).ready(function () {
-        // Initialize DataTable when modal opens
+       
         let dataTableInitialized = false;
 
         $('#openAssessmentsBtn').on('click', function () {
@@ -146,7 +146,7 @@
             $('#assessmentsModal').addClass('hidden');
         });
 
-        // Optional: close modal when clicking outside content
+       
         $('#assessmentsModal').on('click', function (e) {
             if (e.target === this) {
                 $('#assessmentsModal').addClass('hidden');

@@ -221,10 +221,10 @@ public function finalReport()
     $student = Auth::user()->student;
     $attachmentStudent = $student->attachmentStudent;
 
-    // Fetch the report so the Blade can check if it exists
+   
     $final_report = FinalReport::where('attachment_student_id', $attachmentStudent->id)->first();
 
-    // Pass the variable to the view
+    
     return view('student.final-report', compact('final_report', 'attachmentStudent'));
 }
 }
