@@ -27,7 +27,7 @@ return new class extends Migration
             // Feedback columns
             $table->text('industrial_supervisor_comment')->nullable();
             $table->text('lecturer_comment')->nullable();
-            
+          
             // Approval status
             $table->boolean('is_approved')->default(false);
 

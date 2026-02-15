@@ -33,6 +33,7 @@ Route::middleware(['ensure.attachment.selected'])->group(function () {
     Route::put('/weekly-reports/{report}', [IndustrialSupervisorController::class, 'update'])
         ->name('industrial_supervisor.weekly-reports.update');
          Route::post('/weekly-reports/{id}/approve',[IndustrialSupervisorController::class, 'approveWeeklyReport'] )->name('industrial_supervisor.weekly-reports.approve');
-       
+       Route::get('/check-industry-status', [AttachmentAssessmentController::class, 'checkIndustry'])
+    ->name('industrial_supervisor.checkIndustry');
 });
 

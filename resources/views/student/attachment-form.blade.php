@@ -32,58 +32,72 @@
                
             </fieldset>
 
-         <fieldset class="border border-gray-300 p-4 rounded">
-    <legend class="font-semibold text-lg">Attachment Details</legend>
+        <fieldset class="border border-gray-300 p-6 rounded mb-6">
+    <legend class="font-semibold text-lg">Company Details</legend>
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         <div>
-            <label for="organization" class="block text-sm font-medium mb-1 required">
-                Organization
-            </label>
+            <label for="name" class="block font-semibold">Company Name <span class="text-red-600">*</span></label>
+            <input type="text" name="name" id="name" value="{{ old('name') }}" class="w-full border rounded p-2" required>
+        </div>
 
-            <select
-                required
-                id="organization"
-                name="company_id"
-                class="select2 bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5
-               @error('company_id') border-red-500 @enderror"
-            >
-                <option value=""> -- select org --</option>
+        <div>
+            <label for="alias" class="block font-semibold">Company Alias <span class="text-red-600">*</span></label>
+            <input type="text" name="alias" id="alias" value="{{ old('alias') }}" class="w-full border rounded p-2" required>
+        </div>
 
-                @foreach($companies as $company)
-                    <option
-                        value="{{ $company->id }}"
-                        data-town="{{ $company->town?->name }}"
-                        data-street="{{ $company->street }}"
-                        data-building="{{ $company->building }}"
-                        {{ old('company_id', $attachment_student->company_id) == $company->id ? 'selected' : '' }}
-                    >
-                        {{ $company->name }}
+        <div>
+            <label for="contact" class="block font-semibold">Contact <span class="text-red-600">*</span></label>
+            <input type="text" name="contact" id="contact" value="{{ old('contact') }}" class="w-full border rounded p-2" required>
+        </div>
+
+        <div>
+            <label for="email" class="block font-semibold">Email <span class="text-red-600">*</span></label>
+            <input type="text" name="email" id="email" value="{{ old('email') }}" class="w-full border rounded p-2" required>
+        </div>
+
+        <div class="md:col-span-2">
+            <label for="address" class="block font-semibold">Address <span class="text-red-600">*</span></label>
+            <input type="text" name="address" id="address" value="{{ old('address') }}" class="w-full border rounded p-2" required>
+        </div>
+
+        <div>
+            <label for="county" class="block font-semibold">County <span class="text-red-600">*</span></label>
+            <select name="county_id" id="county" class="w-full border rounded p-2 select2" required>
+                <option value="">-- Select County --</option>
+                @foreach($counties as $county)
+                    <option value="{{ $county->id }}" {{ old('county_id') == $county->id ? 'selected' : '' }}>
+                        {{ $county->name }}
                     </option>
                 @endforeach
-
             </select>
-
-            @error('company_id')
-            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-
-        <div>
-            <label for="town" class="block text-sm font-medium mb-1">Town</label>
-            <input type="text" id="town" name="town" class="p-2 border rounded w-full" placeholder="Town" disabled>
         </div>
 
         <div>
-            <label for="street" class="block text-sm font-medium mb-1">Street</label>
-            <input type="text" id="street" name="street" class="p-2 border rounded w-full" placeholder="Street" disabled>
+            <label for="town" class="block font-semibold">Town <span class="text-red-600">*</span></label>
+            <select name="town_id" id="town" class="w-full border rounded p-2 select2" required>
+                <option value="">-- Select Town --</option>
+                @foreach($towns as $town)
+                    <option value="{{ $town->id }}" {{ old('town_id') == $town->id ? 'selected' : '' }}>
+                        {{ $town->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
+        <div>
+                        <label for="street" class="block font-semibold">Street/Road <span class="text-gray-400 text-xs">(Optional)</span></label>
+                        <input type="text" name="street" id="street" value="{{ old('street') }}" placeholder="e.g. Kimathi Way" class="w-full border rounded p-2">
+                    </div>
+
+                    <div>
+                        <label for="building" class="block font-semibold">Building <span class="text-gray-400 text-xs">(Optional)</span></label>
+                        <input type="text" name="building" id="building" value="{{ old('building') }}" placeholder="e.g. Resource Centre" class="w-full border rounded p-2">
+                    </div>
+    </div>
+</fieldset>
 
         <div>
-            <label for="building" class="block text-sm font-medium mb-1">Building</label>
-            <input type="text" id="building" name="building" class="p-2 border rounded w-full" placeholder="Building" disabled>
-        </div>
-        <div>
+
             <label for="date_commenced" class="block text-sm font-medium mb-1 required">
                 Date Commenced
             </label>
@@ -122,27 +136,51 @@
         </div>
 
     </div>
-             <div class="grid grid-cols-1 gap-4 mt-4">
-         <div>
-            <label for="industrial_supervisor" class="block text-sm font-medium mb-1 required">Industrial Supervisor's Name</label>
-            <select required id="industrial_supervisor" name="industrial_supervisor_id" class="select2 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 ">
-                <option value=""> -- select Supervisor --</option>
-            </select>
-         </div>
-             </div>
-             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <fieldset class="border border-gray-300 p-6 rounded mb-6">
+    <legend class="font-semibold text-lg">Supervisor Details</legend>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <!-- Supervisor Name -->
         <div>
-            <label for="supervisor_phone" class="block text-sm font-medium mb-1">Supervisor's Phone Number</label>
-            <input type="tel" id="supervisor_phone" name="supervisor_phone" class="p-2 border rounded w-full" placeholder="Phone Number" disabled>
+            <label for="supervisor_name" class="block font-semibold mb-1">Supervisor Name <span class="text-red-600">*</span></label>
+            <input type="text" name="supervisor_name" id="supervisor_name" placeholder="Supervisor Name"
+                   value="{{ old('supervisor_name') }}"
+                   class="w-full border rounded p-2" required>
+            @error('supervisor_name') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
 
+        <!-- Supervisor Email -->
         <div>
-            <label for="supervisor_email" class="block text-sm font-medium mb-1">Supervisor's Email</label>
-            <input type="email" id="supervisor_email" name="supervisor_email" class="p-2 border rounded w-full" placeholder="Email" disabled>
+            <label for="supervisor_email" class="block font-semibold mb-1">Supervisor Email <span class="text-red-600">*</span></label>
+            <input type="email" name="supervisor_email" id="supervisor_email" placeholder="Supervisor Email"
+                   value="{{ old('supervisor_email') }}"
+                   class="w-full border rounded p-2" required>
+            @error('supervisor_email') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        <!-- Supervisor Phone -->
+        <div>
+            <label for="supervisor_phone" class="block font-semibold mb-1">Supervisor Phone <span class="text-red-600">*</span></label>
+            <input type="tel" name="supervisor_phone" id="supervisor_phone" placeholder="Supervisor Phone"
+                   value="{{ old('supervisor_phone') }}"
+                   class="w-full border rounded p-2" required>
+            @error('supervisor_phone') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        <!-- Supervisor Position -->
+        <div>
+            <label for="supervisor_position" class="block font-semibold mb-1">Position <span class="text-red-600">*</span></label>
+            <input type="text" name="supervisor_position" id="supervisor_position" placeholder="Supervisor Position"
+                   value="{{ old('supervisor_position') }}"
+                   class="w-full border rounded p-2" required>
+            @error('supervisor_position') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
         </div>
     </div>
 </fieldset>
+
+
 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">
+    
         Submit
     </button>
         </form>
@@ -204,7 +242,39 @@
                 $('#supervisor_phone').val(selected.data('phone') || '');
                 $('#supervisor_email').val(selected.data('email') || '');
             });
+ $('#add_new_company').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('#existing_company_section').hide();
+            $('#new_company_section').show();
+        } else {
+            $('#existing_company_section').show();
+            $('#new_company_section').hide();
+        }
+    });
 
+    // fill Town/Street/Building when existing company is selected
+    $('#organization').on('change', function() {
+        let selected = $(this).find('option:selected');
+        $('#town').val(selected.data('town') || '');
+        $('#street').val(selected.data('street') || '');
+        $('#building').val(selected.data('building') || '');
+    });
+    $('#add_new_supervisor').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#existing_supervisor_section').hide();
+                $('#new_supervisor_section').show();
+            } else {
+                $('#existing_supervisor_section').show();
+                $('#new_supervisor_section').hide();
+            }
+        });
+
+        // Fill phone/email when selecting existing supervisor
+        $('#industrial_supervisor').on('change', function() {
+            let selected = $(this).find(':selected');
+            $('#supervisor_phone').val(selected.data('phone') || '');
+            $('#supervisor_email').val(selected.data('email') || '');
+        });
     });
     </script>
 @endsection

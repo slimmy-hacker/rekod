@@ -42,3 +42,6 @@ class UserFactory extends Factory
         ]);
     }
 }
+Student::factory(157)->create([
+    'user_id' => User::factory()->state(['role' => 'student']),
+]);

@@ -18,7 +18,7 @@ class AttachmentAssessmentController extends Controller
                 }
 
             return DataTables::of($data)
-                ->addIndexColumn() // adds DT_RowIndex
+                ->addIndexColumn() 
                 ->addColumn('name', function ($row) {
                     return $row->student && $row->student->user
                         ? $row->student->user->name
@@ -28,10 +28,8 @@ class AttachmentAssessmentController extends Controller
                 ->addColumn('attachment', fn ($row) => $row->attachment->name ?? '-')
                 ->addColumn('department', fn ($row) => $row->department->name ?? '-')
                 ->addColumn('lecturer', fn ($row) => $row->lecturer->user->name ?? '-')
-                ->addColumn('status', fn ($row) => $row->attachment->status ?? '-')
-                ->addColumn('action', function ($row) {
-                    return '<button class="btn btn-sm btn-danger delete" data-id="'.$row->id.'">Delete</button>';
-                })
+                
+              
                 ->rawColumns(['action'])
                 ->make(true);
         }
@@ -44,14 +42,14 @@ class AttachmentAssessmentController extends Controller
 
         return view('lecturer.my-students', compact('attachments','students'));
     }
-    // INDUSTRIAL SUPERVISOR ASSESSMENT FORM
+   
     public function createIndustrial($studentId)
     {
         $student = Student::findOrFail($studentId);
         return view('attaches.industrial_supervisor', compact('student'));
     }
 
-    // SAVE Industrial Supervisor Assessment
+    
   public function storeIndustrial(Request $request)
 {
     $validated = $request->validate([
@@ -194,14 +192,16 @@ class AttachmentAssessmentController extends Controller
         'innovativeness_marks'   => 'required|integer|min:0|max:5',
         'innovativeness_remarks' => 'required|string',
     ]);
-    $assessment = AttachmentAssessment::where('attachment_student_id', $request->attachment_student_id)->first();
+    $exists = AttachmentAssessment::where('attachment_student_id', $request->attachment_student_id)
+            ->whereNotNull('practical_orientation_marks')
+            ->exists();
 
-    
-    
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Assessment already submitted!'
-        ]);
+        if ($exists) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Assessment already submitted!'
+            ], 422);
+        }
     
   
     AttachmentAssessment::updateOrCreate(
@@ -235,7 +235,68 @@ class AttachmentAssessmentController extends Controller
         'message' => 'Assessment saved successfully',
     ]);
 }
-  
+public function check(Request $request)
+{
+    $assessment = AttachmentAssessment::where('attachment_student_id', $request->student_id)->first();
+
+   if ($assessment && $assessment->practical_orientation_marks > 0) {
+        
+        $total = $assessment->practical_orientation_marks 
+               + $assessment->intellectual_activity_marks 
+               + $assessment->independence_marks 
+               + $assessment->communication_marks 
+               + $assessment->technology_and_skills_marks 
+               + $assessment->innovativeness_marks;
+
+        return response()->json([
+            'exists' => true,
+            'total' => $total, 
+            'assessment' => [
+                'Practical Orientation' => ['marks' => $assessment->practical_orientation_marks, 'remarks' => $assessment->practical_orientation_remarks],
+                'Intellectual Activity' => ['marks' => $assessment->intellectual_activity_marks, 'remarks' => $assessment->intellectual_activity_remarks],
+                'Independence'          => ['marks' => $assessment->independence_marks, 'remarks' => $assessment->independence_remarks],
+                'Communication'         => ['marks' => $assessment->communication_marks, 'remarks' => $assessment->communication_remarks],
+                'Technology & Skills'   => ['marks' => $assessment->technology_and_skills_marks, 'remarks' => $assessment->technology_and_skills_remarks],
+                'Innovativeness'        => ['marks' => $assessment->innovativeness_marks, 'remarks' => $assessment->innovativeness_remarks],
+            ]
+        ]);
+    }
+    return response()->json(['exists' => false]);
+}
+public function checkIndustry(Request $request)
+{
+    $studentId = $request->student_id;
+
+   
+    $assessment = \App\Models\AttachmentAssessment::where('attachment_student_id', $studentId)->first();
+
+   
+    if ($assessment && $assessment->punctuality_marks > 0) {
+        return response()->json([
+            'exists' => true,
+            'assessment' => [
+                'Punctuality' => ['marks' => $assessment->punctuality_marks, 'remarks' => $assessment->punctuality_remarks],
+                'Attendance' => ['marks' => $assessment->attendance_marks, 'remarks' => $assessment->attendance_remarks],
+                'Basic Skills' => ['marks' => $assessment->basic_skills_marks, 'remarks' => $assessment->basic_skills_remarks],
+                'Office Apps' => ['marks' => $assessment->general_office_applications_marks, 'remarks' => $assessment->general_office_applications_remarks],
+                'Technical Apps' => ['marks' => $assessment->technical_applications_marks, 'remarks' => $assessment->technical_applications_remarks],
+                'Specialization' => ['marks' => $assessment->area_of_specialization_marks, 'remarks' => $assessment->area_of_specialization_remarks],
+                'Scientific Knowledge' => ['marks' => $assessment->scientific_and_technical_knowledge_marks, 'remarks' => $assessment->scientific_and_technical_knowledge_remarks],
+                'Intelligence' => ['marks' => $assessment->intelligence_marks, 'remarks' => $assessment->intelligence_remarks],
+                'Learning Ability' => ['marks' => $assessment->learning_ability_marks, 'remarks' => $assessment->learning_ability_remarks],
+                'Responsibility' => ['marks' => $assessment->responsibility_acceptance_marks, 'remarks' => $assessment->responsibility_acceptance_remarks],
+                'Improvisation' => ['marks' => $assessment->improvisation_marks, 'remarks' => $assessment->improvisation_remarks],
+                'Env Adjustment' => ['marks' => $assessment->environment_adjustment_marks, 'remarks' => $assessment->environment_adjustment_remarks],
+                'Reliability' => ['marks' => $assessment->dependability_and_reliability_marks, 'remarks' => $assessment->dependability_and_reliability_remarks],
+                'Organization' => ['marks' => $assessment->organization_and_planning_marks, 'remarks' => $assessment->organization_and_planning_remarks],
+                'Time Use' => ['marks' => $assessment->effective_time_use_marks, 'remarks' => $assessment->effective_time_use_remarks],
+            ]
+        ]);
+    }
+
+    return response()->json(['exists' => false]);
+}
+
 public function getLecturerTotalMarksAttribute()
 {
     return $this->practical_orientation_marks

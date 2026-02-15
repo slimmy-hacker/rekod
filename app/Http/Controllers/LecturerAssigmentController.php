@@ -20,7 +20,7 @@ class LecturerAssigmentController extends Controller
                 ->with([
                     'attachment',
                     'student.user',
-                    'student.program.parent', 
+                    'student.program.parent', // This is the department
                     'attachmentLecturer.lecturer.user',
                     'company.town'
                 ]);
@@ -60,10 +60,12 @@ class LecturerAssigmentController extends Controller
         return view('admin.lecturer_assignment', compact('attachments', 'departments'));
     }
 
-    
+    /**
+     * Calculate Distance using Haversine Formula
+     */
     private function haversineDistance($lat1, $lon1, $lat2, $lon2)
     {
-        $earthRadius = 6371; 
+        $earthRadius = 6371; // Kilometers
         $dLat = deg2rad($lat2 - $lat1);
         $dLon = deg2rad($lon2 - $lon1);
 
@@ -75,107 +77,84 @@ class LecturerAssigmentController extends Controller
         return $earthRadius * $c;
     }
 
-   
-  public function generateDraft(Request $request)
+   public function generateDraft(Request $request)
 {
     $request->validate([
         'department_id' => 'required|exists:administrative_units,id',
         'attachment_id' => 'required|exists:attachments,id',
     ]);
+$regionalRange = 60.0;
+    $maxStudents = 10; // max students per lecturer
 
-    $regionalRange = 60.0; 
-    $maxStudents = 10;
-
-    
-    $rawStudents = AttachmentStudent::with(['company.town'])
+    // 1. Fetch students with complete location info
+    $students = AttachmentStudent::with(['company.town'])
         ->where('attachment_id', $request->attachment_id)
         ->whereNull('attachment_lecturer_id')
-       
-        ->whereHas('company', function($q) {
-           
-            $q->whereHas('town'); 
-        })
+        ->whereHas('company.town')
         ->whereHas('student.program.parent', function($q) use ($request) {
             $q->where('id', $request->department_id);
         })
-        ->get();
+        ->get()
+        ->map(function ($s) {
+            $s->lat = (float)$s->company->town->latitude;
+            $s->lng = (float)$s->company->town->longitude;
+            return $s;
+        })
+        ->values();
 
-    if ($rawStudents->isEmpty()) {
+    if ($students->isEmpty()) {
         return response()->json([
-            'status' => 'error', 
-            'message' => 'No unassigned students found with complete location data (Company + Town).'
+            'status' => 'error',
+            'message' => 'No unassigned students with complete location found.'
         ]);
     }
 
-    
-    $students = $rawStudents->map(function ($s) {
-        
-        $s->lat = (float) $s->company->town->latitude;
-        $s->lng = (float) $s->company->town->longitude;
-        return $s;
-    })
-    ->sortBy('lat') 
-    ->values();
+    // 2. Group students by county (or town)
+    $studentsByCounty = $students->groupBy(fn($s) => $s->company->town->county);
 
-    
+    // 3. Fetch lecturers
     $lecturers = AttachmentLecturer::where([
         'attachment_id' => $request->attachment_id,
         'department_id' => $request->department_id
     ])->get();
 
     if ($lecturers->isEmpty()) {
-        return response()->json(['status' => 'error', 'message' => 'No lecturers available.']);
+        return response()->json(['status' => 'error', 'message' => 'No lecturers available']);
     }
 
-    $assignedIds = [];
-    $finalAssignments = [];
-
-  
     $lecturerArray = $lecturers->all();
     $lecturerIndex = 0;
+    $lCount = count($lecturerArray);
+    $finalAssignments = [];
 
-    
-    while ($lecturerIndex < count($lecturerArray)) {
-        $remaining = $students->whereNotIn('id', $assignedIds);
-        
-       
-        if ($remaining->isEmpty()) break;
+    // 4. Assign each county group to lecturers
+    foreach ($studentsByCounty as $county => $studentsInCounty) {
+        $chunks = $studentsInCounty->chunk($maxStudents); // split large counties if needed
 
-        $lecturer = $lecturerArray[$lecturerIndex];
-        $anchor = $remaining->first();
+        foreach ($chunks as $bucket) {
+            $lecturer = $lecturerArray[$lecturerIndex % $lCount];
 
-       
-        $regionalGroup = $remaining->map(function ($target) use ($anchor) {
-            $target->dist = $this->haversineDistance($anchor->lat, $anchor->lng, $target->lat, $target->lng);
-            return $target;
-        })
-        ->filter(fn($t) => $t->dist <= $regionalRange)
-        ->sortBy('dist')
-        ->take($maxStudents);
+            foreach ($bucket as $student) {
+                $finalAssignments[] = [
+                    'student_id' => $student->id,
+                    'lecturer_id' => $lecturer->id,
+                    'company_id' => $student->company_id,
+                    'lat' => $student->lat,
+                    'lng' => $student->lng
+                ];
+            }
 
-        foreach ($regionalGroup as $student) {
-            $finalAssignments[] = [
-                'student_id' => $student->id,
-                'lecturer_id' => $lecturer->id,
-                'company_id'  => $student->company_id,
-                'lat'         => $student->lat,
-                'lng'         => $student->lng
-            ];
-            $assignedIds[] = $student->id;
+            $lecturerIndex++; // move to next lecturer for next bucket
         }
-
-       
-        $lecturerIndex++;
     }
 
-   
+    // 5. Save to DB
     return DB::transaction(function () use ($finalAssignments, $request) {
-        $batch = (LecturerAssigment::where(['attachment_id' => $request->attachment_id])->max('batch') ?? 0) + 1;
+        $batch = (LecturerAssigment::where('attachment_id', $request->attachment_id)->max('batch') ?? 0) + 1;
 
         foreach ($finalAssignments as $item) {
-            AttachmentStudent::where('id', $item['student_id'])->update([
-                'attachment_lecturer_id' => $item['lecturer_id']
-            ]);
+            AttachmentStudent::where('id', $item['student_id'])
+                ->update(['attachment_lecturer_id' => $item['lecturer_id']]);
 
             LecturerAssigment::create([
                 'attachment_id' => $request->attachment_id,
@@ -189,7 +168,12 @@ class LecturerAssigmentController extends Controller
                 'created_by' => auth()->id(),
             ]);
         }
-        return response()->json(['status' => 'success', 'message' => count($finalAssignments) . " students assigned to regional clusters."]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => count($finalAssignments) . " students assigned to county-based clusters."
+        ]);
     });
 }
+
 }

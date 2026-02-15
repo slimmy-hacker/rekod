@@ -63,10 +63,20 @@ use Importable, SkipsFailures;
             }
 
 
-            AttachmentStudent::create([
-                'student_id' => $student->id,
-                'attachment_id' => $attachment->id,
-            ]);
+            
+                AttachmentStudent::create([
+            'student_id'            => $student->id,
+            'attachment_id'         => $attachment->id,
+            'company_name'          => $row['company_name'] ?? null,
+            'start_date'            => isset($row['start_date']) ? \Carbon\Carbon::parse($row['start_date'])->format('Y-m-d') : null,
+            'end_date'              => isset($row['end_date']) ? \Carbon\Carbon::parse($row['end_date'])->format('Y-m-d') : null,
+            'town'                  => $row['town'] ?? null,
+            'street'                => $row['street'] ?? null,
+            'building'              => $row['building'] ?? null,
+            'industrial_supervisor' => $row['industrial_supervisor'] ?? null,
+            'program'               => $row['programme'] ?? null, // Note: your excel says "programme"
+        ]);
+            
 
             $this->successCount++;
         } catch (\Exception $e) {

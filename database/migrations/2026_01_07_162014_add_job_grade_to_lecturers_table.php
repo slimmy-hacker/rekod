@@ -7,7 +7,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('lecturers', function (Blueprint $table) {
-            $table->string('job_grade')->nullable()->change();
+            $table->string('job_grade')->nullable();
         });
     }
 

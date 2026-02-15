@@ -84,6 +84,10 @@
             <div>
                 <textarea name="description" rows="4" placeholder="Briefly describe the responsibilities..." class="w-full bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 font-semibold" required></textarea>
             </div>
+            <div>
+    <input type="url" name="link" placeholder="Application URL (https://example.com/apply)" 
+        class="w-full bg-gray-50 border-none rounded-2xl p-4 focus:ring-2 focus:ring-indigo-500 font-semibold" required>
+</div>
             <button type="submit" id="saveBtn" class="w-full bg-gray-900 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-black transition-all">
                 LAUNCH POSTING
             </button>
@@ -95,6 +99,7 @@
 
 @section('scripts')
 <script>
+    const isStudent = @json(Auth::user()->role === 'student');
     $(document).ready(function() {
     $('#btn-post').click(() => $('#modal-post').removeClass('hidden'));
     $('#close-modal').click(() => $('#modal-post').addClass('hidden'));
@@ -109,13 +114,13 @@
             {data: 'location', name: 'location'},
             {data: 'expiry_date', name: 'expiry_date'},
             {data: 'description', name: 'description'},
-            {data: 'company_name', name: 'company_name'}, // Matches your Controller
-          // { data: 'action', name: 'action', orderable: false, searchable: false },
+            {data: 'company_name', name: 'company_name'}, 
+           {data: 'link', name: 'link', visible: false},
         ],
-        dom: 'f', // We only want the search box
+        dom: 'f', 
         language: { search: "", searchPlaceholder: "Search opportunities..." },
         initComplete: function() {
-            // Move and style the search box to match your reference images
+            
             $('.dataTables_filter').detach().appendTo('#search-wrapper');
             $('.dataTables_filter input').addClass('bg-gray-50 border-none rounded-2xl px-6 py-3 w-64 focus:ring-2 focus:ring-indigo-500 font-semibold text-sm');
         },
@@ -131,14 +136,27 @@
             }
 
             rows.each(function(data) {
-                // Determine if the post is active or closed
+                
                 let expiryDate = new Date(data.expiry_date);
                 let isExpired = expiryDate < new Date();
                 let stateText = isExpired ? 'State: Closed' : 'State: Active';
                 let stateClass = isExpired ? 'text-red-500' : 'text-green-500';
-                
-                // Build the card HTML (Matching your card.png reference)
-                let cardHtml = `
+                let applyButton = '';
+    if (isStudent && !isExpired) {
+        if (data.link) {
+            applyButton = `
+                <a href="${data.link}" target="_blank" 
+                   class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all">
+                   Apply
+                </a>`;
+        } else {
+            applyButton = `
+                <button disabled class="bg-gray-400 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-not-allowed">
+                    Apply
+                </button>`;
+        }
+    }
+                 let cardHtml = `
                     <div class="bg-white p-6 rounded-[1.8rem] border-2 border-gray-100 hover:border-indigo-400 transition-all duration-300 shadow-sm flex flex-col justify-between group">
                         <div>
                             <h3 class="text-lg font-black text-gray-800 leading-tight mb-2 group-hover:text-indigo-600 transition-colors capitalize">
@@ -155,11 +173,13 @@
                             </p>
                         </div>
 
-                        <div class="flex items-center justify-between mt-8">
-                            <span class="text-[10px] font-black uppercase tracking-widest ${stateClass}">
-                                ${stateText}
-                            </span>
-                            
+                        
+    <span class="text-[10px] font-black uppercase tracking-widest ${stateClass}">
+        ${stateText}
+    </span>
+    ${applyButton}
+</div>
+
                         </div>
                     </div>
                 `;
@@ -168,7 +188,7 @@
         }
     });
 
-    // AJAX Form Submission
+    
     $('#postForm').on('submit', function(e) {
         e.preventDefault();
         $('#saveBtn').prop('disabled', true).text('Launching...');
@@ -184,6 +204,7 @@
                 table.ajax.reload();
                 Swal.fire({ icon: 'success', title: 'Live!', text: 'Your ad is now visible to students.', padding: '3rem', borderRadius: '2rem' });
             },
+            
             error: () => Swal.fire('Error', 'Please check your inputs.', 'error'),
             complete: () => $('#saveBtn').prop('disabled', false).text('LAUNCH POSTING')
         });

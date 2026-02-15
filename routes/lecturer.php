@@ -45,3 +45,5 @@ Route::post('/weekly-activities/store', [DailyReportController::class, 'store'])
 
 Route::get('/final-reports', [LecturerController::class, 'viewStudentReports'])
          ->name('lecturer.final-reports');
+
+Route::get('/lecturer/assessment/check', [AttachmentAssessmentController::class, 'check'])->name('lecturer.assessment.check');

@@ -91,3 +91,12 @@ Route::get('/reports/final', [App\Http\Controllers\AdminController::class, 'allF
     
     Route::get('/reports/logbooks', [App\Http\Controllers\AdminController::class, 'allLogbooks'])
         ->name('logbooks_index');
+        use App\Http\Controllers\AttachmentDetailsController;
+
+Route::middleware(['auth', 'portal:admin'])->prefix('admin')->name('admin.')->group(function () {
+    
+    // Add these two lines inside your admin group
+    Route::get('/attachmentimport', [AttachmentDetailsController::class, 'showImportPage'])->name('attachmentimport');
+    Route::post('/attachment-import-process', [AttachmentDetailsController::class, 'import'])->name('attachmentsimport.process');
+
+});

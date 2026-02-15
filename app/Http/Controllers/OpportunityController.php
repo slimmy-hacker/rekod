@@ -35,7 +35,17 @@ public function index(Request $request)
                     return Carbon::parse($row->expiry_date)->format('M d, Y');
 
                 })
-->addColumn('action', function ($row) use ($isCompany) {
+                 ->addColumn('link', function($row) {
+            return $row->link; 
+        })
+        
+    ->rawColumns(['action', 'link'])  
+    
+                
+
+    
+ ->addColumn('action', function ($row) use ($isCompany) {
+
     if ($isCompany) {
         return '
             <form method="POST" action="' . route('opportunities.destroy', $row->id) . '" onsubmit="return confirm(\'Are you sure?\');">
@@ -45,11 +55,25 @@ public function index(Request $request)
                 </button>
             </form>
         ';
+    }  if ($row->is_expired) {
+            return '<span class="text-gray-400 font-semibold">Expired</span>';
+        }
+
+        if ($row->link) {
+            return '
+                <a href="' . $row->link . '" 
+                   target="_blank"
+                   class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                   Apply
+                </a>
+        ';
     }
-    
-    
-  
+     return '<span class="text-gray-400">No Link</span>';
+ 
 })
+
+
+
 ->rawColumns(['action'])
 ->make(true);
     }
@@ -79,11 +103,14 @@ public function index(Request $request)
     
     public function store(Request $request)
     {
+       
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'location' => 'required|string|max:255',
             'expiry_days' => 'required|integer|min:1|max:90', 
+           'link' => 'required|url'
              
         ]);
 
@@ -93,7 +120,12 @@ public function index(Request $request)
             'description' => $request->description,
             'location' => $request->location,
             'expiry_date' => Carbon::now()->addDays((int) $request->expiry_days),
+            'link' => $request->link,
         ]);
+        return response()->json([
+    'success' => true
+]);
+
 
         return redirect()->route('opportunities.my')->with('success', 'Opportunity posted successfully!');
     }

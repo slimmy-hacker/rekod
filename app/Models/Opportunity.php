@@ -14,6 +14,7 @@ class Opportunity extends Model
     'company_id',
     'title',
     'description',
+    'link',
     'location',
     'expiry_date',
 ];

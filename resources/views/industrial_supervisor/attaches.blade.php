@@ -1,6 +1,6 @@
 @extends('layouts.my_app')
 @section('title')
-   Attachment students
+    Attachment students
 @endsection
 @section('content')
 
@@ -10,26 +10,20 @@
                 <nav class="flex mb-5" aria-label="Breadcrumb">
                     <ol class="inline-flex items-center space-x-1 md:space-x-2">
                         <li class="inline-flex items-center">
-                            <a href="#" class="text-gray-700 hover:text-gray-900 inline-flex items-center">
-                                <svg class="w-5 h-5 mr-2.5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                            <a href="#" class="text-gray-700 hover:text-gray-900 inline-flex items-center text-sm font-medium">
+                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
                                 Home
                             </a>
                         </li>
                         <li>
                             <div class="flex items-center">
-                                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                                <a href="#" class="text-gray-700 hover:text-gray-900 ml-1 md:ml-2 text-sm font-medium">Attaches</a>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="flex items-center">
-                                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                                <span class="text-gray-400 ml-1 md:ml-2 text-sm font-medium" aria-current="page">List</span>
+                                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                                <a href="#" class="text-gray-700 hover:text-gray-900 ml-1 md:ml-2 text-sm font-medium">Attachment Students</a>
                             </div>
                         </li>
                     </ol>
                 </nav>
-                <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">All Attached Students</h1>
+                <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">All My Students</h1>
             </div>
         </div>
     </div>
@@ -37,284 +31,91 @@
     <div class="flex flex-col">
         <div class="overflow-x-auto">
             <div class="align-middle inline-block min-w-full">
+                <div class="shadow overflow-hidden">
                     <table class="table-fixed min-w-full divide-y divide-gray-200" id="attaches_table">
                         <thead class="bg-gray-100">
-                        <tr>
-                            <th scope="col" class="p-2 w-12">
-                                <div class="flex items-center justify-center text-xs font-medium text-gray-500 uppercase">
-                                    #
-                                </div>
-                            </th>
-                            <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                Student
-                            </th>
-                            <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                Reg No
-                            </th>
-                            <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                Department
-                            </th>
-                           
-                            <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                Status
-                            </th>
-                            <th scope="col" class="p-4">
-                                Action
-                            </th>
-                        </tr>
+                            <tr>
+                                <th scope="col" class="p-4 text-center text-xs font-medium text-gray-500 uppercase w-12">#</th>
+                                <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Student</th>
+                                <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Reg No</th>
+                                <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Department</th>
+                                <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                            </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                        </tbody>
+                        <tbody class="bg-white divide-y divide-gray-200"></tbody>
                     </table>
                 </div>
             </div>
         </div>
-    <!-- Upload Students Modal -->
-    <div class="hidden overflow-x-hidden overflow-y-auto fixed top-4 left-0 right-0 md:inset-0 z-50 justify-center items-center h-modal sm:h-full" id="add-schedule-modal">
-        <div class="relative w-full max-w-2xl px-4 h-full md:h-auto">
-            <!-- Modal content -->
-            <div class="bg-white rounded-lg shadow relative">
-                <!-- Modal header -->
-                <div class="flex items-start justify-between p-5 border-b rounded-t">
-                    <h3 class="text-xl font-semibold">
-                        Upload Students
+    </div>
+
+    <div id="assess-modal" tabindex="-1" aria-hidden="true" data-modal-backdrop="static" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-4xl max-h-full">
+            <div class="relative bg-white rounded-lg shadow border-t-4 border-green-600">
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        Student <span id="assessed_student_name" class="text-green-600"></span> Assessment
                     </h3>
-                    <button type="button" class="close-modal-btn text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" >
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd"
-                                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                  clip-rule="evenodd"></path>
-                        </svg>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center close-assess-modal-btn">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 14 14"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/></svg>
                     </button>
                 </div>
 
-                <!-- Modal body -->
-                 
-                <div class="p-6 space-y-6">
-                    <form id="scheduleForm" enctype="multipart/form-data">
-                        @csrf()
-                        <div class="grid grid-cols-6 gap-6">
-                            <div class="col-span-6 sm:col-span-6">
-                                <label for="name" class="text-sm font-medium text-gray-900 block mb-2">Students Excel <span class="text-red-500">*</span></label>
+                <div class="p-6">
+                    <form id="assessForm" class="hidden">
+                        @csrf
+                        <input type="hidden" id="attachment_student_id" name="attachment_student_id">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto px-2">
+                            @php
+                            $fields = [
+                                'punctuality' => ['label' => 'Punctuality', 'max' => 2],
+                                'attendance' => ['label' => 'Attendance', 'max' => 2],
+                                'basic_skills' => ['label' => 'Basic Skills', 'max' => 4],
+                                'general_office_applications' => ['label' => 'General Office Apps', 'max' => 4],
+                                'technical_applications' => ['label' => 'Technical Apps', 'max' => 4],
+                                'area_of_specialization' => ['label' => 'Specialization', 'max' => 4],
+                                'scientific_and_technical_knowledge' => ['label' => 'Scientific Knowledge', 'max' => 2],
+                                'intelligence' => ['label' => 'Intelligence', 'max' => 2],
+                                'learning_ability' => ['label' => 'Learning Ability', 'max' => 2],
+                                'responsibility_acceptance' => ['label' => 'Responsibility', 'max' => 2],
+                                'improvisation' => ['label' => 'Improvisation', 'max' => 2],
+                                'environment_adjustment' => ['label' => 'Env Adjustment', 'max' => 2],
+                                'dependability_and_reliability' => ['label' => 'Dependability', 'max' => 2],
+                                'organization_and_planning' => ['label' => 'Org & Planning', 'max' => 2],
+                                'effective_time_use' => ['label' => 'Effective Time Use', 'max' => 2]
+                            ];
+                            @endphp
 
-                                <input type="file" name="file" accept=".csv,.xlsx,.xls"
-                                       class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg
-                                   focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
-                                       placeholder="e.g. 2025 Attachment Intake"
-                                       required>
-                            </div>
+                            @foreach($fields as $name => $info)
+                                <div class="p-3 bg-gray-50 rounded border border-gray-200">
+                                    <label class="block font-bold text-xs uppercase text-gray-600 mb-1">{{ $info['label'] }} (Max {{ $info['max'] }})</label>
+                                    <input type="number" min="0" max="{{ $info['max'] }}" name="{{ $name }}_marks" class="w-full border rounded p-2 mb-2 text-sm" required>
+                                    <textarea name="{{ $name }}_remarks" rows="2" class="w-full border rounded p-2 text-sm" placeholder="Remarks..." required></textarea>
+                                </div>
+                            @endforeach
                         </div>
 
-                        <!-- Modal footer -->
-                        <div class="items-center p-6 border-t border-gray-200 rounded-b">
-                            <button id="uploadBtn" class="text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-4 focus:ring-cyan-200 font-medium
-                               rounded-lg text-sm px-5 py-2.5 text-center"
-                                    type="submit">
-                                Upload
-                            </button>
+                        <div class="mt-6 flex justify-between items-center border-t pt-4">
+                             <p class="text-xs text-gray-500 italic">Ensure all marks are within the specified limits before submitting.</p>
+                             <button type="submit" class="px-6 py-2 bg-green-600 text-white font-bold rounded hover:bg-green-700 transition">Submit Industry Assessment</button>
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Add Student Modal -->
-    <div class="hidden overflow-x-hidden overflow-y-auto fixed top-4 left-0 right-0 md:inset-0 z-50 justify-center items-center h-modal sm:h-full" id="add-student-modal">
-        <div class="relative w-full max-w-2xl px-4 h-full md:h-auto">
-            <!-- Modal content -->
-            <div class="bg-white rounded-lg shadow relative">
-                <!-- Modal header -->
-                <div class="flex items-start justify-between p-5 border-b rounded-t">
-                    <h3 class="text-xl font-semibold">
-                        Add Student
-                    </h3>
-                    <button type="button" class="close-add-modal-btn text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center" >
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd"
-                                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                  clip-rule="evenodd"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Modal body -->
-                <div class="p-6 space-y-6">
-                    <form id ="addStudentForm" >
-    @csrf
-
-
-
-
-
-    <!-- Submit button -->
-    <button type="submit" id="addStudentBtn"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full">
-        Add
-    </button>
-</form>
+                <div class="p-4 border-t flex justify-end">
+                    <button type="button" class="close-assess-modal-btn px-5 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium">Close</button>
                 </div>
             </div>
         </div>
     </div>
-      <!-- Assess Student Modal -->
-<div class="hidden overflow-x-hidden overflow-y-auto fixed top-4 left-0 right-0 md:inset-0 z-50 justify-center items-center h-modal sm:h-full" id="assess-modal">
-    <div class="relative w-full max-w-2xl px-4 h-full md:h-auto">
-        <div class="bg-white rounded-lg shadow relative">
-            <div class="flex items-start justify-between p-5 border-b rounded-t">
-                <h3 class="text-xl font-semibold">Assess Student</h3>
-                <button type="button" class="close-assess-modal-btn text-gray-400 hover:bg-gray-200 rounded-lg p-1.5">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                </button>
-            </div>
 
-             <div class="p-2">
-         <div class="p-2 max-h-[80vh] overflow-y-auto">
-         <form id="assessForm">
-            @csrf
-        <input type="hidden" name="attachment_student_id" id="attachment_student_id">
-
-
-         <div class="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div>
-                <label for="punctuality_marks" class="required block font-medium">Punctuality Marks(max2)</label>
-                <input type="number" min="0" max="5" id="punctuality_marks" name="punctuality_marks" class="w-full border rounded p-2" required>
-            </div>
-            <div>
-                <label for="punctuality_remarks" class="required block font-medium">Punctuality Remarks</label>
-                <textarea id="punctuality_remarks" name="punctuality_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-            </div>
-
-            <div>
-                <label for="attendance_marks" class="required block font-medium">Attendance Marks(max2)</label>
-                <input type="number" min="0" max="5" id="attendance_marks" name="attendance_marks" class="w-full border rounded p-2" required>
-            </div>
-            <div>
-                <label for="attendance_remarks" class="required block font-medium">Attendance Remarks</label>
-                <textarea id="attendance_remarks" name="attendance_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-            </div>
-            <div>
-               <label for="basic_skills_marks" class="required block font-medium">Basic Skills Marks(max4)</label>
-                <input type="number" min="0" max="5" id="basic_skills_marks" name="basic_skills_marks" class="w-full border rounded p-2" required>
-            </div>
-            <div>
-              <label for="basic_skills_remarks" class="required block font-medium">Basic Skills Remarks</label>
-             <textarea id="basic_skills_remarks" name="basic_skills_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-            </div>
-            <div>
-                <label for="general_office_applications_marks" class="required block font-medium">General Office Applications Marks(max4)</label>
-                <input type="number" min="0" max="5" id="general_office_applications_marks" name="general_office_applications_marks" class="w-full border rounded p-2" required>
-            </div>
-            <div>
-                <label for=" general_office_applications_remarks" class="required block font-medium">General Office Applications Remarks</label>
-                <textarea id="general_office_applications_remarks" name="general_office_applications_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-            </div>
-            <div>
-                <label for="technical_applications_marks" class="required block font-medium">Technical Applications Marks(max4)</label>
-                <input type="number" min="0" max="5" id="technical_applications_marks" name="technical_applications_marks" class="w-full border rounded p-2" required>
-             </div>
-            <div>
-                <label for="technical_applications" class="required block font-medium">Technical Applications Remarks</label>
-               <textarea id="technical_applications_remarks" name="technical_applications_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-           </div>
-            <div>               
-                <label for="area_of_specialization_marks" class="required block font-medium">Area Of Specialization Marks(max4)</label>
-                <input type="number" min="0" max="5" id="area_of_specialization_marks" name="area_of_specialization_marks" class="w-full border rounded p-2" required>
-          </div>
-         <div> 
-             <label for="area_of_specialization_remarks" class="required block font-medium">Area Of Specialization Remarks</label>
-             <textarea id="area_of_specialization_remarks" name="area_of_specialization_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-         </div>
-           <div>
-                <label for="scientific_and_technical_knowledge_marks" class="required block font-medium">Scientific And Technical Knowledge Marks(max2)</label>
-                <input type="number" min="0" max="5" id="scientific_and_technical_knowledge_marks" name="scientific_and_technical_knowledge_marks" class="w-full border rounded p-2" required>
-            </div>
-            <div>
-                <label for="scientific_and_technical_knowledge_remarks" class="required block font-medium">Scientific And Technical Knowledge Remarks</label>
-                <textarea id="scientific_and_technical_knowledge_remarks" name="scientific_and_technical_knowledge_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-            </div>
-            <div>
-                <label for="intelligence_marks" class="required block font-medium">Intelligence Marks(max2)</label>
-                <input type="number" min="0" max="5" id="intelligence_marks" name="intelligence_marks" class="w-full border rounded p-2" required>
-            </div>
-            <div>
-                <label for="intelligence_remarks" class="required block font-medium">Intelligence Remarks</label>
-                <textarea id="intelligence_remarks" name="intelligence_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-            </div>
-            <div>
-               <label for="learning_ability_marks" class="required block font-medium">Learning Ability Marks(max2)</label>
-                <input type="number" min="0" max="5" id="learning_ability_marks" name="learning_ability_marks" class="w-full border rounded p-2" required>
-            </div>
-            <div>
-              <label for="learning_ability_remarks" class="required block font-medium">Learning Ability Remarks</label>
-             <textarea id="learning_ability_remarks" name="learning_ability_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-            </div>
-            <div> 
-                <label for="responsibility_acceptance_marks" class="required block font-medium">Responsibility Acceptance Marks(max2)</label>
-                <input type="number" min="0" max="5" id="responsibility_acceptance_marks" name="responsibility_acceptance_marks" class="w-full border rounded p-2" required>
-            </div>
-            <div>
-                <label for=" responsibility_acceptance_remarks" class="required block font-medium">Responsibility Acceptance  Remarks</label>
-                <textarea id="responsibility_acceptance_remarks" name="responsibility_acceptance_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-            </div>
-            <div>
-                <label for="improvisation_marks" class="required block font-medium">Improvisation Marks(max2)</label>
-                <input type="number" min="0" max="5" id="improvisation_marks" name="improvisation_marks" class="w-full border rounded p-2" required>
-             </div>
-            <div>
-                <label for="improvisation_remarks" class="required block font-medium">Improvisation Remarks</label>
-               <textarea id="improvisation_remarks" name="improvisation_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-           </div>
-            <div>               
-                <label for="environment_adjustment_marks" class="required block font-medium">Environment Adjustment Marks(max2)</label>
-                <input type="number" min="0" max="5" id="environment_adjustment_marks" name="environment_adjustment_marks" class="w-full border rounded p-2" required>
-          </div>
-         <div> 
-             <label for="environment_adjustment_remarks" class="required block font-medium">Environment Adjustment Remarks</label>
-             <textarea id="environment_adjustment_remarks" name="environment_adjustment_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-         </div>
-          <div>
-                <label for="dependability_and_reliability_marks" class="required block font-medium">Dependability And Reliability Marks(max2)</label>
-                <input type="number" min="0" max="5" id="dependability_and_reliability_marks" name="dependability_and_reliability_marks" class="w-full border rounded p-2" required>
-            </div>
-            <div>
-                <label for="dependability_and_reliability_remarks" class="required block font-medium">Dependability And Relibility Remarks</label>
-                <textarea id="dependability_and_reliability_remarks" name="dependability_and_reliability_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-            </div>
-            <div>
-               <label for="organization_and_planning_marks" class="required block font-medium">Organizatiion And Planning Marks(max2)</label>
-                <input type="number" min="0" max="5" id="organization_and_planning_marks" name="organization_and_planning_marks" class="w-full border rounded p-2" required>
-            </div>
-            <div>
-              <label for="organization_and_planning_remarks" class="required block font-medium">Organization And Planning Remarks</label>
-             <textarea id="organization_and_planning_remarks" name="organization_and_planning_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-            </div>
-            <div> 
-                <label for="effective_time_use_marks" class="required block font-medium">Effective Time Use Marks(max2)</label>
-                <input type="number" min="0" max="5" id="effective_time_use_marks" name="effective_time_use_marks" class="w-full border rounded p-2" required>
-            </div>
-            <div>
-                <label for="effective_time_use_remarks" class="required block font-medium">Effective Time Use  Remarks</label>
-                <textarea id="effective_time_use_remarks" name="effective_time_use_remarks" rows="3" class="w-full border rounded p-2" required></textarea>
-            </div>
-        </div>
-
-        <button type="submit" class="mt-6 px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700">Submit Industry Assessment</button>
-    </form>
-</div>
-    
-            </div>
-        </div>
-    </div>
-</div>
-@include('student.student_attachment_details_modal')
-
+    @include('student.student_attachment_details_modal')
 @endsection
+
 @section('scripts')
 <script type="text/javascript">
-
-
     $(document).ready(function () {
         var table = $("#attaches_table").DataTable({
             processing: true,
@@ -331,101 +132,95 @@
             ]
         });
 
-    
         const assessModal = new Modal($('#assess-modal')[0], {
-                            backdrop: 'static',
-                            closable: false
-                            });
+            backdrop: 'static',
+            closable: false
+        });
 
-// open modal when assess button is clicked
-$(document).on('click', '.assessBtn', function () {
-    $("#assessForm")[0].reset();
-    let id = $(this).data('id');
-    let name = $(this).data('name');
-    $('#attachment_student_id').val(id);
-    $('#assessed_student_name').html(name);
+        $(document).on('click', '.assessBtn', function () {
+            let id = $(this).data('id');
+            let name = $(this).data('name');
 
-    assessModal.show();
-});
+            $('#attachment_student_id').val(id);
+            $('#assessed_student_name').html(name);
+            $('#assessForm').hide();
+            $('#assessment_display').remove();
 
-// close button
-$('.close-assess-modal-btn').on('click', function () {
-    assessModal.hide();
-});
+            
+            $.get("{{ route('industrial_supervisor.checkIndustry') }}", { student_id: id }, function(response) {
+                if(response.exists) {
+                    let totalScore = 0;
+                    let html = `
+                    <div id="assessment_display" class="bg-white p-2 animate-fade-in">
+                        <div class="flex items-center justify-center mb-6">
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                        </div>
+                        <h3 class="text-center text-xl font-bold text-gray-800 mb-6 uppercase tracking-tight">Industry Assessment Summary</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">`;
 
-// submit assessment
-$("#assessForm").on("submit", function(e) {
-    e.preventDefault();
-    let btn = $("#assessBtn");
-    btn.prop("disabled", true).text('Submitting...');
+                    $.each(response.assessment, function(label, data) {
+                        let marks = parseInt(data.marks) || 0;
+                        totalScore += marks;
+                        html += `
+                        <div class="p-3 bg-white border-l-4 border-green-500 rounded shadow-sm border border-gray-100">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${label.replace(/_/g, ' ')}</p>
+                            <p class="text-sm font-black text-green-600">${marks} Marks</p>
+                            <p class="text-xs text-gray-600 mt-1 italic leading-tight border-t pt-1">"${data.remarks || 'N/A'}"</p>
+                        </div>`;
+                    });
 
-    $.ajax({
-        url: "{{ route('industrial_supervisor.assessment.store') }}", // <-- Add this route
-        type: "POST",
-        data: $(this).serialize(),
-          success: function (response) {
-                        if (response.status === "success") {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'success',
-                                title: response.message,
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
+                    html += `
+                        </div>
+                        <div class="mt-8 p-6 bg-green-600 rounded-xl text-center text-white shadow-lg">
+                            <p class="text-xs font-bold opacity-80 uppercase">Total Industrial Score</p>
+                            <p class="text-4xl font-black">${totalScore} / 40</p>
+                        </div>
+                    </div>`;
 
-                            // optionally reset form and close modal
-                            $(this)[0].reset();
-                            modal.hide();
-                            table.ajax.reload(null, false);
-                        } else {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'error',
-                                title: response.message,
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                        }
-                    },
-                    error: function (xhr) {
-                        let res = xhr.responseJSON;
-                        if (res && res.errors) {
-                            let messages = Object.values(res.errors).flat().join("\n");
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'error',
-                                title: "Validation failed:\n" + messages,
-                                showConfirmButton: false,
-                                timer: 9000,
-                                timerProgressBar: true
-                            });
-                        } else {
-                            Swal.fire({
-                                toast: true,
-                                position: 'top-end',
-                                icon: 'error',
-                                title: 'Something went wrong',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true
-                            });
-                        }
-                    },
-                    complete: function () {
-                        // ALWAYS re-enable button after request completes
-                        btn.prop("disabled", false).html("Add");
+                    $('#assessForm').after(html);
+                } else {
+                    $('#assessForm')[0].reset();
+                    $('#assessForm').show();
+                }
+                assessModal.show();
+            }).fail(function() {
+                Swal.fire('Error', 'Could not check assessment status', 'error');
+            });
+        });
+
+        $('.close-assess-modal-btn').on('click', function () {
+            assessModal.hide();
+        });
+
+        $("#assessForm").on("submit", function(e) {
+            e.preventDefault();
+            let btn = $(this).find('button[type="submit"]');
+            btn.prop("disabled", true).text('Processing...');
+
+            $.ajax({
+                url: "{{ route('industrial_supervisor.assessment.store') }}",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function (response) {
+                    if (response.status === "success") {
+                        Swal.fire({ icon: 'success', title: 'Success', text: response.message, timer: 2000 });
+                        assessModal.hide();
+                        table.ajax.reload(null, false);
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: response.message });
                     }
-    });
-});
-
-
+                },
+                error: function (xhr) {
+                    let msg = xhr.responseJSON ? xhr.responseJSON.message : 'Something went wrong';
+                    Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                },
+                complete: function () {
+                    btn.prop("disabled", false).text("Submit Industry Assessment");
+                }
+            });
+        });
     });
 </script>
-
-
 @endsection

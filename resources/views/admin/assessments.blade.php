@@ -71,8 +71,8 @@
                                     <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Lecturer Marks</th>                                    
                                     <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Industrial Marks</th>
                                     <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Total Marks</th>
-                                    <th class="p-4 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                    <th class="p-4">Action</th>
+                                    
+                                    
                                 </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
@@ -96,10 +96,8 @@
                                         
                                         <td class="p-4 font-semibold">{{ $industrialMarks }}</td>
                                         <td class="p-4 font-semibold">{{ $totalMarks }}</td>
-                                        <td class="p-4">{{ ucfirst($assessment->status ?? 'Pending') }}</td>
-                                        <td class="p-4">
-                                            <a href="{{ route('admin.assessments', $assessment->id) }}" class="text-blue-600 hover:underline">View</a>
-                                        </td>
+                                       
+                                        
                                     </tr>
                                 @endforeach
                                 </tbody>

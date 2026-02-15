@@ -6,22 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    
-public function up()
+   public function up()
 {
     Schema::table('weekly_reports', function (Blueprint $table) {
-        $table->boolean('is_approved')->default(false)->after('lecturer_comment');
+        // This tells MySQL it's okay if student_id is empty
+        $table->unsignedBigInteger('student_id')->nullable()->change();
     });
 }
 
 public function down()
 {
     Schema::table('weekly_reports', function (Blueprint $table) {
-        $table->dropColumn('is_approved');
+        $table->unsignedBigInteger('student_id')->nullable(false)->change();
     });
 }
-
 };

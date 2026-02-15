@@ -22,8 +22,10 @@ class UsersSeeder extends Seeder
                 'role' => 'admin',
                 'phone_number' => '254722000000',
             ]
+            
         ];
 
+        
         foreach ($users as $user) {
             try {
 
