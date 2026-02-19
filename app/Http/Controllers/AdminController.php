@@ -125,12 +125,70 @@ public function allFinalReports()
 }
 public function allLogbooks()
 {
-    
-    $logbooks = \App\Models\DailyReport::whereHas('weeklyReport.attachmentStudent.student.user')
-                ->with(['weeklyReport.attachmentStudent.student.user'])
-                ->latest()
-                ->get();
+    // Get all students who have at least one daily report
+    $students = \App\Models\Student::whereHas('attachments.weeklyReports.dailyReports')
+        ->with([
+            'user',
+            'program.parent',
+            'attachments' => function($query) {
+                $query->with([
+                    'company',
+                    'company.town',
+                    'weeklyReports.dailyReports'
+                ]);
+            }
+        ])
+        ->get()
+        ->map(function($student) {
+            // Count total logbook entries
+            $totalEntries = 0;
+            $latestEntry = null;
+            $companies = [];
+            $attachmentInfo = null;
+            
+            foreach ($student->attachments as $attachment) {
+                if ($attachment->company) {
+                    $companies[] = [
+                        'name' => $attachment->company->name,
+                        'town' => $attachment->company->town->name ?? 'N/A'
+                    ];
+                    $attachmentInfo = $attachment;
+                }
+                
+                foreach ($attachment->weeklyReports as $weekly) {
+                    $totalEntries += $weekly->dailyReports->count();
+                    
+                    if ($weekly->dailyReports->isNotEmpty()) {
+                        $latest = $weekly->dailyReports->sortByDesc('start_date')->first();
+                        if (!$latestEntry || $latest->start_date > $latestEntry) {
+                            $latestEntry = $latest->start_date;
+                        }
+                    }
+                }
+            }
+            
+            return [
+                'id' => $student->id,
+                'name' => $student->user->name ?? 'Unknown',
+                'reg_no' => $student->reg_no,
+                'department' => $student->program->parent->name ?? 'N/A',
+                'email' => $student->user->email ?? 'N/A',
+                'phone' => $student->user->phone_number ?? 'N/A',
+                'companies' => $companies,
+                'company_names' => implode(', ', array_column($companies, 'name')),
+                'company_towns' => implode(', ', array_column($companies, 'town')),
+                'total_entries' => $totalEntries,
+                'latest_entry' => $latestEntry,
+                'has_logbook' => $totalEntries > 0,
+                'attachment_id' => $attachmentInfo->id ?? null
+            ];
+        })
+        ->filter(function($student) {
+            return $student['has_logbook'];
+        })
+        ->sortByDesc('latest_entry')
+        ->values();
 
-    return view('admin.logbooks_index', compact('logbooks'));
+    return view('admin.logbooks_index', compact('students'));
 }
 }

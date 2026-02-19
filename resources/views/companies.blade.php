@@ -70,10 +70,7 @@
                     <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                  Contact
                      </th>
-                                <!-- County -->
-                                <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
-                                    County
-                                </th>
+                                
 
                                 <!-- Sub County -->
                                 <th scope="col" class="p-4 text-left text-xs font-medium text-gray-500 uppercase">
@@ -324,7 +321,7 @@
                                 { data: 'alias', name: 'alias' },
                                 { data: 'email', name: 'email' },
                                 { data: 'contact', name: 'contact' },
-                                { data: 'county', name: 'county' },
+                               // { data: 'county', name: 'county' },
                                 { data: 'town', name: 'town' },
                                 { data: 'street', name: 'street' },
                                 { data: 'building', name: 'building' },

@@ -25,5 +25,9 @@ public function Town()
         
         return $this->belongsTo(Location::class, 'town_id'); 
     }
-    
+    public function location()
+{
+    return $this->belongsTo(Location::class, 'town_id'); // <-- town_id is the foreign key
+}
+
 }

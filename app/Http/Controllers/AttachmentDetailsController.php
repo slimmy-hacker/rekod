@@ -21,8 +21,6 @@ class AttachmentDetailsController extends Controller
     $attachment_student_id = $req->session()->get('attachment_student_id');
 $attachment_student = AttachmentStudent::find($attachment_student_id);
 
-$attachment_student_id = $req->session()->get('attachment_student_id');
-$attachment_student = AttachmentStudent::find($attachment_student_id);
 
 $companies = Company::with('town')->get();
 
@@ -170,13 +168,15 @@ if (!$attachment_student_id) {
     }
  public function import(Request $request)
 {
+      ini_set('max_execution_time', 0);
+    
     $request->validate([
         'file' => 'required|mimes:csv,txt,xlsx,xls'
     ]);
 
     try {
 
-        // 1️⃣ Find attachment period
+        
         $attachment = Attachment::where('name', 'LIKE', '%September%')
             ->where('name', 'LIKE', '%2024%')
             ->first();
@@ -187,7 +187,7 @@ if (!$attachment_student_id) {
             ], 422);
         }
 
-        // 2️⃣ Read Excel
+        
         $dataRows = Excel::toCollection(
             new class implements WithHeadingRow {
                 public function headingRow(): int { return 1; }
@@ -202,55 +202,120 @@ if (!$attachment_student_id) {
             $regNo = trim(data_get($row, 'reg_no'));
             if (!$regNo) continue;
 
-            $student = Student::where('reg_no', $regNo)->first();
-            if (!$student) continue;
+            // 1. Prepare student info from Excel
+$studentName = trim(data_get($row, 'student_name')) 
+               ?? trim(data_get($row, 'Student Name')) 
+               ?? 'Student ' . $regNo;
+$studentEmail = trim(data_get($row, 'student_email')) ?: strtolower($regNo).'@student.com';
+$studentPhone = trim(data_get($row, 'student_phone')) ?: '07'.str_pad(rand(10000000,99999999), 8, '0', STR_PAD_LEFT);
 
-            // ✅ Update student's phone number if provided
-            $studentPhone = trim(data_get($row, 'student_phone'));
-            if ($studentPhone) {
-                $student->update(['phone_number' => $studentPhone]);
-            }
 
-            // ===============================
-            // 3️⃣ COMPANY USER
-            // ===============================
+$studentUser = User::updateOrCreate(
+    ['email' => $studentEmail],
+    [
+        'name' => $studentName,
+        'phone_number' => $studentPhone,
+        'role' => 'student',
+        
+        'password' => bcrypt('password'),
+       
+    ]
+);
+$programId = data_get($row, 'program_id'); // get from Excel
+if (!$programId) {
+    $programId = 38; // default program ID if missing
+}
 
-            $companyName = trim(data_get($row, 'name_of_organization', 'Unknown'));
-            $companyEmail = data_get($row, 'email');
 
-            if (empty($companyEmail)) {
-                $companyEmail = strtolower(preg_replace('/[^A-Za-z0-9]/', '', $companyName)) . '@company.com';
-            }
+$student = Student::updateOrCreate(
+    ['user_id' => $studentUser->id], // check by user_id
+    [
+         'phone_number' => $studentPhone,
+        'reg_no'     => $regNo,
+        'program_id' => $programId,
+    ]
+);
+ 
+
+
+
+           $companyName = trim(data_get($row, 'name_of_organization'));
+$companyEmail = trim(data_get($row, 'company_email')); // make sure your Excel has this column
+
+if (!$companyName) {
+    $companyName = 'Unknown Company';
+}
+
+if (!$companyEmail) {
+    // Only generate email if Excel does not have it
+    $companyEmail = strtolower(preg_replace('/[^A-Za-z0-9]/', '', $companyName)) . '@company.com';
+}
+
 
             $companyUser = User::updateOrCreate(
                 ['email' => $companyEmail],
                 [
                     'name' => $companyName,
                     'role' => 'company',
-                    'password' => bcrypt('company123'),
+                    'password' => bcrypt('password'),
                 ]
             );
 
-            // ===============================
-            // 4️⃣ LOCATION
-            // ===============================
-
+  // ===== FIXED LOCATION LOGIC =====
             $townName = trim(data_get($row, 'town'));
-            $town = null;
+            $excelCounty = trim(data_get($row, 'county')); // This is empty in your data
+            
+            $townId = null;
+            $countyId = null;
 
-            if ($townName) {
+            // Find the town by name
+            if (!empty($townName)) {
                 $town = Location::where('level', 3)
-                    ->where('name', 'LIKE', '%' . $townName . '%')
+                    ->whereRaw('LOWER(name) = ?', [strtolower($townName)])
                     ->first();
+                
+                if ($town) {
+                    $townId = $town->id;
+                    
+                    // IMPORTANT: Use the town's parent_id as the county
+                    // This is the correct county!
+                    $countyId = $town->parent_id;
+                    
+                    // Log for debugging
+                    \Log::info("Found town: {$town->name}, county_id: {$countyId}");
+                }
             }
 
-            $countyId = ($town && $town->parent_id)
-                ? $town->parent_id
-                : optional(Location::where('level', 1)->first())->id ?? 1;
+            // If town not found, try using Excel county
+            if (!$countyId && !empty($excelCounty)) {
+                $county = Location::where('level', 1)
+                    ->whereRaw('LOWER(name) = ?', [strtolower($excelCounty)])
+                    ->first();
+                
+                if ($county) {
+                    $countyId = $county->id;
+                }
+            }
 
-            // ===============================
-            // 5️⃣ COMPANY RECORD
-            // ===============================
+            // Last resort - but DON'T use Baringo
+            if (!$countyId) {
+                \Log::warning("Could not determine county for company: {$companyName}, town: {$townName}");
+                
+                // Use Nairobi or another major county as default
+                $defaultCounty = Location::where('level', 1)
+                    ->where('name', 'Nairobi')
+                    ->first();
+                
+                if (!$defaultCounty) {
+                    $defaultCounty = Location::where('level', 1)->first();
+                }
+                
+                $countyId = $defaultCounty ? $defaultCounty->id : 1;
+            }
+
+
+
+
 
             $company = Company::updateOrCreate(
                 ['email' => $companyEmail],
@@ -261,15 +326,13 @@ if (!$attachment_student_id) {
                     'contact'   => trim(data_get($row, 'contact')) ?: '07' . str_pad($companyUser->id, 8, '0', STR_PAD_LEFT),
                     'address'   => data_get($row, 'address', $townName . ' Road'),
                     'county_id' => $countyId,
-                    'town_id'   => $town->id ?? null,
+                   'town_id' => $townId,
                     'street'    => data_get($row, 'street', 'N/A'),
                     'building'  => data_get($row, 'building', 'N/A'),
                 ]
             );
 
-            // ===============================
-            // 6️⃣ SUPERVISOR CREATION
-            // ===============================
+            
 
             $supervisorEmail = trim(data_get($row, 'supervisor_email'));
             $supervisorName  = trim(data_get($row, 'name_of_indusrty_supervisor'));
@@ -285,7 +348,7 @@ if (!$attachment_student_id) {
                         'name' => $supervisorName ?: 'Industrial Supervisor',
                         'phone_number' => $supervisorPhone,
                         'role' => 'industrial_supervisor',
-                        'password' => bcrypt('password123'),
+                        'password' => bcrypt('password'),
                     ]
                 );
 
@@ -299,10 +362,12 @@ if (!$attachment_student_id) {
 
                 $industrialSupervisorId = $supervisorProfile->id;
             }
+$companyTown = $company->town;
 
-            // ===============================
-            // 7️⃣ ATTACHMENT STUDENT UPDATE
-            // ===============================
+// Fallbacks
+$townId = $companyTown?->id;
+$countyId = $companyTown?->parent_id ?? optional(Location::where('level', 1)->first())->id ?? 1;
+            
 
             AttachmentStudent::updateOrCreate(
                 [
@@ -314,7 +379,12 @@ if (!$attachment_student_id) {
                     'industrial_supervisor_id' => $industrialSupervisorId,
                     'start_date' => $this->transformDate(data_get($row, 'date_started')),
                     'end_date'   => $this->transformDate(data_get($row, 'expected_date_of_completion')),
+                    'town_id' => $townId,
+        'county_id' => $countyId,
+        
+       
                 ]
+                
             );
 
             $processedCount++;
@@ -334,30 +404,55 @@ if (!$attachment_student_id) {
         ], 500);
     }
 }
-
 private function transformDate($value)
 {
+    $value = trim($value);
+
     if (empty($value)) return null;
 
-    try {
-
-        if (is_numeric($value)) {
+    
+    if (is_numeric($value)) {
+        try {
             return \Carbon\Carbon::instance(
                 \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value)
             )->format('Y-m-d');
+        } catch (\Exception $e) {
+            return null;
         }
+    }
 
+   
+    $value = preg_replace('/[^\d\/\-]/', '', $value);
+
+    
+    if (preg_match('/^\d{1,2}\/\d{1,2}\/\d{2}$/', $value)) {
+        $parts = explode('/', $value);
+        $parts[2] = '20' . $parts[2]; 
+        $value = implode('/', $parts);
+    }
+
+    foreach (['d/m/Y', 'd-m-Y', 'Y-m-d'] as $format) {
+        try {
+            return \Carbon\Carbon::createFromFormat($format, $value)->format('Y-m-d');
+        } catch (\Exception $e) {
+            continue;
+        }
+    }
+
+    
+    try {
         return \Carbon\Carbon::parse($value)->format('Y-m-d');
-
     } catch (\Exception $e) {
+        \Log::warning("Unable to parse date: {$value}");
         return null;
     }
 }
 
 
+
     public function showImportPage()
 {
-    // Make sure this file exists in: resources/views/admin/attachments/import.blade.php
+   
     return view('admin.attachmentimport');
 }
 }
