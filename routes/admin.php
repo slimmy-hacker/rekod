@@ -10,6 +10,7 @@ use App\Http\Controllers\LecturerController;
 use App\Http\Controllers\AdministrativeUnitController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LecturerAssigmentController;
+use App\Http\Controllers\DashboardController;
 
 
 
@@ -99,7 +100,12 @@ Route::middleware(['auth', 'portal:admin'])->prefix('admin')->name('admin.')->gr
     // Add these two lines inside your admin group
     Route::get('/attachmentimport', [AttachmentDetailsController::class, 'showImportPage'])->name('attachmentimport');
     Route::post('/attachment-import-process', [AttachmentDetailsController::class, 'import'])->name('attachmentsimport.process');
-Route::get('/daily-activities/{id}', [DailyActivityController::class, 'index'])
-    ->name('daily_activities.index');
+//Route::get('/daily-activities/{id}', [DailyActivityController::class, 'index'])
+  //  ->name('daily_activities.index');
 
 });
+
+
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard/export-pdf', [DashboardController::class, 'exportPDF'])->name('dashboard.exportPDF');
+Route::post('/admin/dashboard/generate-report', [App\Http\Controllers\DashboardController::class, 'generateReport'])->name('dashboard.generate-report');

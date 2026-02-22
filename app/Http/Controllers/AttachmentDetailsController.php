@@ -151,21 +151,19 @@ if (!$attachment_student_id) {
         ]
     ]);
 }
+public function show($id)
+{
+    $data = AttachmentStudent::with([
+        'student.user',
+        'student.program',
+        'company.town',
+        'industrialSupervisor.user',
+        'attachment',
+        'attachmentLecturer.lecturer.user'  // Changed from attachment_lecturer to attachmentLecturer
+    ])->findOrFail($id);
 
-    public function show($id)
-    {
-        $data = AttachmentStudent::with([
-            'student',
-            'student.user',
-            'student.program',
-            'company.town',
-            'industrialSupervisor.user',
-            'lecturer',
-            'attachment'
-        ])->findOrFail($id);
-
-        return response()->json($data);
-    }
+    return response()->json($data);
+}
  public function import(Request $request)
 {
       ini_set('max_execution_time', 0);

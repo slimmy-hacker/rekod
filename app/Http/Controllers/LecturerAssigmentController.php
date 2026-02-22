@@ -59,7 +59,6 @@ class LecturerAssigmentController extends Controller
 
         return view('admin.lecturer_assignment', compact('attachments', 'departments'));
     }
-
 public function generateDraft(Request $request)
 {
     $request->validate([
@@ -113,6 +112,7 @@ public function generateDraft(Request $request)
             'lat' => (float) $town->latitude,
             'lng' => (float) $town->longitude,
             'town_id' => $townId,
+            'town_name' => $town->name,
             'original_model' => $student
         ];
 
@@ -146,7 +146,21 @@ public function generateDraft(Request $request)
     }
 
     
-    $MAX_STUDENTS_PER_LECTURER = 11;
+   $totalStudents = collect($towns)->sum('student_count');
+    $totalLecturers = $lecturers->count();
+    
+  
+    $BASE_TARGET = (int) floor($totalStudents / $totalLecturers);
+    $REMAINDER = $totalStudents % $totalLecturers;
+    $MAX_STUDENTS_PER_LECTURER = (int) ceil($totalStudents / $totalLecturers);
+    
+   
+    $MIN_STUDENTS_PER_LECTURER = 5;  // Minimum practical number
+    $MAX_CAP = 15;  // Maximum you want per lecturer
+    
+    // Apply constraints if needed
+    $MAX_STUDENTS_PER_LECTURER = max($MIN_STUDENTS_PER_LECTURER, 
+                                    min($MAX_CAP, $MAX_STUDENTS_PER_LECTURER));
     $MAX_DISTANCE_BETWEEN_DIFFERENT_TOWNS = 70;
     
     $totalStudents = collect($towns)->sum('student_count');
@@ -203,23 +217,27 @@ $studentGroups = array_merge($smallGroups, $largeGroups);
     $lecturerAssignments = [];
     $defaultLat = -0.0236;
 $defaultLng = 37.9062;
-    foreach ($lecturers as $lecturer) {
+    foreach ($lecturers as $index => $lecturer) {
+        $target = $BASE_TARGET + ($index < $REMAINDER ? 1 : 0);
+        
         $lecturerAssignments[$lecturer->id] = [
             'lecturer_id' => $lecturer->id,
             'lecturer_name' => $lecturer->lecturer->user->name ?? 'Unknown',
             'student_ids' => [],
             'student_count' => 0,
+            'target' => $target,
+            'deficit' => $target, // How many more needed to reach target
             'groups' => [],
             'towns' => [], 
             'latitude' => $lecturer->latitude ?? $defaultLat,  
-        'longitude' => $lecturer->longitude ?? $defaultLng, 
+            'longitude' => $lecturer->longitude ?? $defaultLng, 
         ];
     }
     
    
+    $unassignedGroups = [];
     
-    
-  
+    // First pass - try to assign all groups with strict proximity
     foreach ($studentGroups as $group) {
         $groupLat = $group['latitude'];
         $groupLng = $group['longitude'];
@@ -278,36 +296,28 @@ if (!$canAssign) {
                 $assignment['latitude'], $assignment['longitude']
             );
             
-           
+            $deficit = $assignment['target'] - $assignment['student_count'];
+            
+            // NEW SCORING - prioritize deficit heavily
             $eligibleLecturers[] = [
                 'lecturer_id' => $lecturerId,
                 'distance_to_lecturer' => $distanceToLecturer,
-                //'max_town_distance' => $maxExistingDistance,
                 'current_load' => $assignment['student_count'],
-                'has_same_town' => isset($assignment['towns'][$groupTown])
+                'deficit' => $deficit,
+                'has_same_town' => isset($assignment['towns'][$groupTown]),
+                'priority' => ($deficit * 100) + (isset($assignment['towns'][$groupTown]) ? 30 : 0) - ($distanceToLecturer / 10)
             ];
         }
         
        
         if (empty($eligibleLecturers)) {
-            \Log::warning("Cannot assign {$group['name']} - no eligible lecturers within constraints");
+            // Can't assign now - save for second pass with relaxed capacity
+            $unassignedGroups[] = $group;
             continue;
         }
         
-       usort($eligibleLecturers, function($a, $b) {
-    
-    if ($a['distance_to_lecturer'] != $b['distance_to_lecturer']) {
-        return $a['distance_to_lecturer'] <=> $b['distance_to_lecturer'];
-    }
-    
-   
-    if ($a['has_same_town'] != $b['has_same_town']) {
-        return $b['has_same_town'] <=> $a['has_same_town'];
-    }
-    
-    
-    return $a['current_load'] <=> $b['current_load'];
-});
+       // Sort by priority (HIGHEST first)
+        usort($eligibleLecturers, fn($a, $b) => $b['priority'] <=> $a['priority']);
         
        
         $bestLecturerId = $eligibleLecturers[0]['lecturer_id'];
@@ -324,15 +334,122 @@ if (!$canAssign) {
             'lng' => $groupLng
         ];
         $lecturerAssignments[$bestLecturerId]['latitude'] = $groupLat;
-$lecturerAssignments[$bestLecturerId]['longitude'] = $groupLng;
+        $lecturerAssignments[$bestLecturerId]['longitude'] = $groupLng;
     }
     
+    // Second pass - handle unassigned groups with relaxed capacity but STRICT proximity
+    if (!empty($unassignedGroups)) {
+        \Log::info("Second pass: " . count($unassignedGroups) . " groups to assign");
+        
+        // Break groups into individual students for more flexibility
+        $individualStudents = [];
+        foreach ($unassignedGroups as $group) {
+            foreach ($group['student_ids'] as $studentId) {
+                $individualStudents[] = [
+                    'student_id' => $studentId,
+                    'town' => $group['town'],
+                    'latitude' => $group['latitude'],
+                    'longitude' => $group['longitude']
+                ];
+            }
+        }
+        
+        // Sort lecturers by current load (lowest first) for fairness
+        $lecturersByLoad = array_keys($lecturerAssignments);
+        usort($lecturersByLoad, fn($a, $b) => 
+            $lecturerAssignments[$a]['student_count'] <=> $lecturerAssignments[$b]['student_count']
+        );
+        
+        // Assign each student individually, prioritizing fair distribution
+        foreach ($individualStudents as $student) {
+            $town = $student['town'];
+            $lat = $student['latitude'];
+            $lng = $student['longitude'];
+            
+            $eligibleLecturers = [];
+            
+            foreach ($lecturersByLoad as $lecturerId) {
+                $assignment = $lecturerAssignments[$lecturerId];
+                
+                // Relax capacity for second pass
+                if ($assignment['student_count'] + 1 > $MAX_STUDENTS_PER_LECTURER + 2) {
+                    continue;
+                }
+                
+                // STRICT PROXIMITY CHECK - still enforced
+                $canAssign = true;
+                
+                if (!empty($assignment['towns'])) {
+                    $allTowns = $assignment['towns'];
+                    $allTowns[$town] = ['lat' => $lat, 'lng' => $lng];
+                    
+                    $townNames = array_keys($allTowns);
+                    for ($i = 0; $i < count($townNames); $i++) {
+                        for ($j = $i + 1; $j < count($townNames); $j++) {
+                            $town1 = $townNames[$i];
+                            $town2 = $townNames[$j];
+                            
+                            $distance = $this->haversineDistance(
+                                $allTowns[$town1]['lat'],
+                                $allTowns[$town1]['lng'],
+                                $allTowns[$town2]['lat'],
+                                $allTowns[$town2]['lng']
+                            );
+                            
+                            if ($distance > $MAX_DISTANCE_BETWEEN_DIFFERENT_TOWNS) {
+                                $canAssign = false;
+                                break 2;
+                            }
+                        }
+                    }
+                }
+                
+                if (!$canAssign) continue;
+                
+                $eligibleLecturers[] = $lecturerId;
+            }
+            
+            if (!empty($eligibleLecturers)) {
+                // Assign to lecturer with lowest current load among eligible
+                $bestLecturerId = $eligibleLecturers[0]; // Already sorted by load
+                
+                $lecturerAssignments[$bestLecturerId]['student_ids'][] = $student['student_id'];
+                $lecturerAssignments[$bestLecturerId]['student_count']++;
+                if (!isset($lecturerAssignments[$bestLecturerId]['towns'][$town])) {
+                    $lecturerAssignments[$bestLecturerId]['towns'][$town] = [
+                        'lat' => $lat,
+                        'lng' => $lng
+                    ];
+                }
+                
+                // Re-sort lecturers by load
+                usort($lecturersByLoad, fn($a, $b) => 
+                    $lecturerAssignments[$a]['student_count'] <=> $lecturerAssignments[$b]['student_count']
+                );
+            }
+        }
+    }
+    
+    // Verify all students are assigned
+    $allStudentIds = collect($towns)->flatMap(fn($t) => $t['student_ids'])->toArray();
+    $assignedIds = [];
+    foreach ($lecturerAssignments as $assignment) {
+        $assignedIds = array_merge($assignedIds, $assignment['student_ids']);
+    }
+    
+    $missingIds = array_diff($allStudentIds, $assignedIds);
+    
+    if (!empty($missingIds)) {
+        \Log::warning(count($missingIds) . " students still unassigned after all passes");
+    }
     
     $violations = [];
+    $loadDistribution = [];
     foreach ($lecturerAssignments as $lecturerId => $assignment) {
+        $loadDistribution[] = $assignment['student_count'];
         
-        if ($assignment['student_count'] > $MAX_STUDENTS_PER_LECTURER) {
-            $violations[] = "{$assignment['lecturer_name']} has {$assignment['student_count']} students (max $MAX_STUDENTS_PER_LECTURER)";
+        if ($assignment['student_count'] > $MAX_STUDENTS_PER_LECTURER + 2) {
+            $violations[] = "{$assignment['lecturer_name']} has {$assignment['student_count']} students (max " . ($MAX_STUDENTS_PER_LECTURER + 2) . ")";
         }
         
         
@@ -406,16 +523,28 @@ $lecturerAssignments[$bestLecturerId]['longitude'] = $groupLng;
             $lecturerNames[] = $a['lecturer_name'];
             $loadDetails[$a['lecturer_name']] = [
                 'students' => $a['student_count'],
+                'target' => $a['target'] ?? $BASE_TARGET,
                 'towns' => array_keys($a['towns'])
             ];
         }
     }
 
+    $assignedCount = count($assignedIds ?? []);
+    if (empty($assignedIds)) {
+        $assignedCount = collect($lecturerAssignments)->sum('student_count');
+    }
+
     $response = [
-        'status' => 'success',
-        'message' => "{$totalStudents} students assigned to " . count($distribution) . " lecturers.",
+        'status' => empty($violations) ? 'success' : 'warning',
+        'message' => "{$assignedCount} of {$totalStudents} students assigned to " . count($distribution) . " lecturers.",
         'distribution' => array_combine($lecturerNames, $distribution),
         'load_details' => $loadDetails,
+        'fairness_metrics' => [
+            'min_load' => !empty($loadDistribution) ? min($loadDistribution) : 0,
+            'max_load' => !empty($loadDistribution) ? max($loadDistribution) : 0,
+            'average' => !empty($loadDistribution) ? round(array_sum($loadDistribution) / count($loadDistribution), 1) : 0,
+            'target_per_lecturer' => $BASE_TARGET
+        ],
         'constraints' => [
             'max_students_per_lecturer' => $MAX_STUDENTS_PER_LECTURER,
             'max_distance_between_towns' => $MAX_DISTANCE_BETWEEN_DIFFERENT_TOWNS . 'km'
@@ -428,6 +557,7 @@ $lecturerAssignments[$bestLecturerId]['longitude'] = $groupLng;
     
     return response()->json($response);
 }
+
 private function haversineDistance($lat1, $lon1, $lat2, $lon2)
 {
     $earthRadius = 6371; 

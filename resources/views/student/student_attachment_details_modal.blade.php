@@ -30,77 +30,155 @@
     </div>
 </div>
 @push('scripts')
-    <script>
-        $(document).ready(function() {
-            const student_attachment_details_modal = new Modal($('#student_attachment_details-modal')[0], {
-                backdrop: 'static',
-                closable: false
-            });
-
-            $(document).on('click', '.close-student_attachment_details_modal-btn', function () {
-                student_attachment_details_modal.hide();
-            });
-
-            $(document).on('click', '.open-student_attachment_details_modal-btn', function () {
-               const student_attachment_details_id = $(this).data('id');
-                openAttachmentModal(student_attachment_details_id)
-            });
-
-            function openAttachmentModal(id) {
-                student_attachment_details_modal.show();
-                // Clear & show loading message
-                $("#student_attachment_detailsTable tbody").html(`
-                <tr><td class="p-4 text-center">Loading...</td></tr>
-            `);
-
-                // Ajax request
-                $.ajax({
-                    url:"{{ route('attachmentDetails.show', ':id') }}".replace(':id', id),
-                    method: 'GET',
-                    success: function (data) {
-                        fillAttachmentTable(data);
-                    },
-                    error: function () {
-                        $("#student_attachment_detailsTable tbody").html(`
-                <tr><td class="p-4 text-center text-red-600">Error loading data</td></tr>
-            `);
-                    }
-                });
-            }
-
-            function fillAttachmentTable(data) {
-                let html = '';
-
-                html += `<tr><th class="p-3 bg-gray-100">Student Name</th><td class="p-3">${data?.student?.user?.name}</td>
-                            <th class="p-3 bg-gray-100">Student Phone No</th><td class="p-3">${data?.student?.user?.phone_number}</td></tr>`;
-                html += `<tr><th class="p-3 bg-gray-100">Registration No</th><td class="p-3">${data?.student?.reg_no}</td>
-                               <th class="p-3 bg-gray-100">Email</th><td class="p-3">${data?.student?.user?.email}</td></tr>`;
-                html += `<tr><th class="p-3 bg-gray-100">Course</th><td class="p-3">${data?.student?.program?.name}</td></tr>`;
-
-                html += `<tr><th class="p-3 bg-gray-100">Organization</th><td class="p-3">${data?.company?.name}</td>
-                            <th class="p-3 bg-gray-100">Street</th><td class="p-3">${data?.company?.street}</td></tr>`;
-                html += `<tr><th class="p-3 bg-gray-100">Town</th><td class="p-3">${data?.company?.subcounty?.name}</td>
-                            <th class="p-3 bg-gray-100">Building</th><td class="p-3">${data?.company?.building}</td></tr>`;
-
-                html += `<tr><th class="p-3 bg-gray-100">Attachment Name</th><td class="p-3">${data?.attachment?.name ?? ''}</td></tr>`;
-                html += `<tr><th class="p-3 bg-gray-100">Start Date</th><td class="p-3">${data?.start_date}</td>
-<th class="p-3 bg-gray-100">End Date</th><td class="p-3">${data?.end_date}</td></tr>`;
-
-
-                // Supervisor
-                html += `<tr><th class="p-3 bg-gray-100">Industrial Supervisor</th><td class="p-3">${data?.industrial_supervisor?.user?.name ?? ''}</td>
-                            <th class="p-3 bg-gray-100">Supervisor Email</th><td class="p-3">${data?.industrial_supervisor?.user?.email ?? ''}</td></tr>`;
-                html += `<tr><th class="p-3 bg-gray-100">Supervisor Phone</th><td class="p-3">${data?.industrial_supervisor?.user?.phone_number ?? ''}</td></tr>`;
-
-                // Lecturer
-                html += `<tr><th class="p-3 bg-gray-100">Lecturer</th><td class="p-3">${data?.lecturer?.name ?? ''}</td>
-                            <th class="p-3 bg-gray-100">Lecturer Email</th><td class="p-3">${data?.lecturer?.email ?? ''}</td></tr>`;
-                html += `<tr><th class="p-3 bg-gray-100">Lecturer Phone</th><td class="p-3">${data?.lecturer?.phone_number ?? ''}</td></tr>`;
-
-
-                $("#student_attachment_detailsTable tbody").html(html);
-            }
-
+   <script>
+    $(document).ready(function() {
+        const student_attachment_details_modal = new Modal($('#student_attachment_details-modal')[0], {
+            backdrop: 'static',
+            closable: false
         });
-    </script>
+
+        $(document).on('click', '.close-student_attachment_details_modal-btn', function () {
+            student_attachment_details_modal.hide();
+        });
+
+        $(document).on('click', '.open-student_attachment_details_modal-btn', function () {
+            const student_attachment_details_id = $(this).data('id');
+            openAttachmentModal(student_attachment_details_id)
+        });
+
+        function openAttachmentModal(id) {
+            student_attachment_details_modal.show();
+            
+            // Clear & show loading message
+            $("#student_attachment_detailsTable tbody").html(`
+                <tr><td colspan="4" class="p-4 text-center">
+                    <div class="flex justify-center items-center">
+                        <svg class="animate-spin h-5 w-5 text-blue-600 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading...
+                    </div>
+                </td></tr>
+            `);
+
+            // FIXED: Use hardcoded URL path
+            $.ajax({
+                url: "/attachment-details/" + id,
+                method: 'GET',
+                success: function (data) {
+                    console.log('Data received:', data); // Debug
+                    fillAttachmentTable(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                    console.error('Status:', status);
+                    console.error('Response:', xhr.responseText);
+                    
+                    $("#student_attachment_detailsTable tbody").html(`
+                        <tr><td colspan="4" class="p-4 text-center text-red-600">
+                            Error loading data (${xhr.status})
+                            <br><small>${xhr.responseText}</small>
+                        </td></tr>
+                    `);
+                }
+            });
+        }
+function fillAttachmentTable(data) {
+    console.log('Data received:', data); // Debug to see structure
+    
+    let html = '';
+
+    // Student Info
+    html += `<tr>
+        <th class="p-3 bg-gray-100 w-1/4">Student Name</th>
+        <td class="p-3 w-1/4">${data?.student?.user?.name || 'N/A'}</td>
+        <th class="p-3 bg-gray-100 w-1/4">Student Phone No</th>
+        <td class="p-3 w-1/4">${data?.student?.user?.phone_number || 'N/A'}</td>
+    </tr>`;
+    
+    html += `<tr>
+        <th class="p-3 bg-gray-100">Registration No</th>
+        <td class="p-3">${data?.student?.reg_no || 'N/A'}</td>
+        <th class="p-3 bg-gray-100">Email</th>
+        <td class="p-3">${data?.student?.user?.email || 'N/A'}</td>
+    </tr>`;
+    
+    html += `<tr>
+        <th class="p-3 bg-gray-100">Course</th>
+        <td class="p-3" colspan="3">${data?.student?.program?.name || 'N/A'}</td>
+    </tr>`;
+
+    // Company Info
+    const townName = data?.company?.town?.name || data?.town?.name || 'Not Assigned';
+    
+    html += `<tr>
+        <th class="p-3 bg-gray-100">Organization</th>
+        <td class="p-3">${data?.company?.name || 'N/A'}</td>
+        <th class="p-3 bg-gray-100">Street</th>
+        <td class="p-3">${data?.company?.street || 'N/A'}</td>
+    </tr>`;
+    
+    html += `<tr>
+        <th class="p-3 bg-gray-100">Town</th>
+        <td class="p-3">${townName}</td>
+        <th class="p-3 bg-gray-100">Building</th>
+        <td class="p-3">${data?.company?.building || 'N/A'}</td>
+    </tr>`;
+
+    // Attachment Info
+    html += `<tr>
+        <th class="p-3 bg-gray-100">Attachment Name</th>
+        <td class="p-3" colspan="3">${data?.attachment?.name || 'N/A'}</td>
+    </tr>`;
+    
+    html += `<tr>
+        <th class="p-3 bg-gray-100">Start Date</th>
+        <td class="p-3">${data?.start_date || 'N/A'}</td>
+        <th class="p-3 bg-gray-100">End Date</th>
+        <td class="p-3">${data?.end_date || 'N/A'}</td>
+    </tr>`;
+
+    // Get values from data (handle both snake_case and camelCase)
+    const supervisor = data?.industrial_supervisor || data?.industrialSupervisor || {};
+    const supervisorUser = supervisor?.user || {};
+    
+    const attachmentLecturer = data?.attachment_lecturer || data?.attachmentLecturer || {};
+    const lecturer = attachmentLecturer?.lecturer || {};
+    const lecturerUser = lecturer?.user || {};
+
+    // Supervisor Info
+    html += `<tr>
+        <th class="p-3 bg-gray-100">Industrial Supervisor</th>
+        <td class="p-3">${supervisorUser?.name || 'N/A'}</td>
+        <th class="p-3 bg-gray-100">Supervisor Email</th>
+        <td class="p-3">${supervisorUser?.email || 'N/A'}</td>
+    </tr>`;
+    html += `<tr>
+        <th class="p-3 bg-gray-100">Supervisor Phone</th>
+        <td class="p-3" colspan="3">${supervisorUser?.phone_number || 'N/A'}</td>
+    </tr>`;
+
+    // Lecturer Info - Phone is in users.phone_number
+    const lecturerPhone = lecturerUser?.phone_number ||  // From users table
+                         lecturer?.office_phone ||       // From lecturers table (fallback)
+                         'N/A';
+    const lecturerName = lecturerUser?.name || 'Not Assigned';
+    const lecturerEmail = lecturerUser?.email || '';
+
+    html += `<tr>
+        <th class="p-3 bg-gray-100">Lecturer</th>
+        <td class="p-3">${lecturerName}</td>
+        <th class="p-3 bg-gray-100">Lecturer Email</th>
+        <td class="p-3">${lecturerEmail}</td>
+    </tr>`;
+    html += `<tr>
+        <th class="p-3 bg-gray-100">Lecturer Phone</th>
+        <td class="p-3" colspan="3">${lecturerPhone}</td>
+    </tr>`;
+
+    $("#student_attachment_detailsTable tbody").html(html);
+}
+    });
+</script>
 @endpush

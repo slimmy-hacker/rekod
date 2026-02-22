@@ -20,7 +20,10 @@ class AttachmentStudent extends Model
     {
         return $this->belongsTo(AttachmentLecturer::class, 'lecturer_id');
     }
-
+ public function user()
+    {
+        return $this->belongsTo(User::class, 'student_id');
+    }
    
     public function student() {
         return $this->belongsTo(Student::class, 'student_id');

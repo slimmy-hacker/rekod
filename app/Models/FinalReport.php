@@ -19,5 +19,6 @@ class FinalReport extends Model
        
         return $this->belongsTo(AttachmentStudent::class, 'attachment_student_id');
     }
+    
 }
 

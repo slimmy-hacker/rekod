@@ -49,7 +49,7 @@ Route::get('/attachments/{id}', [AttachmentDetailsController::class, 'show'])
     Route::post('/opportunities/{opportunity}/apply', [OpportunityController::class, 'submitApplication'])->name('opportunities.apply');
     Route::post('/opportunities/{opportunity}/apply', [OpportunityController::class, 'submitApplication'])->name('opportunities.apply.submit');
     Route::get('/opportunities/{opportunity}/applications', [OpportunityController::class, 'showApplications']) ->name('opportunities.applications');
-    Route::get('/atachment-details/{atachment_student_id}', [AttachmentDetailsController::class, 'show']) ->name('attachmentDetails.show');
+    Route::get('/attachment-details/{attachment_student_id}', [AttachmentDetailsController::class, 'show']) ->name('attachmentDetails.show');
 
 });
 
