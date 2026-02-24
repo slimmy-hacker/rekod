@@ -38,6 +38,13 @@ Route::middleware(['ensure.attachment.selected'])->name('lecturer.')->group(func
 
     Route::put('/weekly-reports/{report}', [LecturerController::class, 'update'])
         ->name('weekly-reports.update');
+        // IMPORTANT: Add this route for the logbook link
+    Route::get('/student/logbook/{id}', [DailyReportController::class, 'index'])
+        ->name('logbook');  // This matches the route() call in your view
+    
+    // Also keep this if you need the store functionality
+    Route::post('/daily-activities/store', [DailyReportController::class, 'store'])
+        ->name('daily_activities.store');
 
 Route::post('/weekly-activities/store', [DailyReportController::class, 'store'])->name('weekly_activities.store');
 

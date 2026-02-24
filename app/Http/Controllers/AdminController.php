@@ -122,11 +122,10 @@ public function allFinalReports()
                 ->get();
 
     return view('admin.final_index', compact('reports'));
-}
-public function allLogbooks()
+}public function allLogbooks()
 {
-    // Get all students who have at least one daily report
-    $students = \App\Models\Student::whereHas('attachments.weeklyReports.dailyReports')
+    // Get all students who have at least one daily report directly through attachment_students
+    $students = \App\Models\Student::whereHas('attachments.dailyReports') // Changed from weeklyReports.dailyReports
         ->with([
             'user',
             'program.parent',
@@ -134,7 +133,9 @@ public function allLogbooks()
                 $query->with([
                     'company',
                     'company.town',
-                    'weeklyReports.dailyReports'
+                    'dailyReports' => function($q) { // Direct relationship with dailyReports
+                        $q->orderBy('report_date', 'desc');
+                    }
                 ]);
             }
         ])
@@ -145,6 +146,7 @@ public function allLogbooks()
             $latestEntry = null;
             $companies = [];
             $attachmentInfo = null;
+            $allDailyReports = collect(); // Collect all daily reports
             
             foreach ($student->attachments as $attachment) {
                 if ($attachment->company) {
@@ -155,16 +157,23 @@ public function allLogbooks()
                     $attachmentInfo = $attachment;
                 }
                 
-                foreach ($attachment->weeklyReports as $weekly) {
-                    $totalEntries += $weekly->dailyReports->count();
-                    
-                    if ($weekly->dailyReports->isNotEmpty()) {
-                        $latest = $weekly->dailyReports->sortByDesc('start_date')->first();
-                        if (!$latestEntry || $latest->start_date > $latestEntry) {
-                            $latestEntry = $latest->start_date;
-                        }
-                    }
+                // Get daily reports directly from attachment
+                $dailyReports = $attachment->dailyReports;
+                $totalEntries += $dailyReports->count();
+                
+                // Add to collection for latest entry check
+                $allDailyReports = $allDailyReports->merge($dailyReports);
+                
+                // Track attachment info
+                if (!$attachmentInfo) {
+                    $attachmentInfo = $attachment;
                 }
+            }
+            
+            // Find the latest entry date
+            if ($allDailyReports->isNotEmpty()) {
+                $latestReport = $allDailyReports->sortByDesc('report_date')->first();
+                $latestEntry = $latestReport->report_date;
             }
             
             return [
@@ -179,6 +188,7 @@ public function allLogbooks()
                 'company_towns' => implode(', ', array_column($companies, 'town')),
                 'total_entries' => $totalEntries,
                 'latest_entry' => $latestEntry,
+                'latest_entry_formatted' => $latestEntry ? $latestEntry->format('Y-m-d') : null,
                 'has_logbook' => $totalEntries > 0,
                 'attachment_id' => $attachmentInfo->id ?? null
             ];

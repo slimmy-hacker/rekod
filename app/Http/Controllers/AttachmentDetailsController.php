@@ -159,7 +159,7 @@ public function show($id)
         'company.town',
         'industrialSupervisor.user',
         'attachment',
-        'attachmentLecturer.lecturer.user'  // Changed from attachment_lecturer to attachmentLecturer
+        'attachmentLecturer.lecturer.user'  
     ])->findOrFail($id);
 
     return response()->json($data);

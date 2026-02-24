@@ -25,6 +25,10 @@ class AttachmentStudent extends Model
         return $this->belongsTo(User::class, 'student_id');
     }
    
+public function dailyReports()
+{
+    return $this->hasMany(\App\Models\DailyReport::class, 'attachment_student_id');
+}
     public function student() {
         return $this->belongsTo(Student::class, 'student_id');
     }
@@ -57,9 +61,9 @@ public function industrialSupervisor()
     return $this->belongsTo(IndustrialSupervisor::class);
 }
 
-public function attachmentLecturer() // Use camelCase
+public function attachmentLecturer() 
 {
-    // The second parameter MUST be the column in your attachment_students table
+   
     return $this->belongsTo(AttachmentLecturer::class, 'attachment_lecturer_id');
 }
 

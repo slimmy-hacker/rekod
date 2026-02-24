@@ -2,99 +2,99 @@
 
 namespace App\Http\Controllers;
 
-use App\GenerateWeekNumber;
 use App\Models\AttachmentStudent;
-use App\Models\Calender;
-use App\Models\Student;
-use App\Models\User;
-use App\Models\WeeklyReport;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use App\Models\DailyReport;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class DailyReportController extends Controller
 {
-    private function calenderResponse($id, $type)
-    { $data = [];
-        if ($type == 'daily') {
-            $daily_report = DailyReport::findOrFail($id);
-            $data = [
-                'id'             => $daily_report->id,
-                'title'          => $daily_report->task_title,
-                'start'          => $daily_report->start_date,
-                'end'            => Carbon::parse($daily_report->end_date)->addDay()->toDateString(),
-                'tasks'          => $daily_report->tasks,
-                'skills_learned' => $daily_report->skills_learned,
-                'challenges'     => $daily_report->challenges,
-                'type'        => 'daily'
-            ];
-        }
-        
-        return $data;
-    }
+    /**
+     * Display the daily reports calendar view
+     */
     public function index(Request $request, $id = null)
-    {       $user_role = Auth::user()->role;
+    {
+        $user_role = Auth::user()->role;
+        
+        // Get attachment student ID based on role
         if ($user_role == 'student') {
             $attachment_student_id = $request->session()->get('attachment_student_id');
-        }elseif($id){
+        } elseif ($id) {
             $attachment_student_id = $id;
-        }else{
+        } else {
             abort(404);
         }
 
-        $weekly_reports = WeeklyReport::where('attachment_student_id', $attachment_student_id)->pluck('id');
-        $weekly_events =
-            $weekly_reports ->map(function ($event) {
-                return $this->calenderResponse($event, 'weekly');
-            });
-        $daily_events = DailyReport::whereIn('weekly_report_id', $weekly_reports)
-            ->pluck('id')
-            ->map(function ($event) {
-            return $this->calenderResponse($event, 'daily');
-        });
-        $events = $weekly_events->merge($daily_events);
-        $attachment_student = AttachmentStudent::with([ 'student', 'student.user'])
+        // Get daily reports for this attachment student
+        $daily_reports = DailyReport::where('attachment_student_id', $attachment_student_id)
+                                    ->orderBy('report_date', 'desc')
+                                    ->get();
+
+        // Map daily reports to calendar events
+        $events = $daily_reports->map(function ($report) {
+            $formattedDate = $report->report_date instanceof Carbon 
+                ? $report->report_date->format('Y-m-d')
+                : date('Y-m-d', strtotime($report->report_date));
+            
+            return [
+                'id' => $report->id,
+                'title' => $report->task_title,
+                'start' => $formattedDate,
+                'end' => $formattedDate,
+                'tasks' => $report->tasks,
+                'skills_learned' => $report->skills_learned,
+                'challenges' => $report->challenges,
+                'backgroundColor' => '#3b82f6',
+                'textColor' => 'white',
+                'extendedProps' => [
+                    'daily_report_id' => $report->id,
+                    'task_title' => $report->task_title,
+                    'tasks' => $report->tasks,
+                    'skills_learned' => $report->skills_learned,
+                    'challenges' => $report->challenges,
+                    'report_date' => $formattedDate
+                ]
+            ];
+        })->values();
+
+        // Get attachment student details
+        $attachment_student = AttachmentStudent::with(['student', 'student.user'])
                                     ->where('id', $attachment_student_id)
                                     ->first();
 
-        $report_route =  '#';
+        // Set report route - only students can create reports
+        $report_route = '#';
         if ($user_role == 'student') {
-            $report_route =  route('student.weekly_activities.store');
+            $report_route = route('student.daily_activities.store');
         }
-        elseif ($user_role == 'lecturer') {
-            $report_route =  route('lecturer.weekly_activities.store');
-        }
-        elseif ($user_role == 'industrial_supervisor') {
-            $report_route =  route('industrial_supervisor.weekly_activities.store');
-        }
-        return view('daily_activities.index', compact('events',  'user_role', 'attachment_student', 'report_route'));
 
+        return view('daily_activities.index', compact('events', 'user_role', 'attachment_student', 'report_route'));
     }
+
+    /**
+     * Store or update a daily report
+     */
     public function store(Request $request)
     {
         try {
             $attachment_student_id = $request->session()->get('attachment_student_id');
             $attachment_student = AttachmentStudent::find($attachment_student_id);
+            
             if (!$attachment_student->company_id ?? null || !$attachment_student->start_date ?? null) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Fill in your attachment form first.',
-
                 ]);
             }
+
+            // Validate the request
             $validated = $request->validate([
                 'daily_report_id' => 'nullable|exists:daily_reports,id',
-                'start_date' => [
+                'report_date' => [
                     'required',
                     'date',
                     'after_or_equal:' . $attachment_student->start_date,
-                    'before_or_equal:' . $attachment_student->end_date,
-                ],
-                'end_date' => [
-                    'required',
-                    'date',
-                    'after_or_equal:start_date', 
                     'before_or_equal:' . $attachment_student->end_date,
                 ],
                 'task_title' => 'required|string|max:255',
@@ -102,61 +102,30 @@ class DailyReportController extends Controller
                 'skills_learned' => 'required|string',
                 'challenges' => 'nullable|string',
             ]);
-            $weekGen = new GenerateWeekNumber();
-            $uniqueWeekId = $weekGen->weekId($validated['start_date']);
-            $weekly_report = WeeklyReport::where('week_id', $uniqueWeekId)
-                ->where('attachment_student_id', $attachment_student_id)
-                ->first();
 
-            if (!$weekly_report) {
+            // Prepare data for daily report
+            $data = [
+                'attachment_student_id' => $attachment_student_id,
+                'report_date' => $validated['report_date'],
+                'task_title' => $validated['task_title'],
+                'tasks' => $validated['tasks'],
+                'skills_learned' => $validated['skills_learned'],
+                'challenges' => $validated['challenges'] ?? null,
+            ];
 
-                $week_range = $weekGen->weekRangeFromId($uniqueWeekId);
-
-                $weekly_report = new WeeklyReport();
-                $weekly_report->attachment_student_id = $attachment_student_id;
-                $weekly_report->week_start_date = $week_range['start'];
-                $weekly_report->week_end_date = $week_range['end'];
-                $weekly_report->week_id = $uniqueWeekId;
-                $weekly_report->save();
-            }
-            $validated['weekly_report_id'] = $weekly_report->id;
-
+            // Create or update
             if (!empty($validated['daily_report_id'])) {
-
-                
                 $report = DailyReport::findOrFail($validated['daily_report_id']);
-
-                
-                unset($validated['daily_report_id']);
-
-                
-                $report->update($validated);
-
-                
+                $report->update($data);
                 $daily_report = $report;
-
             } else {
-
-               
-                unset($validated['daily_report_id']);
-
-                
-                $daily_report = DailyReport::create($validated);
+                $daily_report = DailyReport::create($data);
             }
-
-
-            $data = collect([
-                $this->calenderResponse($daily_report->id, 'daily'),
-                $this->calenderResponse($weekly_report->id, 'weekly'),
-            ]);
-
-
-
 
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Daily activity recorded successfully.',
-                'data'    => $data
+                'data'    => [$this->calendarEventResponse($daily_report->id)]
             ], 201);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -175,114 +144,36 @@ class DailyReportController extends Controller
         }
     }
 
-    public function storeStudentWeeklyReport(Request $request)
+    /**
+     * Format a single daily report for calendar response
+     */
+    private function calendarEventResponse($id)
     {
-        try {
-            $validated = $request->validate([
-                                    'weekly_report_id' => 'required|exists:weekly_reports,id',
-                                    'weekly_report' => 'required|string|max:255',
-                                ]);
-            WeeklyReport::find($validated['weekly_report_id'])
-                          ->update([
-                                'weekly_report' => $validated['weekly_report'],
-                            ]);
-            $data = collect([
-                $this->calenderResponse($validated['weekly_report_id'], 'weekly'),
-            ]);
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'Weekly Report Saved.',
-                'data'    => $data
-            ]);
-        }
-        catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-            'status'  => 'error',
-            'message' => 'Validation failed.',
-            'errors'  => $e->errors()
-            ], 422);
-
-            }
-            catch (\Exception $e) {
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'Something went wrong. Please try again later.',
-                    'error'   => $e->getMessage()
-                ], 500);
-            }
-    }
-
-    public function storeLecturerWeeklyReport(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                                    'weekly_report_id' => 'required|exists:weekly_reports,id',
-                                    'lecturer_comment' => 'required|string|max:255',
-                                ]);
-            WeeklyReport::find($validated['weekly_report_id'])
-                          ->update([
-                                'lecturer_comment' => $validated['lecturer_comment'],
-                            ]);
-            $data = collect([
-                $this->calenderResponse($validated['weekly_report_id'], 'weekly'),
-            ]);
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'Weekly Report Saved.',
-                'data'    => $data
-            ]);
-        }
-        catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-            'status'  => 'error',
-            'message' => 'Validation failed.',
-            'errors'  => $e->errors()
-            ], 422);
-
-            }
-            catch (\Exception $e) {
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'Something went wrong. Please try again later.',
-                    'error'   => $e->getMessage()
-                ], 500);
-            }
-    }
-
-    public function storeIndustrialSupervisorWeeklyReport(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                                    'weekly_report_id' => 'required|exists:weekly_reports,id',
-                                    'industrial_supervisor_comment' => 'required|string|max:255',
-                                ]);
-            WeeklyReport::find($validated['weekly_report_id'])
-                          ->update([
-                                'industrial_supervisor_comment' => $validated['industrial_supervisor_comment'],
-                            ]);
-            $data = collect([
-                $this->calenderResponse($validated['weekly_report_id'], 'weekly'),
-            ]);
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'Weekly Report Remarks Saved.',
-                'data'    => $data
-            ]);
-        }
-        catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-            'status'  => 'error',
-            'message' => 'Validation failed.',
-            'errors'  => $e->errors()
-            ], 422);
-
-            }
-            catch (\Exception $e) {
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'Something went wrong. Please try again later.',
-                    'error'   => $e->getMessage()
-                ], 500);
-            }
+        $report = DailyReport::find($id);
+        if (!$report) return null;
+        
+        $formattedDate = $report->report_date instanceof Carbon 
+            ? $report->report_date->format('Y-m-d')
+            : date('Y-m-d', strtotime($report->report_date));
+        
+        return [
+            'id' => $report->id,
+            'title' => $report->task_title,
+            'start' => $formattedDate,
+            'end' => $formattedDate,
+            'tasks' => $report->tasks,
+            'skills_learned' => $report->skills_learned,
+            'challenges' => $report->challenges,
+            'backgroundColor' => '#3b82f6',
+            'textColor' => 'white',
+            'extendedProps' => [
+                'daily_report_id' => $report->id,
+                'task_title' => $report->task_title,
+                'tasks' => $report->tasks,
+                'skills_learned' => $report->skills_learned,
+                'challenges' => $report->challenges,
+                'report_date' => $formattedDate
+            ]
+        ];
     }
 }

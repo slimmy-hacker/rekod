@@ -39,16 +39,12 @@
 
                     <div class="grid gap-4 mb-4 grid-cols-2">
 
-                        <div class="col-span-2 sm:col-span-1">
-                            <input type="hidden" id="daily_report_id" name="daily_report_id">
-                            <label for="start_date" class="block mb-2 text-sm font-medium text-gray-900 " >Start Date <span class="text-red-500">*</span></label>
-                            <input type="date" name="start_date" id="start_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 " placeholder="select start date" required="" >
-                        </div>
-
-                        <div class="col-span-2 sm:col-span-1">
-                            <label for="end_date" class="block mb-2 text-sm font-medium text-gray-900 ">End Date<span class="text-red-500">*</span></label>
-                            <input type="date" name="end_date" id="end_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 " placeholder="select End date" required>
-                        </div>
+                       <!-- Replace the two date divs with this single date div -->
+<div class="col-span-2 sm:col-span-1">
+    <input type="hidden" id="daily_report_id" name="daily_report_id">
+    <label for="report_date" class="block mb-2 text-sm font-medium text-gray-900">Report Date <span class="text-red-500">*</span></label>
+    <input type="date" name="report_date" id="report_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" required="">
+</div>
                         <div class="col-span-2">
                             <label for="task_title" class="block mb-2 text-sm font-medium text-gray-900 ">Task Title<span class="text-red-500">*</span></label>
                             <input type="text" name="task_title" id="task_title" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 " placeholder="Write Title of work done" required="">
@@ -94,14 +90,7 @@
     <script>
         $(document).ready(function () {
 
-            function minusOneDay(dateStr) {
-                if (!dateStr) return "";
-                let d = new Date(dateStr);
-                d.setDate(d.getDate() - 1);
-                return d.toISOString().split('T')[0];
-            }
-
-            // Initialize Daily Modal only
+           
             const modal = new Modal($('#daily-activities-modal')[0], {
                 backdrop: 'static',
                 closable: false
@@ -118,40 +107,34 @@
             calendar.render();
 
             // Handle clicking on an empty date square
-            calendar.on('dateClick', function(info) {
-                $("#calender_details_form")[0].reset();
-                $("#daily_report_id").val(""); // Clear ID for new entries
-                $('#start_date').val(info.dateStr);
-                $('#end_date').val(info.dateStr);
-                modal.show();
-            });
+calendar.on('dateClick', function(info) {
+    $("#calender_details_form")[0].reset();
+    $("#daily_report_id").val(""); // Clear ID for new entries
+    $('#report_date').val(info.dateStr); // Changed to single date
+    modal.show();
+});
 
-            // Handle clicking on an existing event
-            calendar.on('eventClick', function(info) {
-                $("#calender_details_form")[0].reset();
-                
-                const props = info.event.extendedProps;
-                
-                // Map event data to form fields automatically
-                $.each(props, function(key, value) {
-                    let $el = $('#' + key);
-                    if ($el.length) {
-                        $el.val(value);
-                    }
-                });
+// Handle clicking on an existing event
+calendar.on('eventClick', function(info) {
+    $("#calender_details_form")[0].reset();
+    
+    const props = info.event.extendedProps;
+    
+    // Map event data to form fields automatically
+    $.each(props, function(key, value) {
+        let $el = $('#' + key);
+        if ($el.length) {
+            $el.val(value);
+        }
+    });
 
-                // Set standard fields
-                $("#daily_report_id").val(info.event.id);
-                $('#start_date').val(info.event.startStr);
-                
-                // FullCalendar end dates are exclusive, so we minus one day for the UI
-                let displayEnd = info.event.endStr ? minusOneDay(info.event.endStr) : info.event.startStr;
-                $('#end_date').val(displayEnd);
-                $('#task_title').val(info.event.title);
-                
-                modal.show();
-            });
-
+    // Set standard fields - use start date for single date
+    $("#daily_report_id").val(info.event.id);
+    $('#report_date').val(info.event.startStr); // Changed to single date
+    $('#task_title').val(info.event.title);
+    
+    modal.show();
+});
             // Close modal
             $(document).on('click', '.close-modals-btn', function () {
                 modal.hide();

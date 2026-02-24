@@ -11,14 +11,22 @@ class DailyReport extends Model
 
     protected $guarded = [];
 
+    // Add casting for dates
+    protected $casts = [
+        'report_date' => 'date',
+         
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     // Relationship: Each logbook belongs to a student (via registration_number)
     public function student()
     {
         return $this->belongsTo(User::class, 'registration_number', 'registration_number');
     }
    
-public function weeklyReport()
-{
-    return $this->belongsTo(WeeklyReport::class, 'weekly_report_id');
-}
+    public function weeklyReport()
+    {
+        return $this->belongsTo(WeeklyReport::class, 'weekly_report_id');
+    }
 }

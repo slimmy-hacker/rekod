@@ -70,3 +70,17 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
 
 });
+Route::middleware(['auth'])->prefix('student')->name('student.')->group(function () {
+    Route::get('/logbook', [DailyReportController::class, 'index'])->name('logbook');
+    Route::post('/daily-activities/store', [DailyReportController::class, 'store'])->name('daily_activities.store');
+});
+
+// Lecturer routes
+Route::middleware(['auth'])->prefix('lecturer')->name('lecturer.')->group(function () {
+    Route::get('/student/logbook/{id}', [DailyReportController::class, 'index'])->name('student.logbook');
+});
+
+// Industrial supervisor routes
+Route::middleware(['auth'])->prefix('industrial-supervisor')->name('industrial_supervisor.')->group(function () {
+    Route::get('/student/logbook/{id}', [DailyReportController::class, 'index'])->name('student.logbook');
+});
