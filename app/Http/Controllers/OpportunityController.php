@@ -143,7 +143,7 @@ public function index(Request $request)
     }
     public function apply($id)
 {
-    $user = auth()->user();
+    $user = Auth::user();
 
     
     if ($user->role !== 'student') {

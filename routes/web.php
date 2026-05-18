@@ -63,17 +63,7 @@ Route::middleware(['portal:admin'])
     ->prefix('admin')
     ->group(base_path('routes/admin.php'));
 
-Route::middleware('guest')->group(function () {
-    Route::get('/register', [RegisteredUserController::class, 'create'])
-        ->name('register');
-
-    Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
-
-});
-Route::middleware(['auth'])->prefix('student')->name('student.')->group(function () {
-    Route::get('/logbook', [DailyReportController::class, 'index'])->name('logbook');
-    Route::post('/daily-activities/store', [DailyReportController::class, 'store'])->name('daily_activities.store');
-});
+ 
 
 // Lecturer routes
 Route::middleware(['auth'])->prefix('lecturer')->name('lecturer.')->group(function () {

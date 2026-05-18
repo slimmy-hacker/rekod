@@ -49,4 +49,4 @@ Route::middleware(['ensure.attachment.selected'])->group(function () {
 
 
 
-Route::get('/opportunities', [OpportunityController::class, 'index'])->name('opportunities.index');
+Route::get('/opportunities', [OpportunityController::class, 'index'])->name('student.opportunities.index');
