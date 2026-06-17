@@ -1,8 +1,3 @@
-// Nothing to change — just make sure you run:
-// php artisan storage:link
-// (Render build command does this automatically via render.yaml)
-
-
 <?php
 
 use Illuminate\Foundation\Application;
