@@ -1,1 +1,10 @@
 *.sqlite*
+.env
+.env.*
+!.env.example
+storage/app/public/*
+storage/logs/*
+bootstrap/cache/*
+vendor/
+node_modules/
+public/build/

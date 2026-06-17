@@ -11,11 +11,10 @@ RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
-
 COPY . .
 
-# Install dependencies WITHOUT scripts (prevents artisan crash)
-RUN composer install --no-interaction --prefer-dist --no-scripts
+# Install dependencies WITHOUT scripts (prevents artisan crash before .env exists)
+RUN composer install --no-interaction --prefer-dist --no-scripts --optimize-autoloader
 
 # Node build
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
@@ -23,13 +22,12 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && npm install \
     && npm run build
 
-# Laravel post setup (safe now)
-RUN php artisan config:clear
-RUN php artisan route:clear
-RUN php artisan view:clear
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-RUN chown -R www-data:www-data /var/www
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 80
 
-CMD php artisan serve --host=0.0.0.0 --port=80
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
