@@ -2,6 +2,9 @@
 set -e
 
 echo "=== Rekod container starting ==="
+echo "=== DEBUG: CLOUDINARY_URL raw value below (between markers) ==="
+echo "[START]${CLOUDINARY_URL}[END]"
+echo "=== DEBUG: end ==="
 
 # Cache config now that real env vars are injected by Render
 php artisan config:cache
