@@ -3,18 +3,23 @@ set -e
 
 echo "=== Rekod container starting ==="
 
-# Cache config now that real env vars are injected by Render
+# Clear any stale caches from the build phase first
+# This lets Laravel boot from raw config files using Render's env vars
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan cache:clear
+
+# Run migrations now that app is booting cleanly from env vars
+php artisan migrate --force
+
+# Storage symlink
+php artisan storage:link || true
+
+# Now rebuild caches with correct runtime values
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Run migrations automatically on every boot (safe — only applies new ones)
-php artisan migrate --force
-
-# Ensure public storage symlink exists (skip if using Cloudinary exclusively)
-php artisan storage:link || true
-
 echo "=== Starting server on port ${PORT:-80} ==="
-
-# Render injects $PORT — bind to it, default to 80 for local testing
 php artisan serve --host=0.0.0.0 --port=${PORT:-80}
