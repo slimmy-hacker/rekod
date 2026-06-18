@@ -16,7 +16,7 @@ COPY . .
 # Install PHP dependencies WITHOUT scripts (prevents artisan crash before .env exists)
 RUN composer install --no-interaction --prefer-dist --no-scripts --optimize-autoloader
 
-# Install Node 20 (required by vite@7 and laravel-vite-plugin@2 — Node 18 fails EBADENGINE)
+# Install Node 20 (required by vite@7 and laravel-vite-plugin@2 â€” Node 18 fails EBADENGINE)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
@@ -36,3 +36,5 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 EXPOSE 80
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+# cache-bust: bootstrap-fix-202606182203
+
