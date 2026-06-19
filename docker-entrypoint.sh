@@ -4,34 +4,29 @@ set -e
 echo "=== Rekod container starting ==="
 echo "=== PHP version: $(php --version | head -1) ==="
 echo "=== APP_KEY set: $([ -n "$APP_KEY" ] && echo YES || echo NO) ==="
-echo "=== DB_HOST: $DB_HOST ==="
 
-echo "--- Step 1: config:clear ---"
-php artisan config:clear || echo "config:clear FAILED"
+echo "=== DIAGNOSTIC: bootstrap/app.php first 20 bytes (hex) ==="
+xxd /var/www/bootstrap/app.php | head -2
 
-echo "--- Step 2: route:clear ---"
-php artisan route:clear || echo "route:clear FAILED"
+echo "=== DIAGNOSTIC: PHP syntax check ==="
+php -l /var/www/bootstrap/app.php 2>&1 || echo "SYNTAX ERROR DETECTED"
 
-echo "--- Step 3: view:clear ---"
-php artisan view:clear || echo "view:clear FAILED"
+echo "=== DIAGNOSTIC: Direct PHP boot test ==="
+php -r "
+define('LARAVEL_START', microtime(true));
+require '/var/www/vendor/autoload.php';
+echo 'Autoload: OK' . PHP_EOL;
+try {
+    \$app = require_once '/var/www/bootstrap/app.php';
+    echo 'App class: ' . get_class(\$app) . PHP_EOL;
+} catch (\Throwable \$e) {
+    echo 'Boot error: ' . \$e->getMessage() . PHP_EOL;
+    echo 'In file: ' . \$e->getFile() . ':' . \$e->getLine() . PHP_EOL;
+}
+" 2>&1
 
-echo "--- Step 4: cache:clear ---"
-php artisan cache:clear || echo "cache:clear FAILED"
-
-echo "--- Step 5: migrate ---"
-php artisan migrate --force || echo "migrate FAILED"
-
-echo "--- Step 6: storage:link ---"
-php artisan storage:link || true
-
-echo "--- Step 7: config:cache ---"
-php artisan config:cache || echo "config:cache FAILED"
-
-echo "--- Step 8: route:cache ---"
-php artisan route:cache || echo "route:cache FAILED"
-
-echo "--- Step 9: view:cache ---"
-php artisan view:cache || echo "view:cache FAILED"
+echo "=== DIAGNOSTIC: Done ==="
 
 echo "=== Starting server on port ${PORT:-80} ==="
 php artisan serve --host=0.0.0.0 --port=${PORT:-80}
+
