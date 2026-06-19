@@ -1,26 +1,23 @@
 FROM php:8.3-fpm
 
-# System dependencies
 RUN apt-get update && apt-get install -y \
     git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev
 
-# PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 COPY . .
 
-# Install PHP dependencies WITHOUT scripts (prevents artisan crash before .env exists)
+# === VERIFY AppServiceProvider content during build ===
+RUN echo "=== AppServiceProvider ===" && cat app/Providers/AppServiceProvider.php && echo "=== END ==="
+
 RUN composer install --no-interaction --prefer-dist --no-scripts --optimize-autoloader
 
-# Install Node 20 (required by vite@7 and laravel-vite-plugin@2)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
-# Remove any stale node_modules from host and build fresh inside container
 RUN rm -rf node_modules \
     && npm install \
     && chmod -R +x node_modules/.bin \
@@ -35,4 +32,3 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 EXPOSE 80
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-
