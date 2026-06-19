@@ -2,7 +2,7 @@ FROM php:8.3-fpm
 
 # System dependencies
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev xxd
+    git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev
 
 # PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
@@ -13,24 +13,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 COPY . .
 
-# === DIAGNOSTIC: runs during BUILD so we can see it in build logs ===
-RUN echo "=== BUILD DIAGNOSTIC ===" \
-    && echo "bootstrap/app.php first bytes:" \
-    && xxd bootstrap/app.php | head -3 \
-    && echo "PHP syntax check:" \
-    && php -l bootstrap/app.php \
-    && echo "withMiddleware check:" \
-    && grep -n "withMiddleware\|alias" bootstrap/app.php \
-    && echo "=== END DIAGNOSTIC ==="
-
-# Install PHP dependencies WITHOUT scripts
+# Install PHP dependencies WITHOUT scripts (prevents artisan crash before .env exists)
 RUN composer install --no-interaction --prefer-dist --no-scripts --optimize-autoloader
 
-# Install Node 20
+# Install Node 20 (required by vite@7 and laravel-vite-plugin@2)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
-# Build frontend assets
+# Remove any stale node_modules from host and build fresh inside container
 RUN rm -rf node_modules \
     && npm install \
     && chmod -R +x node_modules/.bin \
