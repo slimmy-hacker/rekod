@@ -3,26 +3,19 @@ set -e
 
 echo "=== Rekod container starting ==="
 
-echo "--- Laravel about ---"
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+
 php artisan about
 
-echo "--- Running migrations ---"
 php artisan migrate --force
 
-echo "--- Caching config ---"
 php artisan config:cache
-
-echo "--- Caching routes ---"
 php artisan route:cache
-
-echo "--- Caching views ---"
 php artisan view:cache
 
-echo "--- Storage link ---"
 php artisan storage:link || true
 
-echo "=== Starting PHP server on port ${PORT:-80} ==="
-
-php -S 0.0.0.0:${PORT:-80} \
-    -t public \
-    public/index.php
+php -S 0.0.0.0:${PORT:-80} -t public public/index.php
