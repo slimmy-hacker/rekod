@@ -15,6 +15,9 @@ echo "DB_PORT=$DB_PORT"
 echo "DB_DATABASE=$DB_DATABASE"
 echo "DB_USERNAME=$DB_USERNAME"
 
+echo "--- Checking .env files in container ---"
+ls -la .env* || true
+
 echo "--- Clearing Laravel caches ---"
 php artisan config:clear
 php artisan cache:clear
