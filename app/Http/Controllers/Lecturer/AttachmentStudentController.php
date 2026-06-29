@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Lecturer;
+use App\Http\Controllers\Controller;
+use App\Models\Student;
 
 use App\Imports\AttachmentStudentsImport;
 use App\Models\AttachmentStudent;
@@ -112,7 +114,7 @@ public function add(Request $request)
             'message' => 'Student with registration number ' . $validated['reg_no'] . ' not found.',
         ], 404);
     }
-AttachmentStudent::create([
+$attachmentStudent = AttachmentStudent::create([
     'student_id'    => $student->id,
     'name'          => $validated['name'],
     'reg_no'        => $validated['reg_no'],
