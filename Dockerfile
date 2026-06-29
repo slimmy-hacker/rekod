@@ -34,8 +34,9 @@ RUN composer install \
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
-RUN npm install
-RUN npm run build
+RUN npm install \
+    && chmod -R +x node_modules/.bin \
+    && npm run build
 
 RUN mkdir -p storage/framework/cache
 RUN mkdir -p storage/framework/sessions
