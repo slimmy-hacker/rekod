@@ -26,11 +26,6 @@ WORKDIR /var/www
 
 COPY . .
 
-# Debug: verify deployed code
-RUN echo "=== AppServiceProvider ===" \
-    && cat app/Providers/AppServiceProvider.php \
-    && echo "=== END ==="
-
 RUN composer install \
     --no-interaction \
     --prefer-dist \
@@ -39,12 +34,16 @@ RUN composer install \
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
 
-RUN rm -rf node_modules \
-    && npm install \
-    && chmod -R +x node_modules/.bin \
-    && npm run build
+RUN npm install
+RUN npm run build
+
+RUN mkdir -p storage/framework/cache
+RUN mkdir -p storage/framework/sessions
+RUN mkdir -p storage/framework/views
+RUN mkdir -p bootstrap/cache
 
 RUN chown -R www-data:www-data /var/www
+RUN chmod -R 775 storage bootstrap/cache
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 

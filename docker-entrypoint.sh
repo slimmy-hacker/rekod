@@ -19,7 +19,10 @@ echo "--- Caching views ---"
 php artisan view:cache
 
 echo "--- Storage link ---"
-php artisan storage:link 2>/dev/null || true
+php artisan storage:link || true
 
 echo "=== Starting PHP server on port ${PORT:-80} ==="
-php -S 0.0.0.0:${PORT:-80} -t /var/www/public /var/www/public/index.php
+
+php -S 0.0.0.0:${PORT:-80} \
+    -t public \
+    public/index.php
