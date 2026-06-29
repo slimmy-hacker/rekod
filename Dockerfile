@@ -13,7 +13,7 @@ COPY . .
 # === VERIFY AppServiceProvider content during build ===
 RUN echo "=== AppServiceProvider ===" && cat app/Providers/AppServiceProvider.php && echo "=== END ==="
 
-RUN composer install --no-interaction --prefer-dist --no-scripts --optimize-autoloader
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs

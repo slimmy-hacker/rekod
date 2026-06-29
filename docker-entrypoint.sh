@@ -3,6 +3,9 @@ set -e
 
 echo "=== Rekod container starting ==="
 
+echo "--- Laravel about ---"
+php artisan about
+
 echo "--- Running migrations ---"
 php artisan migrate --force
 
